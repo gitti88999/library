@@ -1,8 +1,14 @@
-using Microsoft.OpenApi.Models;
+
 using Microsoft.EntityFrameworkCore;
+using LIBRARY.Models;
+using LIBRARY.Data;
+
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<LibraryContext>(options =>options.UseSqlServer(
+    builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddControllers();
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
@@ -14,11 +20,17 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
-builder.Services.AddDbContext<bookdbcontext>(options =>
+builder.Services.AddDbContext<LibraryContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))); // עדכן כאן
 
 app.UseHttpsRedirection();
 
+app.UseHttpsRedirection();
+
+app.UseAuthorization();
+
+// חשוב גם זה בדרך כלל בפרויקטים אמיתיים
+app.MapControllers();
 var summaries = new[]
 {
     "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
