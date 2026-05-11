@@ -50,5 +50,35 @@ namespace LIBRARY.Controllers
             return _context.BookSession.Any(b=> b.Id == id);
          }
          
+         [HttpPost]
+         public async Task<ActionResult<BookSession>> CreateBookSession(Guid Bookid,Guid collaborateId )
+
+         
+        {
+            if (_context.Books.Any(c => c.BookId != Bookid))
+            {
+                return Conflict("Book id does not exist.");
+            }
+             if (_context.Collaborators.Any(c => c.CollaboratorId!=collaborateId))
+
+            {
+                return Conflict("collaborateId id does not exist.");
+            }
+            var newBookSession=new BookSession
+            {
+                Id=Guid.NewGuid(),
+                CollaboratorId=collaborateId,
+                BookId=Bookid,
+                Enabled=true,
+
+               
+            };
+            _context.BookSession.Add(newBookSession);
+            await _context.SaveChangesAsync();
+             return Ok(newBookSession);
+        
+       
+       
+        }
     }
 }
