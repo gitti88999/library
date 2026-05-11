@@ -1,4 +1,4 @@
-.counter {
+/* .counter {
   font-size: 16px;
   padding: 5px 10px;
   border-radius: 5px;
@@ -7,6 +7,7 @@
   border: 2px solid transparent;
   transition: border-color 0.3s;
   margin-bottom: 24px;
+
 
   &:hover {
     border-color: var(--accent-border);
@@ -181,4 +182,4 @@
     right: 0;
     border-right-color: var(--border);
   }
-}
+} */
