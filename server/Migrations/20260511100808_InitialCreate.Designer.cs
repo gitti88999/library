@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace server.Migrations
 {
     [DbContext(typeof(LibraryContext))]
-    [Migration("20260504113146_InitialCreate")]
+    [Migration("20260511100808_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -46,7 +46,7 @@ namespace server.Migrations
 
                     b.HasKey("BookId");
 
-                    b.ToTable("Book");
+                    b.ToTable("Books");
                 });
 
             modelBuilder.Entity("LIBRARY.Models.BookSession", b =>
@@ -70,7 +70,7 @@ namespace server.Migrations
 
                     b.HasIndex("CollaboratorId");
 
-                    b.ToTable("BookSession");
+                    b.ToTable("BookSessions");
                 });
 
             modelBuilder.Entity("LIBRARY.Models.Collaborator", b =>
@@ -78,6 +78,9 @@ namespace server.Migrations
                     b.Property<Guid>("CollaboratorId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("AddedDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("Apartment")
                         .HasColumnType("int");
@@ -92,13 +95,17 @@ namespace server.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Street")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("CollaboratorId");
 
-                    b.ToTable("Collaborator");
+                    b.ToTable("Collaborators");
                 });
 
             modelBuilder.Entity("LIBRARY.Models.BookSession", b =>

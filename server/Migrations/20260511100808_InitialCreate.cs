@@ -12,7 +12,7 @@ namespace server.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "Book",
+                name: "Books",
                 columns: table => new
                 {
                     BookId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -23,27 +23,29 @@ namespace server.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Book", x => x.BookId);
+                    table.PrimaryKey("PK_Books", x => x.BookId);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Collaborator",
+                name: "Collaborators",
                 columns: table => new
                 {
                     CollaboratorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CityId = table.Column<int>(type: "int", nullable: false),
                     Street = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Building = table.Column<int>(type: "int", nullable: false),
-                    Apartment = table.Column<int>(type: "int", nullable: false)
+                    Apartment = table.Column<int>(type: "int", nullable: false),
+                    AddedDate = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Collaborator", x => x.CollaboratorId);
+                    table.PrimaryKey("PK_Collaborators", x => x.CollaboratorId);
                 });
 
             migrationBuilder.CreateTable(
-                name: "BookSession",
+                name: "BookSessions",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -53,29 +55,29 @@ namespace server.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_BookSession", x => x.Id);
+                    table.PrimaryKey("PK_BookSessions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_BookSession_Book_BookId",
+                        name: "FK_BookSessions_Books_BookId",
                         column: x => x.BookId,
-                        principalTable: "Book",
+                        principalTable: "Books",
                         principalColumn: "BookId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_BookSession_Collaborator_CollaboratorId",
+                        name: "FK_BookSessions_Collaborators_CollaboratorId",
                         column: x => x.CollaboratorId,
-                        principalTable: "Collaborator",
+                        principalTable: "Collaborators",
                         principalColumn: "CollaboratorId",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_BookSession_BookId",
-                table: "BookSession",
+                name: "IX_BookSessions_BookId",
+                table: "BookSessions",
                 column: "BookId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_BookSession_CollaboratorId",
-                table: "BookSession",
+                name: "IX_BookSessions_CollaboratorId",
+                table: "BookSessions",
                 column: "CollaboratorId");
         }
 
@@ -83,13 +85,13 @@ namespace server.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "BookSession");
+                name: "BookSessions");
 
             migrationBuilder.DropTable(
-                name: "Book");
+                name: "Books");
 
             migrationBuilder.DropTable(
-                name: "Collaborator");
+                name: "Collaborators");
         }
     }
 }
