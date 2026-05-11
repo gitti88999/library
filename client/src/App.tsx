@@ -15,6 +15,11 @@ function App() {
     {/* <Login></Login> */}
     <MyBooks></MyBooks>
 {/* <Home></Home> */}
+
+    
+<Home></Home>
+
+    <Login></Login>
       {/* <section id="center">
         <div className="hero">
           <img src={heroImg} className="base" width="170" height="179" alt="" />
