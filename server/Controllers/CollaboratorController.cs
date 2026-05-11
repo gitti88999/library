@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LIBRARY.Models;
 using LIBRARY.Data;
-namespace LIBRARY.AddControllers
+namespace LIBRARY.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -16,14 +16,14 @@ namespace LIBRARY.AddControllers
         [HttpGet("{id}")]
         public async Task<ActionResult<Collaborator>> GetBooks(Guid id)
         {
-            var Collaborator = await _context.Collaborator.FindAsync(id);
+            var Collaborator = await _context.Collaborators.FindAsync(id);
 
             if (Collaborator == null)
             {
                 return NotFound();
             }
 
-            return Collaborator;
+            return Ok(Collaborator);
         }
     }
 }
