@@ -3,56 +3,51 @@ using Microsoft.EntityFrameworkCore;
 using LIBRARY.Models;
 using LIBRARY.Data;
 
-
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddDbContext<LibraryContext>(options =>options.UseSqlServer(
-    builder.Configuration.GetConnectionString("DefaultConnection")));
 
-builder.Services.AddControllers();
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
+builder.Services.AddDbContext<LibraryContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("LibraryDB")));
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 builder.Services.AddOpenApi();
+
+// builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+//     .AddJwtBearer(options =>
+//     {
+//         options.TokenValidationParameters = new TokenValidationParameters
+//         {
+//             // Validate that the token is signed with the specified key
+//             ValidateIssuerSigningKey = true,
+//             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:SecretKey"])),
+
+//             // Disable issuer and audience validation for testing purposes
+//             ValidateIssuer = false,
+//             ValidateAudience = false
+//         };
+//     });
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Configure the middleware pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI(c=>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Library API V1");
+        c.RoutePrefix = string.Empty; 
+    });
 }
-builder.Services.AddDbContext<LibraryContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))); // עדכן כאן
 
 app.UseHttpsRedirection();
-
-app.UseHttpsRedirection();
-
+app.UseAuthentication();
 app.UseAuthorization();
-
-// חשוב גם זה בדרך כלל בפרויקטים אמיתיים
 app.MapControllers();
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
 
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
 
 app.Run();
 
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
