@@ -9,7 +9,7 @@ public class LibraryContext:DbContext
         public DbSet<Book> Books { get; set; }
         public DbSet<Collaborator> Collaborators { get; set; }
 
-        public DbSet<BookSession> BookSessions { get; set; }
+        public DbSet<BookSession> BookSession { get; set; }
         // public DBSet<Login> Logins{ get; set; }
 
         public LibraryContext(DbContextOptions<LibraryContext> options)
