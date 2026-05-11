@@ -5,7 +5,7 @@ using LIBRARY.Models;
 
 namespace LIBRARY.Data
 {
-class LibraryContext:DbContext
+public class LibraryContext:DbContext
 {
    
         public DbSet<Book> Book { get; set; }
