@@ -13,10 +13,7 @@ function App() {
   return (
     <>
     {/* <Login></Login> */}
-    <MyBooks></MyBooks>
-{/* <Home></Home> */}
-<Home></Home>
-
+    
     <Login></Login>
       {/* <section id="center">
         <div className="hero">

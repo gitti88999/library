@@ -9,7 +9,7 @@ function MyBooks(){
 
 
     useEffect(() => {
-            dispatch(fetchPosts());
+            // dispatch(fetchPosts());
     }, []);
 
     useEffect(() => {
