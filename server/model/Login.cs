@@ -8,4 +8,9 @@ namespace LIBRARY.Models
         public Collaborator Collaborator{ get; set; }
         public DateTime LoginDate{ get; set; }
     }
+    public class LoginDTO
+    {
+        public string Name { get; set; }
+        public string Password { get; set; }
+    }
 }

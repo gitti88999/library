@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
-    const response = await fetch('https://library/api/getBooks');
+    const response = await fetch('https://localhost:5173/getBooks');
     console.log(response);
     
     return await response.json();
