@@ -13,15 +13,8 @@ namespace LIBRARY.Models
     }
     public  class BookSessionDTO
     {
-        
-        
-       
          public Guid Id{ get; set; }
-
-        
-       
         public bool Enabled{ get; set; }
-
 
 
     }
