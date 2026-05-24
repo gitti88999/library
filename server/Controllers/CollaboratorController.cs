@@ -13,17 +13,51 @@ namespace LIBRARY.Controllers
         {
             _context = context;
         }
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Collaborator>> GetBooks(Guid id)
+        // [HttpGet("{id}")]
+        // public async Task<ActionResult<Collaborator>> GetBooks(Guid id)
+        // {
+        //     var Collaborator = await _context.Collaborators.FindAsync(id);
+
+        //     if (Collaborator == null)
+        //     {
+        //         return NotFound();
+        //     }
+
+        //     return Ok(Collaborator);
+        // }
+        [HttpGet("collaborator/{collaboratorId}/booksessions")]
+public async Task<IActionResult> GetBookSessionsByCollaborator(Guid collaboratorId)
+{
+    var bookSessions = await _context.BookSession
+        .Where(bs => bs.CollaboratorId == collaboratorId)
+        .Select(bs => new BookSessionWithBookDTO
         {
-            var Collaborator = await _context.Collaborators.FindAsync(id);
-
-            if (Collaborator == null)
+            BookSessionId = bs.Id,
+            Enabled = bs.Enabled,
+            Book = new BookDTO
             {
-                return NotFound();
+                Name = bs.Book.Name,
+                Category = bs.Book.Category,
+                AudienceId = bs.Book.AudienceId,
+                AutherId = bs.Book.AutherId
             }
+        })
+        .ToListAsync();
 
-            return Ok(Collaborator);
+    if (!bookSessions.Any())
+    {
+        var collaboratorExists = await _context.Collaborators
+            .AnyAsync(c => c.CollaboratorId == collaboratorId);
+
+        if (!collaboratorExists)
+        {
+            return NotFound($"Collaborator with id {collaboratorId} does not exist.");
         }
+
+        return NotFound($"No book sessions found for collaborator {collaboratorId}.");
+    }
+
+    return Ok(bookSessions);
+}
     }
 }
