@@ -1,58 +1,83 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Typography, TextField, List, ListItem, ListItemText } from '@mui/material';
-import type{ Book } from '../../types/book';
+// Search.tsx
+
+import React, { useEffect, useState } from 'react';
+import {
+  Container,
+  Typography,
+  TextField,
+  Stack,
+  Card,
+  CardContent,
+} from '@mui/material';
+import type { Book } from '../../types/book';
 
 const Search: React.FC = () => {
   const [query, setQuery] = useState('');
   const [books, setBooks] = useState<Book[]>([]);
   const [results, setResults] = useState<Book[]>([]);
 
-  // טען ספרים מה-localStorage בעת התחלת הרכיב
+  // טעינת ספרים
   useEffect(() => {
-    const storedBooks = localStorage.getItem('books');
-    if (storedBooks) setBooks(JSON.parse(storedBooks));
-  }, []);
-
-  // מאזין לשינויים ב-localStorage בזמן אמת
-  useEffect(() => {
-    const handleStorageChange = () => {
+    const loadBooks = () => {
       const storedBooks = localStorage.getItem('books');
-      if (storedBooks) setBooks(JSON.parse(storedBooks));
+
+      if (storedBooks) {
+        setBooks(JSON.parse(storedBooks));
+      } else {
+        setBooks([]);
+      }
     };
 
-    window.addEventListener('storage', handleStorageChange);
-    return () => window.removeEventListener('storage', handleStorageChange);
+    loadBooks();
+
+    window.addEventListener('storage', loadBooks);
+
+    return () => {
+      window.removeEventListener('storage', loadBooks);
+    };
   }, []);
 
-  // עדכון תוצאות לפי query בכל שינוי ב-query או ב-books
+  // חיפוש בזמן אמת
   useEffect(() => {
     const filtered = books.filter(
-      (b) =>
-        b.title.toLowerCase().includes(query.toLowerCase()) ||
-        b.author.toLowerCase().includes(query.toLowerCase())
+      (book) =>
+        book.title.toLowerCase().includes(query.toLowerCase()) ||
+        book.author.toLowerCase().includes(query.toLowerCase())
     );
+
     setResults(filtered);
   }, [query, books]);
 
   return (
     <Container maxWidth="md" sx={{ mt: 8 }}>
-      <Typography variant="h4" gutterBottom>חיפוש ספרים</Typography>
+      <Typography variant="h4" gutterBottom>
+        חיפוש ספרים
+      </Typography>
+
       <TextField
-        label="חפש לפי שם ספר או סופר"
-        variant="outlined"
         fullWidth
+        label="חפש ספר או מחבר"
+        variant="outlined"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        sx={{ mb: 3 }}
+        sx={{ mb: 4 }}
       />
 
-      <List>
+      <Stack spacing={2}>
         {results.map((book) => (
-          <ListItem key={book.id}>
-            <ListItemText primary={book.title} secondary={book.author} />
-          </ListItem>
+          <Card key={book.id} sx={{ bgcolor: '#f5f5f5' }}>
+            <CardContent>
+              <Typography variant="h6">
+                {book.title}
+              </Typography>
+
+              <Typography color="text.secondary">
+                {book.author}
+              </Typography>
+            </CardContent>
+          </Card>
         ))}
-      </List>
+      </Stack>
     </Container>
   );
 };

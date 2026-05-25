@@ -158,15 +158,17 @@ namespace server.Migrations
 
             modelBuilder.Entity("LIBRARY.Models.City", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("CityId")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
 
-                    b.Property<string>("Name")
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CityId"));
+
+                    b.Property<string>("CityName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.HasKey("CityId");
 
                     b.ToTable("Cities");
                 });
@@ -189,6 +191,13 @@ namespace server.Migrations
                     b.Property<int>("CityId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("GoogleId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -202,6 +211,8 @@ namespace server.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("CollaboratorId");
+
+                    b.HasIndex("CityId");
 
                     b.ToTable("Collaborators");
                 });
@@ -244,6 +255,17 @@ namespace server.Migrations
                     b.Navigation("Collaborator");
                 });
 
+            modelBuilder.Entity("LIBRARY.Models.Collaborator", b =>
+                {
+                    b.HasOne("LIBRARY.Models.City", "City")
+                        .WithMany("Collaborators")
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("City");
+                });
+
             modelBuilder.Entity("LIBRARY.Models.Login", b =>
                 {
                     b.HasOne("LIBRARY.Models.Collaborator", "Collaborator")
@@ -258,6 +280,11 @@ namespace server.Migrations
             modelBuilder.Entity("LIBRARY.Models.Book", b =>
                 {
                     b.Navigation("bookSessions");
+                });
+
+            modelBuilder.Entity("LIBRARY.Models.City", b =>
+                {
+                    b.Navigation("Collaborators");
                 });
 
             modelBuilder.Entity("LIBRARY.Models.Collaborator", b =>
