@@ -14,7 +14,7 @@ namespace LIBRARY.Controllers
         {
             _context = context;
         }
-        [HttpPost]
+        [HttpPost("book/addBook")]
         public async Task<ActionResult> CreateBook(BookDTO book)
         {
             

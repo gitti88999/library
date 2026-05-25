@@ -1,14 +1,25 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import './App.css'
-import Home from'./components/Home/Home'
-import Login from './components/Login/Login'
-import MyBooks from './components/MyBooks/MyBooks'
 
-function App() {
-  const [count, setCount] = useState(0)
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Home from './Pages/Home/Home';
+import Login from './Pages/Login/Login';
+import Register from './Pages/Register/Register';
+import Library from './Pages/Library/Library';
+import Search from './Pages/Search/Search';
+import { ThemeProvider, CssBaseline } from '@mui/material';
+import theme from './Theme';
+import type { Book } from './types/book';
+
+interface User {
+  username: string;
+  password: string;
+  books: Book[];
+}
+
+const App: React.FC = () => {
+  const [currentUser, setCurrentUser] = useState<User | null>(
+    JSON.parse(localStorage.getItem('currentUser') || 'null')
+  );
 
   return (
     <ThemeProvider theme={theme}>
@@ -30,3 +41,5 @@ function App() {
   );
 };
 export default App;
+
+
