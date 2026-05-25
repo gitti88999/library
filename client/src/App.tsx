@@ -9,6 +9,7 @@ import Search from './Pages/Search/Search';
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import theme from './Theme';
 import type { Book } from './types/book';
+import MyBooks from './components/MyBooks/MyBooks';
 
 interface User {
   username: string;
@@ -26,7 +27,7 @@ const App: React.FC = () => {
       <CssBaseline />
       <Router>
         <Routes>
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<MyBooks />} />
           <Route path="/login" element={<Login />} />
           {/* Passing setCurrentUser to Register */}
           <Route path="/register" element={<Register setCurrentUser={setCurrentUser} />} />

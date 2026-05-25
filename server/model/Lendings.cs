@@ -5,7 +5,7 @@ namespace LIBRARY.Models
     {
         public Guid Id { get; set; }
         public Guid BorrowerId{ get; set; }
-        public Guid BookId{get; set; }
+        public Guid BookSessionId{get; set; }
         public DateTime LendingDate{get; set; }
     }
     
