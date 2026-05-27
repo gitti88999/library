@@ -22,6 +22,21 @@ namespace server.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("LIBRARY.Models.Audience", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Auediences");
+                });
+
             modelBuilder.Entity("LIBRARY.Models.Book", b =>
                 {
                     b.Property<Guid>("BookId")
@@ -46,6 +61,36 @@ namespace server.Migrations
                     b.ToTable("Books");
                 });
 
+            modelBuilder.Entity("LIBRARY.Models.BookArchive", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("ArchivedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("AudienceId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("AutherId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("BookId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Category")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BookArchive");
+                });
+
             modelBuilder.Entity("LIBRARY.Models.BookSession", b =>
                 {
                     b.Property<Guid>("Id")
@@ -67,7 +112,65 @@ namespace server.Migrations
 
                     b.HasIndex("CollaboratorId");
 
-                    b.ToTable("BookSessions");
+                    b.ToTable("BookSession");
+                });
+
+            modelBuilder.Entity("LIBRARY.Models.BookSessionArchive", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("ArchivedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("BookId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BookSessionId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CollaboratorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("Enabled")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BookSessionArchive");
+                });
+
+            modelBuilder.Entity("LIBRARY.Models.Category", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Categories");
+                });
+
+            modelBuilder.Entity("LIBRARY.Models.City", b =>
+                {
+                    b.Property<int>("CityId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CityId"));
+
+                    b.Property<string>("CityName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("CityId");
+
+                    b.ToTable("Cities");
                 });
 
             modelBuilder.Entity("LIBRARY.Models.Collaborator", b =>
@@ -88,6 +191,13 @@ namespace server.Migrations
                     b.Property<int>("CityId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("GoogleId")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -102,7 +212,28 @@ namespace server.Migrations
 
                     b.HasKey("CollaboratorId");
 
+                    b.HasIndex("CityId");
+
                     b.ToTable("Collaborators");
+                });
+
+            modelBuilder.Entity("LIBRARY.Models.Login", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CollaboratorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("LoginDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CollaboratorId");
+
+                    b.ToTable("Logins");
                 });
 
             modelBuilder.Entity("LIBRARY.Models.BookSession", b =>
@@ -124,9 +255,36 @@ namespace server.Migrations
                     b.Navigation("Collaborator");
                 });
 
+            modelBuilder.Entity("LIBRARY.Models.Collaborator", b =>
+                {
+                    b.HasOne("LIBRARY.Models.City", "City")
+                        .WithMany("Collaborators")
+                        .HasForeignKey("CityId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("City");
+                });
+
+            modelBuilder.Entity("LIBRARY.Models.Login", b =>
+                {
+                    b.HasOne("LIBRARY.Models.Collaborator", "Collaborator")
+                        .WithMany()
+                        .HasForeignKey("CollaboratorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Collaborator");
+                });
+
             modelBuilder.Entity("LIBRARY.Models.Book", b =>
                 {
                     b.Navigation("bookSessions");
+                });
+
+            modelBuilder.Entity("LIBRARY.Models.City", b =>
+                {
+                    b.Navigation("Collaborators");
                 });
 
             modelBuilder.Entity("LIBRARY.Models.Collaborator", b =>

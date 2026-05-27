@@ -12,8 +12,24 @@ builder.Services.AddDbContext<LibraryContext>(options =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
+builder.Services.AddScoped<JwtService>();
 builder.Services.AddOpenApi();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowFrontend",
+        policy =>
+        {
+            policy
+                .WithOrigins("http://localhost:5173")
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+});
+
+
+
+
 
 // builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 //     .AddJwtBearer(options =>
@@ -32,6 +48,9 @@ builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
+app.UseCors("AllowFrontend");
+
+app.MapControllers();
 // Configure the middleware pipeline.
 if (app.Environment.IsDevelopment())
 {
