@@ -12,15 +12,15 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace server.Migrations
 {
     [DbContext(typeof(LibraryContext))]
-    [Migration("20260524101702_updateGoogleLogin")]
-    partial class updateGoogleLogin
+    [Migration("20260531113528_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.0")
+                .HasAnnotation("ProductVersion", "10.0.8")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -159,23 +159,6 @@ namespace server.Migrations
                     b.ToTable("Categories");
                 });
 
-            modelBuilder.Entity("LIBRARY.Models.City", b =>
-                {
-                    b.Property<int>("CityId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CityId"));
-
-                    b.Property<string>("CityName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("CityId");
-
-                    b.ToTable("Cities");
-                });
-
             modelBuilder.Entity("LIBRARY.Models.Collaborator", b =>
                 {
                     b.Property<Guid>("CollaboratorId")
@@ -185,21 +168,18 @@ namespace server.Migrations
                     b.Property<DateTime>("AddedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Apartment")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Building")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CityId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("GoogleId")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("Latitude")
+                        .HasColumnType("float");
+
+                    b.Property<double>("Longitude")
+                        .HasColumnType("float");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -209,13 +189,7 @@ namespace server.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Street")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("CollaboratorId");
-
-                    b.HasIndex("CityId");
 
                     b.ToTable("Collaborators");
                 });
@@ -258,17 +232,6 @@ namespace server.Migrations
                     b.Navigation("Collaborator");
                 });
 
-            modelBuilder.Entity("LIBRARY.Models.Collaborator", b =>
-                {
-                    b.HasOne("LIBRARY.Models.City", "City")
-                        .WithMany("Collaborators")
-                        .HasForeignKey("CityId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("City");
-                });
-
             modelBuilder.Entity("LIBRARY.Models.Login", b =>
                 {
                     b.HasOne("LIBRARY.Models.Collaborator", "Collaborator")
@@ -283,11 +246,6 @@ namespace server.Migrations
             modelBuilder.Entity("LIBRARY.Models.Book", b =>
                 {
                     b.Navigation("bookSessions");
-                });
-
-            modelBuilder.Entity("LIBRARY.Models.City", b =>
-                {
-                    b.Navigation("Collaborators");
                 });
 
             modelBuilder.Entity("LIBRARY.Models.Collaborator", b =>

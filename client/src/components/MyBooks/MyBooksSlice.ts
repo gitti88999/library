@@ -19,16 +19,7 @@ export const addBook = createAsyncThunk(
         return await response.data;
     }
 );
-// export const addUser=createAsyncThunk(
-//     "post/addUser",
-//     async(User:any)=>{
-//         const response=await axios.post(
-//             "http://localhost:5216/api/Auto/login",User
-//         );
-//         return await response.data;
-//     }
 
-// )
 export interface BooksState {
     items: Array<any>,
     status: String,
@@ -66,7 +57,7 @@ export const MyBooksSlice = createSlice({
             .addCase(addBook.pending, (state) => {
                 state.status = "loading";
             })
-
+ 
             .addCase(addBook.fulfilled, (state, action) => {
                 state.status = "succeeded";
                 state.items.push(action.payload);
@@ -76,19 +67,7 @@ export const MyBooksSlice = createSlice({
                 state.status = "failed";
                 state.error = action.error.message;
             })
-            // .addCase(addUser.pending, (state) => {
-            //     state.status = "loading";
-            // })
-
-            // .addCase(addUser.fulfilled, (state, action) => {
-            //     state.status = "succeeded";
-            //     state.items.push(action.payload);
-            // })
-
-            // .addCase(addUser.rejected, (state, action) => {
-            //     state.status = "failed";
-            //     state.error = action.error.message;
-            // })
+          
     },
 })
 export const { addData } = MyBooksSlice.actions
