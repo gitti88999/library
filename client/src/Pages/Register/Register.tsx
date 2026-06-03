@@ -69,7 +69,6 @@ const Register: React.FC = () => {
     e.preventDefault();
     try {
       await dispatch(addUser(formData)).unwrap();
-      console.log("User registered successfully!");
     } catch (error) {
       console.error("Registration failed:", error);
     }
