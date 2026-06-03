@@ -4,11 +4,34 @@ const apiUrl: string = import.meta.env.VITE_API_URL;
 console.log(apiUrl);
 
 export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
-    const response = await fetch(`${apiUrl}/api/Collaborator/collaborator/3bba5fe8-a0bc-4d0e-9a02-076e227e9643/booksessions`);
+    const response = await fetch(`${apiUrl}/api/Collaborator/3bba5fe8-a0bc-4d0e-9a02-076e227e9643/booksessions`);
     console.log(response);
 
     return await response.json();
 });
+// export const toggleBookSession = createAsyncThunk(
+//     'books/toggleBookSession',
+//     async (id: string) => {
+
+//         const response = await fetch(
+//             `${apiUrl}/api/BookSession/${id}`,
+//             {
+//                 method: 'PUT',
+//                 headers: {
+//                     'Content-Type': 'application/json',
+//                 },
+//             }
+//         );
+
+//         console.log(response);
+
+//         if (!response.ok) {
+//             throw new Error(`HTTP error! status: ${response.status}`);
+//         }
+
+//         return id;
+//     }
+// );
 export const addBook = createAsyncThunk(
     "posts/addBook",
     async (Book: any) => {
@@ -19,7 +42,16 @@ export const addBook = createAsyncThunk(
         return await response.data;
     }
 );
+export const addUser=createAsyncThunk(
+    "post/addUser",
+    async(User:any)=>{
+        const response=await axios.post(
+        `${apiUrl}/api/Auto/login`,User
+        );
+        return await response.data;
+    }
 
+)
 export interface BooksState {
     items: Array<any>,
     status: String,

@@ -26,14 +26,7 @@ namespace LIBRARY.Controllers
             }
             var book = await _context.BookSession.FindAsync(id);
             book.Enabled = !book.Enabled;
-            // if (book.Enabled == false)
-            // {
-            //    BookSession.Enabled = true;
-            // }
-            // else
-            // {
-            //     BookSession.Enabled = false;
-            // }
+          
             _context.Entry(book).State = EntityState.Modified;
             try
             {
@@ -80,7 +73,7 @@ namespace LIBRARY.Controllers
 
         }
 
-        [HttpPut("booksession/{id}/archiveAndDelete")]
+        [HttpPut("{id}/archiveAndDelete")]
         public async Task<IActionResult> ArchiveAndDeleteBookSession(Guid id)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
@@ -129,7 +122,7 @@ await _context.SaveChangesAsync();
                             Name = book.Name,
                             Category = book.Category,
                             AudienceId = book.AudienceId,
-                            AutherId = book.AutherId,
+                            AuthorId = book.AuthorId,
                             ArchivedAt = DateTime.UtcNow
                         };
                         _context.BookArchive.Add(bookArchive);

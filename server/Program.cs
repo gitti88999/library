@@ -4,12 +4,9 @@ using LIBRARY.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Database
 builder.Services.AddDbContext<LibraryContext>(options =>
-    options.UseSqlServer(
-        builder.Configuration.GetConnectionString("LibraryDB")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("libraryDB")));
 
-// Controllers
 builder.Services.AddControllers();
 
 // Swagger
@@ -34,7 +31,11 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Swagger
+app.MapGet("/health", () => Results.Ok());
+app.UseCors("AllowFrontend");
+
+app.MapControllers();
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -54,7 +55,14 @@ app.UseCors("AllowFrontend");
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Controllers
 app.MapControllers();
+
+
+// ✅ כאן המיגרציות
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<LibraryContext>();
+    db.Database.Migrate();
+}
 
 app.Run();

@@ -46,7 +46,7 @@ namespace server.Migrations
                     b.Property<int>("AudienceId")
                         .HasColumnType("int");
 
-                    b.Property<int>("AutherId")
+                    b.Property<int>("AuthorId")
                         .HasColumnType("int");
 
                     b.Property<int>("Category")
@@ -73,7 +73,7 @@ namespace server.Migrations
                     b.Property<int>("AudienceId")
                         .HasColumnType("int");
 
-                    b.Property<int>("AutherId")
+                    b.Property<int>("AuthorId")
                         .HasColumnType("int");
 
                     b.Property<Guid>("BookId")

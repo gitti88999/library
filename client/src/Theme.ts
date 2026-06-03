@@ -1,6 +1,7 @@
 import { createTheme } from '@mui/material/styles';
 
 const theme = createTheme({
+  direction: 'rtl', // 👈 משנה את כל הכיוונים ל־Right-to-Left
   palette: {
     mode: 'dark',
 
@@ -94,6 +95,9 @@ const theme = createTheme({
         },
       },
     },
+  },
+  typography: {
+    fontFamily: 'Arial, sans-serif', // או כל פונט עברי שתבחר
   },
 });
 
