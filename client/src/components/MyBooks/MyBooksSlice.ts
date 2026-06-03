@@ -23,7 +23,7 @@ export const addBook = createAsyncThunk(
 //     "post/addUser",
 //     async(User:any)=>{
 //         const response=await axios.post(
-//             "http://localhost:5216/api/Auto/login",User
+//             "http://localhost:5216/api/Auto/register",User
 //         );
 //         return await response.data;
 //     }
@@ -66,7 +66,7 @@ export const MyBooksSlice = createSlice({
             .addCase(addBook.pending, (state) => {
                 state.status = "loading";
             })
-
+ 
             .addCase(addBook.fulfilled, (state, action) => {
                 state.status = "succeeded";
                 state.items.push(action.payload);

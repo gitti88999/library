@@ -1,9 +1,10 @@
 import {configureStore} from '@reduxjs/toolkit'
 import  MyBooksSlice from '../components/MyBooks/MyBooksSlice'
-
+import  userSlice from '../Pages/Register/RegisterSlice'
 export const store = configureStore({
   reducer: {
     myBooks: MyBooksSlice,
+    myUser:userSlice,
     
   },devTools: true,
 })

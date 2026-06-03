@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using LIBRARY.Models;
 namespace LIBRARY.Data
 {
+    
     public class LibraryContext : DbContext
     {
 
@@ -10,7 +11,6 @@ namespace LIBRARY.Data
         public DbSet<Collaborator> Collaborators { get; set; }
         public DbSet<BookSession> BookSession { get; set; }
         public DbSet<Login> Logins { get; set; }
-        public DbSet<City> Cities { get; set; }
         public DbSet<Audience> Auediences { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<BookSessionArchive> BookSessionArchive { get; set; }
@@ -25,14 +25,9 @@ namespace LIBRARY.Data
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Server=localhost, 1434;Database=libraryDB;User Id=SA;Password=ALTgit88999;MultipleActiveResultSets=true;TrustServerCertificate=True;"); // שנה את ה-connection string לפי הצורך
+            optionsBuilder.UseSqlServer("Server=localhost, 1434;Database=libraryDB;User Id=SA;Password=Frenkel4432!2026;MultipleActiveResultSets=true;TrustServerCertificate=True;"); // שנה את ה-connection string לפי הצורך
         }
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Collaborator>()
-                .HasOne(c => c.City)
-                .WithMany(c => c.Collaborators)
-                .HasForeignKey(c => c.CityId);
-        }
+        
+        
     }
 }

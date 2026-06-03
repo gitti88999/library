@@ -27,7 +27,7 @@ const App: React.FC = () => {
       <CssBaseline />
       <Router>
         <Routes>
-          <Route path="/" element={<MyBooks />} />
+          <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
           {/* Passing setCurrentUser to Register */}
           <Route path="/register" element={<Register setCurrentUser={setCurrentUser} />} />

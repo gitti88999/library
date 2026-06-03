@@ -11,22 +11,21 @@ namespace LIBRARY.Models
         public string Email { get; set; }
         public string? GoogleId { get; set; }
         public string Password { get; set; }
-        public int CityId { get; set; }
-        public City City { get; set; }
-        public string Street { get; set; }
-        public int Building { get; set; }
-        public int Apartment { get; set; }
+      
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
         public DateTime AddedDate { get; set; }
     }
     public class CollaboratorDTO
     {
         public string Name { get; set; }
+        public string Email { get; set; }
         public string? Password { get; set; }
         [Required]
-        public int CityId { get; set; }
-        public string Street { get; set; }
-        public int Building { get; set; }
-        public int Apartment { get; set; }
+        public double Latitude { get; set; }
+        public double Longitude { get; set; }
+
+        
     }
     public class GoogleLoginDto
     {
