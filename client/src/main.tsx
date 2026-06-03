@@ -1,14 +1,11 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import App from './App.tsx'
-import { GoogleOAuthProvider } from '@react-oauth/google';
-import { store } from './app/store.ts';
+import App from './App'
+import { store } from './app/store';
 import { Provider } from 'react-redux';
+// import { router } from "./router";
 
-<GoogleOAuthProvider clientId="YOUR_CLIENT_ID">
-  <App />
-</GoogleOAuthProvider>
 createRoot(document.getElementById('root')!).render(
   
   <StrictMode>
@@ -17,3 +14,8 @@ createRoot(document.getElementById('root')!).render(
     </Provider>
   </StrictMode>,
 )
+// ReactDOM.createRoot(document.getElementById("root")!).render(
+//     <React.StrictMode>
+//         <RouterProvider router={router} />
+//     </React.StrictMode>
+// );

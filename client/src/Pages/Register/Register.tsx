@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Container, Typography, TextField, Button, Stack } from '@mui/material';
+import { Container, Typography, TextField, Button, Stack, Alert } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 interface User {
@@ -16,15 +16,17 @@ const Register: React.FC<Props> = ({ setCurrentUser }) => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const handleRegister = () => {
+    setError(null); // איפוס הודעת שגיאה קודם
     if (!username || !password || !confirmPassword) {
-      alert('אנא מלא את כל השדות');
+      setError('אנא מלא את כל השדות');
       return;
     }
     if (password !== confirmPassword) {
-      alert('הסיסמאות לא תואמות');
+      setError('הסיסמאות לא תואמות');
       return;
     }
 
@@ -32,7 +34,7 @@ const Register: React.FC<Props> = ({ setCurrentUser }) => {
     const users: User[] = usersJSON ? JSON.parse(usersJSON) : [];
 
     if (users.some(u => u.username === username)) {
-      alert('שם המשתמש כבר קיים');
+      setError('שם המשתמש כבר קיים');
       return;
     }
 
@@ -54,6 +56,7 @@ const Register: React.FC<Props> = ({ setCurrentUser }) => {
         הרשמה
       </Typography>
       <Stack spacing={2} sx={{ mt: 4 }}>
+        {error && <Alert severity="error">{error}</Alert>}
         <TextField
           label="שם משתמש"
           variant="outlined"

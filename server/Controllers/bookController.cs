@@ -30,26 +30,47 @@ namespace LIBRARY.Controllers
             {
                 return BadRequest("The Audience is required.");
             }
-             if (book.AutherId==0)
+             if (book.AuthorId==0)
             {
-                return BadRequest("The Auther is required.");
+                return BadRequest("The Author is required.");
             }
-            // if (_context.Books.Any(b => b.Name == book.Name&&b.AuthorId == book.AuthorId))
-            // {
-            //     return CreateBookSession();
-            //     // return Conflict("A book with the same name already exists.");
-            // }
+            if (_context.Books.Any(b => b.Name == book.Name&&b.AuthorId == book.AuthorId))
+            {
+                // return CreateBookSession();
+                return Conflict("A book with the same name already exists.");
+            }
             var newBook = new Book
             {
                 BookId = Guid.NewGuid(),
                 Name = book.Name,
                 Category = book.Category,
                 AudienceId = book.AudienceId,
-                AutherId = book.AutherId,
+                AuthorId = book.AuthorId,
             };
             _context.Books.Add(newBook);
             await _context.SaveChangesAsync();
             return Ok(newBook);
+        }
+        
+        [HttpGet("books")]
+        public async Task<IActionResult> GetBooks()
+        {
+            var books = await _context.Books
+                .Select(b => new BookDTO
+                {
+                    Name = b.Name,
+                    Category = b.Category,
+                    AudienceId = b.AudienceId,
+                    AuthorId = b.AuthorId
+                })
+                .ToListAsync();
+
+            if (!books.Any())
+            {
+                return NotFound("No books found.");
+            }
+
+            return Ok(books);
         }
     }
 

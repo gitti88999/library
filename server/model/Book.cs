@@ -9,14 +9,14 @@ namespace LIBRARY.Models
         public string Name{ get; set; }
         public int Category{ get; set; }
         public int AudienceId{ get; set; }
-        public int AutherId{ get; set; }
+        public int AuthorId{ get; set; }
     }
      public  class BookDTO
     {
        public string Name{ get; set; }
         public int Category{ get; set; }
         public int AudienceId{ get; set; }
-        public int AutherId{ get; set; }
+        public int AuthorId{ get; set; }
 
 
 
