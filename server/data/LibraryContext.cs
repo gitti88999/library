@@ -25,7 +25,7 @@ namespace LIBRARY.Data
         }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer("Server=localhost, 1434;Database=libraryDB;User Id=SA;Password=ALTgit88999;MultipleActiveResultSets=true;TrustServerCertificate=True;"); // שנה את ה-connection string לפי הצורך
+            optionsBuilder.UseSqlServer("Server=db,1433;Database=libraryDB;User Id=SA;Password=ALTgit88999;MultipleActiveResultSets=true;TrustServerCertificate=True;"); // שנה את ה-connection string לפי הצורך
         }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

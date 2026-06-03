@@ -21,7 +21,7 @@ namespace LIBRARY.Controllers
 
         // הרשמה
         [HttpPost("register")]
-        public async Task<ActionResult> Register([FromBody] CollaboratorDTO collaborator)
+        public async Task<ActionResult> Register( CollaboratorDTO collaborator)
         {
             if (!ModelState.IsValid)
             {
@@ -96,7 +96,7 @@ namespace LIBRARY.Controllers
         }
         // התחברות
         [HttpPost("login")]
-        public async Task<ActionResult> Login([FromBody] LoginDTO loginDto)
+        public async Task<ActionResult> Login(LoginDTO loginDto)
         {
             if (loginDto == null)
             {
@@ -121,16 +121,15 @@ namespace LIBRARY.Controllers
                 return Unauthorized("Invalid name or password.");
             }
 
-            return Ok(new
+            var login = new Login
             {
-                collaborator.CollaboratorId,
-                collaborator.Name,
-                collaborator.Street,
-                collaborator.Building,
-                collaborator.Apartment,
-                collaborator.CityId,
-                collaborator.AddedDate
-            });
+                Id = Guid.NewGuid(),
+                CollaboratorId = collaborator.CollaboratorId,
+                LoginDate = DateTime.UtcNow,
+            };
+            _context.Logins.Add(login);
+            await _context.SaveChangesAsync();
+            return Ok(login);
         }
 
         // SHA256 Hash
