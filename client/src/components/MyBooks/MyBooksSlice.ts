@@ -89,7 +89,7 @@ export const MyBooksSlice = createSlice({
             .addCase(addBook.pending, (state) => {
                 state.status = "loading";
             })
-
+ 
             .addCase(addBook.fulfilled, (state, action) => {
                 state.status = "succeeded";
                 state.items.push(action.payload);
@@ -99,31 +99,7 @@ export const MyBooksSlice = createSlice({
                 state.status = "failed";
                 state.error = action.error.message;
             })
-            .addCase(addUser.pending, (state) => {
-                state.status = "loading";
-            })
-
-            .addCase(addUser.fulfilled, (state, action) => {
-                state.status = "succeeded";
-                state.items.push(action.payload);
-            })
-
-            .addCase(addUser.rejected, (state, action) => {
-                state.status = "failed";
-                state.error = action.error.message;
-            })
-            
-//             .addCase(toggleBookSession.fulfilled, (state, action) => {
-//     state.status = "succeeded";
-
-//     const item = state.items.find(
-//         x => x.id === action.payload
-//     );
-
-//     if (item) {
-//         item.enabled = !item.enabled;
-//     }
-// })
+          
     },
 })
 export const { addData } = MyBooksSlice.actions

@@ -35,14 +35,7 @@ namespace LIBRARY.Controllers
             {
                 return Conflict("A collaborator with the same name already exists.");
             }
-            var cities = await _context.Cities.ToListAsync();
-            bool cityExists = await _context.Cities
-                .AnyAsync(c => c.CityId == collaborator.CityId);
 
-            if (!cityExists)
-            {
-                return BadRequest("Invalid city.");
-            }
 
             string passwordHash = ComputeSha256Hash(collaborator.Password);
 
@@ -50,11 +43,10 @@ namespace LIBRARY.Controllers
             {
                 CollaboratorId = Guid.NewGuid(),
                 Name = collaborator.Name,
+                Email = collaborator.Email,
                 Password = passwordHash,
-                Street = collaborator.Street,
-                Building = collaborator.Building,
-                Apartment = collaborator.Apartment,
-                CityId = collaborator.CityId,
+                Latitude = collaborator.Latitude,
+                Longitude = collaborator.Longitude,
                 AddedDate = DateTime.UtcNow
             };
 
@@ -120,6 +112,15 @@ namespace LIBRARY.Controllers
             {
                 return Unauthorized("Invalid name or password.");
             }
+            var loginRecord = new Login
+            {
+                Id = Guid.NewGuid(),
+                CollaboratorId = collaborator.CollaboratorId,
+                LoginDate = DateTime.UtcNow
+            };
+
+            _context.Logins.Add(loginRecord);
+            await _context.SaveChangesAsync();
 
             var login = new Login
             {
