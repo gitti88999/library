@@ -112,15 +112,15 @@ namespace LIBRARY.Controllers
             {
                 return Unauthorized("Invalid name or password.");
             }
-            var loginRecord = new Login
-            {
-                Id = Guid.NewGuid(),
-                CollaboratorId = collaborator.CollaboratorId,
-                LoginDate = DateTime.UtcNow
-            };
+            // var loginRecord = new Login
+            // {
+            //     Id = Guid.NewGuid(),
+            //     CollaboratorId = collaborator.CollaboratorId,
+            //     LoginDate = DateTime.UtcNow
+            // };
 
-            _context.Logins.Add(loginRecord);
-            await _context.SaveChangesAsync();
+            // _context.Logins.Add(loginRecord);
+            // await _context.SaveChangesAsync();
 
             var login = new Login
             {
