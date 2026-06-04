@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace server.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -32,7 +32,7 @@ namespace server.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Category = table.Column<int>(type: "int", nullable: false),
                     AudienceId = table.Column<int>(type: "int", nullable: false),
-                    AutherId = table.Column<int>(type: "int", nullable: false),
+                    AuthorId = table.Column<int>(type: "int", nullable: false),
                     ArchivedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -48,7 +48,7 @@ namespace server.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Category = table.Column<int>(type: "int", nullable: false),
                     AudienceId = table.Column<int>(type: "int", nullable: false),
-                    AutherId = table.Column<int>(type: "int", nullable: false)
+                    AuthorId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {

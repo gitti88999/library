@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace server.Migrations
 {
     [DbContext(typeof(LibraryContext))]
-    [Migration("20260531113528_Initial")]
-    partial class Initial
+    [Migration("20260603143223_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -49,7 +49,7 @@ namespace server.Migrations
                     b.Property<int>("AudienceId")
                         .HasColumnType("int");
 
-                    b.Property<int>("AutherId")
+                    b.Property<int>("AuthorId")
                         .HasColumnType("int");
 
                     b.Property<int>("Category")
@@ -76,7 +76,7 @@ namespace server.Migrations
                     b.Property<int>("AudienceId")
                         .HasColumnType("int");
 
-                    b.Property<int>("AutherId")
+                    b.Property<int>("AuthorId")
                         .HasColumnType("int");
 
                     b.Property<Guid>("BookId")

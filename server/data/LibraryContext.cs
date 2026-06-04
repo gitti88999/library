@@ -27,13 +27,7 @@ namespace LIBRARY.Data
         {
             optionsBuilder.UseSqlServer("Server=db,1433;Database=libraryDB;User Id=SA;Password=ALTgit88999;MultipleActiveResultSets=true;TrustServerCertificate=True;"); // שנה את ה-connection string לפי הצורך
         }
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            modelBuilder.Entity<Collaborator>()
-                .HasOne(c => c.City)
-                .WithMany(c => c.Collaborators)
-                .HasForeignKey(c => c.CityId);
-        }
+        
         
         
     }
