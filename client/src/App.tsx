@@ -62,7 +62,7 @@ import Search from "./Pages/Search/Search";
 import BorrowBook from "./Pages/BorrowBook/BorrowBook";
 import Navbar from "./components/Home/NavBar";
 import ProtectedRoute from "./components/ProtectedRoute";
-import type { RootState } from "./store/store";
+import type { RootState } from "./app/store";
 
 const App: React.FC = () => {
   const user = useSelector((state: RootState) => state.auth.user);

@@ -1,48 +1,21 @@
 import { createTheme } from '@mui/material/styles';
 
 const theme = createTheme({
-  direction: 'rtl', // 👈 משנה את כל הכיוונים ל־Right-to-Left
+  direction: 'rtl',
   palette: {
     mode: 'dark',
-
-    primary: {
-      main: '#2563eb',
-    },
-
-    secondary: {
-      main: '#7c3aed',
-    },
-
-    background: {
-      default: '#0f172a',
-      paper: 'rgba(15, 23, 42, 0.75)',
-    },
-
-    text: {
-      primary: '#ffffff',
-      secondary: 'rgba(255,255,255,0.7)',
-    },
+    primary: { main: '#2563eb' },
+    secondary: { main: '#7c3aed' },
+    background: { default: '#0f172a', paper: 'rgba(15, 23, 42, 0.75)' },
+    text: { primary: '#ffffff', secondary: 'rgba(255,255,255,0.7)' },
   },
-
-  shape: {
-    borderRadius: 12,
-  },
-
+  shape: { borderRadius: 12 },
   typography: {
-    fontFamily: '"Inter", "Roboto", "Arial", sans-serif',
-    h3: {
-      fontWeight: 800,
-      letterSpacing: '-1px',
-    },
-    h4: {
-      fontWeight: 700,
-    },
-    button: {
-      textTransform: 'none',
-      fontWeight: 700,
-    },
+    fontFamily: '"Inter", "Roboto", "Arial", sans-serif', // כאן גם עברי אפשרי
+    h3: { fontWeight: 800, letterSpacing: '-1px' },
+    h4: { fontWeight: 700 },
+    button: { textTransform: 'none', fontWeight: 700 },
   },
-
   components: {
     MuiPaper: {
       styleOverrides: {
@@ -54,37 +27,22 @@ const theme = createTheme({
         },
       },
     },
-
     MuiTextField: {
       styleOverrides: {
         root: {
           '& .MuiOutlinedInput-root': {
             borderRadius: 12,
-            '& fieldset': {
-              borderColor: 'rgba(255,255,255,0.2)',
-            },
-            '&:hover fieldset': {
-              borderColor: 'rgba(255,255,255,0.35)',
-            },
-            '&.Mui-focused fieldset': {
-              borderColor: '#2563eb',
-            },
+            '& fieldset': { borderColor: 'rgba(255,255,255,0.2)' },
+            '&:hover fieldset': { borderColor: 'rgba(255,255,255,0.35)' },
+            '&.Mui-focused fieldset': { borderColor: '#2563eb' },
           },
-          '& .MuiInputLabel-root': {
-            color: 'rgba(255,255,255,0.7)',
-          },
+          '& .MuiInputLabel-root': { color: 'rgba(255,255,255,0.7)' },
         },
       },
     },
-
     MuiButton: {
       styleOverrides: {
-        root: {
-          borderRadius: 12,
-          fontWeight: 700,
-          textTransform: 'none',
-        },
-
+        root: { borderRadius: 12, fontWeight: 700, textTransform: 'none' },
         contained: {
           background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
           boxShadow: '0 10px 25px rgba(37,99,235,0.35)',
@@ -95,9 +53,6 @@ const theme = createTheme({
         },
       },
     },
-  },
-  typography: {
-    fontFamily: 'Arial, sans-serif', // או כל פונט עברי שתבחר
   },
 });
 
