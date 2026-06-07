@@ -88,7 +88,7 @@ const App: React.FC = () => {
             path="/library"
             element={
               <ProtectedRoute>
-                <Library books={user?.books || []} onDelete={() => {}} />
+                <Library   />
               </ProtectedRoute>
             }
           />
@@ -97,7 +97,7 @@ const App: React.FC = () => {
             path="/search"
             element={
               <ProtectedRoute>
-                <Search books={user?.books || []} />
+                <Search  />
               </ProtectedRoute>
             }
           />
