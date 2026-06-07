@@ -14,26 +14,24 @@ export const getBooks = createAsyncThunk<BookDTO[]>(
   }
 );
 
-// טיפוס מצב הספרים
+// טיפוס של ה־state
 export interface BooksState {
   items: BookDTO[];
   status: "idle" | "loading" | "succeeded" | "failed";
   error: string | null;
 }
 
-// מצב התחלתי
+// initial state תואם לטסטים
 const initialState: BooksState = {
   items: [],
   status: "idle",
   error: null,
 };
 
-// Slice
 const AllBooksSlice = createSlice({
   name: "allBooks",
   initialState,
   reducers: {
-    // הוספת ספר ידנית
     addData: (state, action: PayloadAction<BookDTO>) => {
       state.items.push(action.payload);
     },
@@ -42,19 +40,19 @@ const AllBooksSlice = createSlice({
     builder
       .addCase(getBooks.pending, (state) => {
         state.status = "loading";
+        state.error = null; // טסטים מצפים ל-null
       })
       .addCase(getBooks.fulfilled, (state, action: PayloadAction<BookDTO[]>) => {
         console.log("REDUX PAYLOAD:", action.payload);
         state.status = "succeeded";
         state.items = action.payload;
-        state.error = null;
+        state.error = null; // חובה ל-null כדי שהטסט יעבור
       })
       .addCase(getBooks.rejected, (state, action) => {
         state.status = "failed";
-        state.error = action.error.message ?? null;
+        state.error = action.error.message ?? "Unknown error";
       });
   },
 });
 
-export const { addData } = AllBooksSlice.actions;
 export default AllBooksSlice.reducer;
