@@ -2,10 +2,8 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 
 import axios from "axios";
 import type { BookDTO} from "../../types/book";
-const apiUrl: string =
-  typeof import.meta !== 'undefined' && import.meta.env
-    ? import.meta.env.VITE_API_URL
-    : process.env.VITE_API_URL || '';
+import { getApiUrl } from "../../types/env";
+const apiUrl: string = getApiUrl();
 export const getBooks = createAsyncThunk<BookDTO[]>(
   "books/getBooks",
   async () => {
