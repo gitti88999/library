@@ -13,7 +13,7 @@ export const getBooks = createAsyncThunk<BookDTO[]>(
 );
 export interface BooksState {
   items: BookDTO[];
-  status: string;
+  status: 'idle' | 'loading' | 'succeeded' | 'failed'; 
   error: string | null;
 }
 
@@ -34,17 +34,19 @@ const AllBooksSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(getBooks.pending, (state) => {
-        state.status = 'loading';
+        state.status = 'loading'; 
       })
       .addCase(getBooks.fulfilled, (state, action) => {
-          console.log("REDUX PAYLOAD:", action.payload);
-        state.status = 'succeeded';
-        state.items = action.payload; 
+        console.log("REDUX PAYLOAD:", action.payload);
+        state.status = 'succeeded'; 
+        state.items = action.payload;
+        state.error = null;
       })
       .addCase(getBooks.rejected, (state, action) => {
-        state.status = 'failed';
+        state.status = 'failed'; 
         state.error = action.error.message ?? null;
       });
   },
 });
-export default AllBooksSlice.reducer
+
+export default AllBooksSlice.reducer;

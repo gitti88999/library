@@ -32,10 +32,10 @@ export interface BooksState {
     error: String | undefined,
 }
 const initialState: BooksState = {
-    items: [],
-    status: '',
-    error: '',
-}
+  items: [],
+  status: 'idle',
+  error: undefined
+};
 
 const MyBooksSlice = createSlice({
     name: 'myBooks',
