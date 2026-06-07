@@ -34,7 +34,24 @@ namespace server.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Auediences");
+                    b.ToTable("Audiences");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
+                            Name = "ילדים"
+                        },
+                        new
+                        {
+                            Id = new Guid("22222222-2222-2222-2222-222222222222"),
+                            Name = "נוער"
+                        },
+                        new
+                        {
+                            Id = new Guid("33333333-3333-3333-3333-333333333333"),
+                            Name = "מבוגרים"
+                        });
                 });
 
             modelBuilder.Entity("LIBRARY.Models.Book", b =>
@@ -43,8 +60,8 @@ namespace server.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("AudienceId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("AudienceId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("AuthorId")
                         .HasColumnType("int");
@@ -58,6 +75,8 @@ namespace server.Migrations
 
                     b.HasKey("BookId");
 
+                    b.HasIndex("AudienceId");
+
                     b.ToTable("Books");
                 });
 
@@ -70,8 +89,8 @@ namespace server.Migrations
                     b.Property<DateTime>("ArchivedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("AudienceId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("AudienceId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("AuthorId")
                         .HasColumnType("int");
@@ -210,6 +229,17 @@ namespace server.Migrations
                     b.ToTable("Logins");
                 });
 
+            modelBuilder.Entity("LIBRARY.Models.Book", b =>
+                {
+                    b.HasOne("LIBRARY.Models.Audience", "Audience")
+                        .WithMany("books")
+                        .HasForeignKey("AudienceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Audience");
+                });
+
             modelBuilder.Entity("LIBRARY.Models.BookSession", b =>
                 {
                     b.HasOne("LIBRARY.Models.Book", "Book")
@@ -238,6 +268,11 @@ namespace server.Migrations
                         .IsRequired();
 
                     b.Navigation("Collaborator");
+                });
+
+            modelBuilder.Entity("LIBRARY.Models.Audience", b =>
+                {
+                    b.Navigation("books");
                 });
 
             modelBuilder.Entity("LIBRARY.Models.Book", b =>

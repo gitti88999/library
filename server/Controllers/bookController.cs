@@ -26,7 +26,7 @@ namespace LIBRARY.Controllers
             {
                 return BadRequest("The Category is required.");
             }
-            if (book.AudienceId==0)
+            if (book.AudienceId==null)
             {
                 return BadRequest("The Audience is required.");
             }

@@ -112,7 +112,7 @@ const Search: React.FC = () => {
           />
         </div>
       ) : (
-        <Stack spacing={2} alignItems="flex-end">
+        <Stack spacing={2} sx={{ alignItems: 'center' }}>
           {results.length === 0 && status !== "loading" ? (
             <Typography>לא נמצאו תוצאות</Typography>
           ) : (

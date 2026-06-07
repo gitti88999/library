@@ -53,6 +53,7 @@ export const addUser=createAsyncThunk(
 
 )
 export interface BooksState {
+    audiences: any;
     items: Array<any>,
     status: String,
     error: String | undefined,

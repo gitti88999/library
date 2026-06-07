@@ -1,0 +1,95 @@
+name: CI/CD Full Pipeline (Build + Test + Docker)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+
+  backend-build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore dependencies
+        run: dotnet restore ./server/*.csproj
+
+      - name: Build backend
+        run: dotnet build ./server/*.csproj --no-restore
+
+      - name: Test backend
+        run: dotnet test ./server/*.csproj --no-build --verbosity normal
+
+  frontend-build-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: ./client
+
+      - name: Build frontend
+        run: npm run build
+        working-directory: ./client
+
+      - name: Test frontend
+        run: npm test
+        working-directory: ./client
+
+  docker-build:
+    needs: [backend-build-test, frontend-build-test]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Build backend Docker image
+        run: docker build -t server-image ./server
+
+      - name: Build frontend Docker image
+        run: docker build -t client-image ./client
+
+  deploy:
+    needs: docker-build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login to Docker Registry
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Push backend image
+        run: docker tag server-image myregistry/server-image:latest && docker push myregistry/server-image:latest
+
+      - name: Push frontend image
+        run: docker tag client-image myregistry/client-image:latest && docker push myregistry/client-image:latest
+
+      - name: Deploy via SSH
+        env:
+          HOST: ${{ secrets.HOST }}
+          USER: ${{ secrets.USER }}
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+        run: |
+          echo "$SSH_KEY" > key.pem
+          chmod 600 key.pem
+          ssh -i key.pem -o StrictHostKeyChecking=no $USER@$HOST << 'EOF'
+            docker pull myregistry/server-image:latest
+            docker pull myregistry/client-image:latest
+            docker-compose -f /path/to/docker-compose.yml up -d
+          EOF

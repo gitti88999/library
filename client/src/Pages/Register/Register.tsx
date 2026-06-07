@@ -6,11 +6,11 @@ import {
   Container,
   Paper,
   Stack,
-  TextField,
   Button,
   Typography,
   Box,
 } from "@mui/material";
+import TextField from "@mui/material/TextField";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 
 const MAP_CONTAINER_STYLE = {
@@ -43,14 +43,14 @@ const Register: React.FC = () => {
           ...prev,
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
-          
+
         }));
         setLocationFetched(true);
       },
       (error) => {
         console.error("Geolocation error:", error);
         console.error("Code:", error.code);
-  console.error("Message:", error.message);
+        console.error("Message:", error.message);
       },
       { timeout: 30000 }
     );
@@ -106,12 +106,15 @@ const Register: React.FC = () => {
           <form onSubmit={handleSubmit}>
             <Stack spacing={3}>
               <TextField
+                variant="outlined"
                 label="שם משתמש"
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
                 fullWidth
-                InputLabelProps={{ shrink: true }}
+                slotProps={{
+                  inputLabel: { shrink: true }
+                }}
               />
               <TextField
                 label="Email"
@@ -120,7 +123,9 @@ const Register: React.FC = () => {
                 value={formData.email}
                 onChange={handleChange}
                 fullWidth
-                InputLabelProps={{ shrink: true }}
+                slotProps={{
+                  inputLabel: { shrink: true }
+                }}
               />
               <TextField
                 label="Password"
@@ -129,7 +134,9 @@ const Register: React.FC = () => {
                 value={formData.password}
                 onChange={handleChange}
                 fullWidth
-                InputLabelProps={{ shrink: true }}
+                slotProps={{
+                  inputLabel: { shrink: true }
+                }}
               />
 
               <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
@@ -149,7 +156,9 @@ const Register: React.FC = () => {
                 value={formData.latitude}
                 fullWidth
                 variant="outlined"
-                InputProps={{ readOnly: true }}
+                slotProps={{
+                  inputLabel: { shrink: true }
+                }}
               />
               <TextField
                 label="Longitude"
@@ -158,7 +167,9 @@ const Register: React.FC = () => {
                 value={formData.longitude}
                 fullWidth
                 variant="outlined"
-                InputProps={{ readOnly: true }}
+                slotProps={{
+                  inputLabel: { shrink: true }
+                }}
               />
 
               <Button variant="contained" type="submit">

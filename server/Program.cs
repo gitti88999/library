@@ -8,11 +8,7 @@ builder.Services.AddDbContext<LibraryContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("libraryDB")));
 
 builder.Services.AddControllers();
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<LibraryContext>();
-    db.Database.Migrate();
-}
+
 // Swagger
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -63,6 +59,10 @@ app.MapControllers();
 
 
 // ✅ כאן המיגרציות
-
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<LibraryContext>();
+    db.Database.Migrate();
+}
 
 app.Run();

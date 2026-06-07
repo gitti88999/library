@@ -3,7 +3,6 @@ import axios from "axios";
 import type { BookDTO, BookSessionDTO } from "../../types/book";
 
 const apiUrl: string = import.meta.env.VITE_API_URL;
-
 export const addBook = createAsyncThunk(
     "posts/addBook",
     async (Book: BookDTO) => {

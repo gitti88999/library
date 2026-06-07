@@ -8,14 +8,15 @@ namespace LIBRARY.Models
         public List<BookSession> bookSessions{get;set;}
         public string Name{ get; set; }
         public int Category{ get; set; }
-        public int AudienceId{ get; set; }
+        public Guid AudienceId { get; set; }
+        public Audience Audience { get; set; }
         public int AuthorId{ get; set; }
     }
      public  class BookDTO
     {
        public string Name{ get; set; }
         public int Category{ get; set; }
-        public int AudienceId{ get; set; }
+        public Guid AudienceId { get; set; }
         public int AuthorId{ get; set; }
 
 
