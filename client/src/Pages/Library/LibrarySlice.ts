@@ -1,55 +1,79 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
-import type { BookDTO } from "../../types/book";
+import type { BookDTO, BookSessionDTO } from "../../types/book";
 import { getApiUrl } from "../../types/env";
 
 const apiUrl: string = getApiUrl();
+export const addBook = createAsyncThunk(
+    "posts/addBook",
+    async (Book: BookDTO) => {
+        const response = await axios.post(
+            `${apiUrl}/api/Book`, Book
+        );
 
-export const getBooks = createAsyncThunk<BookDTO[]>(
-  "books/getBooks",
-  async () => {
-    const response = await axios.get<BookDTO[]>(`${apiUrl}/api/Book/books`);
-    return response.data;
-  }
+        return await response.data;
+    }
 );
 
+export const getMyBooks = createAsyncThunk(
+    "books/getBooks",
+    async () => {
+        const response = await axios.get<BookSessionDTO[]>(
+            `${apiUrl}/api/Collaborator/3bba5fe8-a0bc-4d0e-9a02-076e227e9643/booksessions`
+        );
+        console.log(response.data);
+
+        return response.data;
+    }
+);
 export interface BooksState {
-  items: BookDTO[];
-  status: "idle" | "loading" | "succeeded" | "failed";
-  error: string | null;
+    items: BookSessionDTO[],
+    status: String,
+    error: String | null,
+}
+const initialState: BooksState = {
+    items: [],
+    status: '',
+    error: null,
 }
 
-const initialState: BooksState = {
-  items: [],
-  status: "idle",
-  error: null,
-};
-
-const AllBooksSlice = createSlice({
-  name: "allBooks",
-  initialState,
-  reducers: {
-    addData: (state, action: PayloadAction<BookDTO>) => {
-      state.items.push(action.payload);
+const MyBooksSlice = createSlice({
+    name: 'myBooks',
+    initialState,
+    reducers: {
+        addData: (state: BooksState, action) => {
+            console.log(action);
+            state.items = [...state.items, action.payload];
+        },
+        // deleteAllData:()
     },
-  },
-  extraReducers: (builder) => {
-    builder
-      .addCase(getBooks.pending, (state) => {
-        state.status = "loading";
-        state.error = null;
-      })
-      .addCase(getBooks.fulfilled, (state, action: PayloadAction<BookDTO[]>) => {
-        console.log("REDUX PAYLOAD:", action.payload);
-        state.status = "succeeded";
-        state.items = action.payload;
-        state.error = null;
-      })
-      .addCase(getBooks.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.error.message ?? "Unknown error";
-      });
-  },
-});
+    extraReducers: builder => {
+        builder
+            .addCase(addBook.pending, (state) => {
+                state.status = "loading";
+            })
 
-export default AllBooksSlice.reducer;
+            .addCase(addBook.fulfilled, (state, action) => {
+                state.status = "succeeded";
+                state.items.push(action.payload);
+            })
+
+            .addCase(addBook.rejected, (state, action) => {
+                state.status = "failed";
+                state.error = action.error.message??null;
+            })
+            .addCase(getMyBooks.pending, (state) => {
+                state.status = 'loading';
+            })
+            .addCase(getMyBooks.fulfilled, (state, action) => {
+                console.log("REDUX PAYLOAD:", action.payload);
+                state.status = 'succeeded';
+                state.items = action.payload;
+            })
+            .addCase(getMyBooks.rejected, (state, action) => {
+                state.status = 'failed';
+                state.error = action.error.message??null;
+            })
+    },
+})
+export default MyBooksSlice.reducer

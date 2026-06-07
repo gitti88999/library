@@ -1,11 +1,9 @@
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+
 import axios from "axios";
-import type { BookDTO } from "../../types/book";
+import type { BookDTO} from "../../types/book";
 import { getApiUrl } from "../../types/env";
-
 const apiUrl: string = getApiUrl();
-
-// Thunk לקבלת ספרים
 export const getBooks = createAsyncThunk<BookDTO[]>(
   "books/getBooks",
   async () => {
@@ -13,44 +11,40 @@ export const getBooks = createAsyncThunk<BookDTO[]>(
     return response.data;
   }
 );
-
-// טיפוס של ה־state
 export interface BooksState {
   items: BookDTO[];
-  status: "idle" | "loading" | "succeeded" | "failed";
+  status: 'idle' | 'loading' | 'succeeded' | 'failed'; 
   error: string | null;
 }
 
-// initial state תואם לטסטים
 const initialState: BooksState = {
   items: [],
-  status: "idle",
+  status: 'idle',
   error: null,
 };
 
 const AllBooksSlice = createSlice({
-  name: "allBooks",
+  name: 'allBooks',
   initialState,
   reducers: {
-    addData: (state, action: PayloadAction<BookDTO>) => {
+    addData: (state, action) => {
       state.items.push(action.payload);
     },
   },
   extraReducers: (builder) => {
     builder
       .addCase(getBooks.pending, (state) => {
-        state.status = "loading";
-        state.error = null; // טסטים מצפים ל-null
+        state.status = 'loading'; 
       })
-      .addCase(getBooks.fulfilled, (state, action: PayloadAction<BookDTO[]>) => {
+      .addCase(getBooks.fulfilled, (state, action) => {
         console.log("REDUX PAYLOAD:", action.payload);
-        state.status = "succeeded";
+        state.status = 'succeeded'; 
         state.items = action.payload;
-        state.error = null; // חובה ל-null כדי שהטסט יעבור
+        state.error = null;
       })
       .addCase(getBooks.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.error.message ?? "Unknown error";
+        state.status = 'failed'; 
+        state.error = action.error.message ?? null;
       });
   },
 });

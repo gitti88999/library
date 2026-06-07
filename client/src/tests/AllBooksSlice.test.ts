@@ -10,7 +10,7 @@ describe("AllBooksSlice", () => {
   const initialState: BooksState = {
     items: [],
     status: "idle",
-    error: undefined,
+    error: null,
   };
 
   it("should return initial state", () => {
