@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Container,
   Typography,
@@ -22,43 +21,45 @@ import type { AppDispatch, RootState } from '../../app/store';
 import { getMyBooks, addBook } from './LibrarySlice';
 import type { BookDTO, BookSessionDTO } from '../../types/book';
 import { getAudiences } from './AudienceSlice';
+import { getAuthors } from './AuthorSlice';
+import { getCategories } from './CategorySlice';
 
 const Library: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
+
   const books = useSelector((state: RootState) => state.myBooks.items);
   const audiences = useSelector((state: RootState) => state.audiences.items);
+  const authors = useSelector((state: RootState) => state.authors.items);
+  const categories = useSelector((state: RootState) => state.categories.items);
+
   const [open, setOpen] = useState(false);
 
   const [book, setBook] = useState<BookDTO>({
     name: '',
-    category: 1,
-    audienceId: '', // Guid string
-    authorId: 1,
+    categoryId: '',
+    audienceId: '',
+    authorId: '',
   });
-useEffect(() => {
-  console.log("dispatch getAudiences");
 
-  dispatch(getAudiences())
-    .unwrap()
-    .then((res) => console.log("THEN:", res))
-    .catch((err) => console.log("CATCH:", err));
-
-}, [dispatch]);
   useEffect(() => {
+    dispatch(getAudiences());
+    dispatch(getAuthors());
+    dispatch(getCategories());
     dispatch(getMyBooks());
   }, [dispatch]);
 
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const safeAudiences = useMemo(() => audiences ?? [], [audiences]);
+  const safeAuthors = useMemo(() => authors ?? [], [authors]);
+  const safeCategories = useMemo(() => categories ?? [], [categories]);
 
   const handleAdd = () => {
     dispatch(addBook(book));
     dispatch(getMyBooks());
-    handleClose();
+    setOpen(false);
   };
 
   const results = (books || []).filter(
-    (b: BookSessionDTO) => b && b.book && b.book.name
+    (b: BookSessionDTO) => b?.book?.name
   );
 
   return (
@@ -67,7 +68,7 @@ useEffect(() => {
         הספרים שלי
       </Typography>
 
-      <Button variant="contained" onClick={handleOpen} sx={{ mb: 3 }}>
+      <Button variant="contained" onClick={() => setOpen(true)} sx={{ mb: 3 }}>
         הוספת ספר חדש
       </Button>
 
@@ -78,11 +79,14 @@ useEffect(() => {
           results.map((item: BookSessionDTO) => (
             <Card key={item.bookSessionId}>
               <CardContent>
-                <Typography variant="h6">
-                  {item.book.name}
-                </Typography>
+                <Typography variant="h6">{item.book.name ?? item.book.name}</Typography>
+
                 <Typography color="text.secondary">
-                  Author ID: {item.book.authorId}
+                  מחבר: {item.book.authorId}
+                </Typography>
+
+                <Typography color="text.secondary">
+                  קטגוריה: {item.book.categoryId} | קהל יעד: {item.book.audienceId}
                 </Typography>
               </CardContent>
             </Card>
@@ -90,60 +94,74 @@ useEffect(() => {
         )}
       </Stack>
 
-      {/* Dialog */}
-      <Dialog open={open} onClose={handleClose}>
+      <Dialog open={open} onClose={() => setOpen(false)}>
         <DialogTitle>הוספת ספר</DialogTitle>
 
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
+
             <TextField
               label="שם הספר"
               value={book.name}
               onChange={(e) => setBook({ ...book, name: e.target.value })}
             />
-            <TextField
-              label="קטגוריה"
-              type="number"
-              value={book.category}
-              onChange={(e) =>
-                setBook({ ...book, category: Number(e.target.value) })
-              }
-            />
+
+            <FormControl fullWidth>
+              <InputLabel>קטגוריה</InputLabel>
+              <Select
+                value={book.categoryId || ''}
+                label="קטגוריה"
+                onChange={(e) =>
+                  setBook({ ...book, categoryId: String(e.target.value) })
+                }
+              >
+                {safeCategories.map((c: any) => (
+                  <MenuItem key={c.id ?? c.Id} value={c.id ?? c.Id}>
+                    {c.name ?? c.Name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
 
             <FormControl fullWidth>
               <InputLabel>קהל יעד</InputLabel>
               <Select
-                value={book.audienceId}
+                value={book.audienceId || ''}
                 label="קהל יעד"
                 onChange={(e) =>
-                  setBook({ ...book, audienceId: e.target.value as string })
+                  setBook({ ...book, audienceId: String(e.target.value) })
                 }
               >
-                {audiences?.length === 0 ? (
-                  <MenuItem disabled>טוען...</MenuItem>
-                ) : (
-                  audiences.map((a: any) => (
-                    <MenuItem key={a.id} value={a.id}>
-                      {a.name}
-                    </MenuItem>
-                  ))
-                )}
+                {safeAudiences.map((a: any) => (
+                  <MenuItem key={a.id ?? a.Id} value={a.id ?? a.Id}>
+                    {a.name ?? a.Name}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
 
-            <TextField
-              label="Author ID"
-              type="number"
-              value={book.authorId}
-              onChange={(e) =>
-                setBook({ ...book, authorId: Number(e.target.value) })
-              }
-            />
+            <FormControl fullWidth>
+              <InputLabel>מחבר</InputLabel>
+              <Select
+                value={book.authorId || ''}
+                label="מחבר"
+                onChange={(e) =>
+                  setBook({ ...book, authorId: String(e.target.value) })
+                }
+              >
+                {safeAuthors.map((a: any) => (
+                  <MenuItem key={a.id ?? a.Id} value={a.id ?? a.Id}>
+                    {a.name ?? a.Name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
           </Stack>
         </DialogContent>
 
         <DialogActions>
-          <Button onClick={handleClose}>ביטול</Button>
+          <Button onClick={() => setOpen(false)}>ביטול</Button>
           <Button variant="contained" onClick={handleAdd}>
             שמור
           </Button>

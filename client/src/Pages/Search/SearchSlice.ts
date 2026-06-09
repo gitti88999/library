@@ -1,9 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-
 import axios from "axios";
 import type { BookDTO} from "../../types/book";
-import { getApiUrl } from "../../types/env";
-const apiUrl: string = getApiUrl();
+const apiUrl: string = import.meta.env.VITE_API_URL;
 export const getBooks = createAsyncThunk<BookDTO[]>(
   "books/getBooks",
   async () => {
@@ -37,7 +35,6 @@ const AllBooksSlice = createSlice({
         state.status = 'loading'; 
       })
       .addCase(getBooks.fulfilled, (state, action) => {
-        console.log("REDUX PAYLOAD:", action.payload);
         state.status = 'succeeded'; 
         state.items = action.payload;
         state.error = null;

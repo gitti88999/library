@@ -1,59 +1,78 @@
 import { createTheme } from '@mui/material/styles';
 
-const theme = createTheme({
-  direction: 'rtl',
-  palette: {
-    mode: 'dark',
-    primary: { main: '#2563eb' },
-    secondary: { main: '#7c3aed' },
-    background: { default: '#0f172a', paper: 'rgba(15, 23, 42, 0.75)' },
-    text: { primary: '#ffffff', secondary: 'rgba(255,255,255,0.7)' },
-  },
-  shape: { borderRadius: 12 },
-  typography: {
-    fontFamily: '"Inter", "Roboto", "Arial", sans-serif', // כאן גם עברי אפשרי
-    h3: { fontWeight: 800, letterSpacing: '-1px' },
-    h4: { fontWeight: 700 },
-    button: { textTransform: 'none', fontWeight: 700 },
-  },
-  components: {
-    MuiPaper: {
-      styleOverrides: {
-        root: {
-          backdropFilter: 'blur(18px)',
-          border: '1px solid rgba(255,255,255,0.08)',
-          boxShadow: '0 20px 60px rgba(0,0,0,0.35)',
-          backgroundImage: 'none',
-        },
-      },
-    },
-    MuiTextField: {
-      styleOverrides: {
-        root: {
-          '& .MuiOutlinedInput-root': {
-            borderRadius: 12,
-            '& fieldset': { borderColor: 'rgba(255,255,255,0.2)' },
-            '&:hover fieldset': { borderColor: 'rgba(255,255,255,0.35)' },
-            '&.Mui-focused fieldset': { borderColor: '#2563eb' },
-          },
-          '& .MuiInputLabel-root': { color: 'rgba(255,255,255,0.7)' },
-        },
-      },
-    },
-    MuiButton: {
-      styleOverrides: {
-        root: { borderRadius: 12, fontWeight: 700, textTransform: 'none' },
-        contained: {
-          background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
-          boxShadow: '0 10px 25px rgba(37,99,235,0.35)',
-          '&:hover': {
-            background: 'linear-gradient(135deg, #1d4ed8 0%, #6d28d9 100%)',
-            boxShadow: '0 16px 35px rgba(37,99,235,0.45)',
-          },
-        },
-      },
-    },
-  },
-});
+export const getTheme = (mode: 'light' | 'dark') => {
+  const isDark = mode === 'dark';
 
-export default theme;
+  return createTheme({
+    direction: 'rtl',
+    palette: {
+      mode,
+      primary: { main: '#2563eb' },
+      secondary: { main: '#7c3aed' },
+
+      background: {
+        default: isDark ? '#0f172a' : '#f3f4f6',
+        paper: isDark ? '#1e293b' : '#ffffff',
+      },
+
+      text: {
+        primary: isDark ? '#f9fafb' : '#111827',
+        secondary: isDark ? '#cbd5f5' : '#6b7280',
+      },
+
+      divider: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)',
+    },
+
+    shape: { borderRadius: 12 },
+
+    components: {
+      MuiPaper: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            backgroundColor: theme.palette.background.paper,
+            color: theme.palette.text.primary,
+            border: `1px solid ${theme.palette.divider}`,
+            boxShadow: isDark
+              ? '0 10px 30px rgba(0,0,0,0.4)'
+              : '0 5px 15px rgba(0,0,0,0.1)',
+          }),
+        },
+      },
+
+      MuiTextField: {
+        styleOverrides: {
+          root: ({ theme }) => ({
+            '& .MuiOutlinedInput-root': {
+              backgroundColor: theme.palette.background.paper,
+              color: theme.palette.text.primary,
+              '& fieldset': {
+                borderColor: theme.palette.divider,
+              },
+              '&:hover fieldset': {
+                borderColor: theme.palette.text.secondary,
+              },
+              '&.Mui-focused fieldset': {
+                borderColor: theme.palette.primary.main,
+              },
+            },
+            '& .MuiInputLabel-root': {
+              color: theme.palette.text.secondary,
+            },
+          }),
+        },
+      },
+
+      MuiButton: {
+        styleOverrides: {
+          contained: ({ theme }) => ({
+            color: '#fff',
+            backgroundColor: theme.palette.primary.main,
+            '&:hover': {
+              backgroundColor: theme.palette.primary.dark,
+            },
+          }),
+        },
+      },
+    },
+  });
+};

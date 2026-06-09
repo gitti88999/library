@@ -120,7 +120,7 @@ await _context.SaveChangesAsync();
                             Id = Guid.NewGuid(),
                             BookId = book.BookId,
                             Name = book.Name,
-                            Category = book.Category,
+                            CategoryId = book.CategoryId,
                             AudienceId = book.AudienceId,
                             AuthorId = book.AuthorId,
                             ArchivedAt = DateTime.UtcNow

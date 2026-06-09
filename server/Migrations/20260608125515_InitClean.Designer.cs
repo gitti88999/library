@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace server.Migrations
 {
     [DbContext(typeof(LibraryContext))]
-    [Migration("20260604094655_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260608125515_InitClean")]
+    partial class InitClean
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -57,6 +57,21 @@ namespace server.Migrations
                         });
                 });
 
+            modelBuilder.Entity("LIBRARY.Models.Author", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Authors");
+                });
+
             modelBuilder.Entity("LIBRARY.Models.Book", b =>
                 {
                     b.Property<Guid>("BookId")
@@ -66,11 +81,11 @@ namespace server.Migrations
                     b.Property<Guid>("AudienceId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("AuthorId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("Category")
-                        .HasColumnType("int");
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -79,6 +94,10 @@ namespace server.Migrations
                     b.HasKey("BookId");
 
                     b.HasIndex("AudienceId");
+
+                    b.HasIndex("AuthorId");
+
+                    b.HasIndex("CategoryId");
 
                     b.ToTable("Books");
                 });
@@ -95,20 +114,26 @@ namespace server.Migrations
                     b.Property<Guid>("AudienceId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("AuthorId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("BookId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("Category")
-                        .HasColumnType("int");
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AudienceId");
+
+                    b.HasIndex("AuthorId");
+
+                    b.HasIndex("CategoryId");
 
                     b.ToTable("BookArchive");
                 });
@@ -240,7 +265,50 @@ namespace server.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("LIBRARY.Models.Author", "author")
+                        .WithMany("books")
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LIBRARY.Models.Category", "category")
+                        .WithMany("books")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Audience");
+
+                    b.Navigation("author");
+
+                    b.Navigation("category");
+                });
+
+            modelBuilder.Entity("LIBRARY.Models.BookArchive", b =>
+                {
+                    b.HasOne("LIBRARY.Models.Audience", "audience")
+                        .WithMany()
+                        .HasForeignKey("AudienceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LIBRARY.Models.Author", "author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("LIBRARY.Models.Category", "category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("audience");
+
+                    b.Navigation("author");
+
+                    b.Navigation("category");
                 });
 
             modelBuilder.Entity("LIBRARY.Models.BookSession", b =>
@@ -278,9 +346,19 @@ namespace server.Migrations
                     b.Navigation("books");
                 });
 
+            modelBuilder.Entity("LIBRARY.Models.Author", b =>
+                {
+                    b.Navigation("books");
+                });
+
             modelBuilder.Entity("LIBRARY.Models.Book", b =>
                 {
                     b.Navigation("bookSessions");
+                });
+
+            modelBuilder.Entity("LIBRARY.Models.Category", b =>
+                {
+                    b.Navigation("books");
                 });
 
             modelBuilder.Entity("LIBRARY.Models.Collaborator", b =>

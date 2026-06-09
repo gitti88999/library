@@ -7,23 +7,25 @@ import {
   Stack,
   Paper,
   Box,
+  useTheme,
 } from '@mui/material';
 import LibraryBooksRoundedIcon from '@mui/icons-material/LibraryBooksRounded';
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
+  const theme = useTheme();
 
   return (
     <Box
       sx={{
-        minHeight: '100vh',
-        position: 'relative',
-        overflow: 'hidden',
+        minHeight: '98vh',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
         px: 2,
+        background: theme.palette.background.default,
+        position: 'relative',
+        overflow: 'hidden',
       }}
     >
       {/* Background Glow */}
@@ -32,7 +34,7 @@ const Home: React.FC = () => {
           position: 'absolute',
           width: 400,
           height: 400,
-          background: '#2563eb',
+          background: theme.palette.primary.main,
           borderRadius: '50%',
           filter: 'blur(140px)',
           top: -100,
@@ -45,7 +47,7 @@ const Home: React.FC = () => {
           position: 'absolute',
           width: 350,
           height: 350,
-          background: '#7c3aed',
+          background: theme.palette.secondary.main,
           borderRadius: '50%',
           filter: 'blur(140px)',
           bottom: -120,
@@ -59,12 +61,12 @@ const Home: React.FC = () => {
           elevation={0}
           sx={{
             p: { xs: 4, md: 6 },
-            borderRadius: 6,
+            borderRadius: theme.shape.borderRadius,
             textAlign: 'center',
-            background: 'rgba(15, 23, 42, 0.7)',
-            border: '1px solid rgba(255,255,255,0.08)',
+            backgroundColor: theme.palette.background.paper,
+            border: `1px solid ${theme.palette.divider}`,
             backdropFilter: 'blur(18px)',
-            boxShadow: '0 20px 60px rgba(0,0,0,0.35)',
+            boxShadow: theme.shadows[20],
           }}
         >
           {/* Logo */}
@@ -78,17 +80,13 @@ const Home: React.FC = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              background:
-                'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
-              boxShadow: '0 15px 35px rgba(37,99,235,0.45)',
+              background: `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.secondary.main} 100%)`,
+              boxShadow: `0 15px 35px ${theme.palette.primary.main}80`,
               transform: 'rotate(-5deg)',
             }}
           >
             <LibraryBooksRoundedIcon
-              sx={{
-                fontSize: 52,
-                color: '#fff',
-              }}
+              sx={{ fontSize: 52, color: theme.palette.common.white }}
             />
           </Box>
 
@@ -98,9 +96,9 @@ const Home: React.FC = () => {
             variant="h3"
             gutterBottom
             sx={{
-              color: '#fff',
+              color: theme.palette.text.primary,
               letterSpacing: '-1px',
-              fontWeight: 800, // ✅ fontWeight בתוך sx
+              fontWeight: 800,
             }}
           >
             ספריה שיתופית
@@ -111,7 +109,7 @@ const Home: React.FC = () => {
             component="p"
             variant="body1"
             sx={{
-              color: 'rgba(255,255,255,0.72)',
+              color: theme.palette.text.secondary,
               mb: 5,
               lineHeight: 1.9,
               fontSize: '1.05rem',
@@ -123,13 +121,10 @@ const Home: React.FC = () => {
 
           {/* Buttons */}
           <Stack
-  component="div"
-  direction={{ xs: 'column', sm: 'row' }}
-  spacing={2}
-  sx={{
-    justifyContent: 'center',
-  }}
->
+            direction={{ xs: 'column', sm: 'row' }}
+            spacing={2}
+            sx={{ justifyContent: 'center' }}
+          >
             <Button
               variant="contained"
               size="large"
@@ -137,20 +132,10 @@ const Home: React.FC = () => {
               sx={{
                 px: 5,
                 py: 1.6,
-                borderRadius: 4,
+                borderRadius: theme.shape.borderRadius,
                 fontWeight: 700,
                 fontSize: '1rem',
                 textTransform: 'none',
-                background:
-                  'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)',
-                boxShadow: '0 10px 25px rgba(37,99,235,0.35)',
-                transition: '0.3s',
-                '&:hover': {
-                  transform: 'translateY(-2px)',
-                  boxShadow: '0 16px 35px rgba(37,99,235,0.45)',
-                  background:
-                    'linear-gradient(135deg, #1d4ed8 0%, #6d28d9 100%)',
-                },
               }}
             >
               הרשמה
@@ -163,19 +148,12 @@ const Home: React.FC = () => {
               sx={{
                 px: 5,
                 py: 1.6,
-                borderRadius: 4,
+                borderRadius: theme.shape.borderRadius,
                 fontWeight: 700,
                 fontSize: '1rem',
                 textTransform: 'none',
-                color: '#fff',
-                borderColor: 'rgba(255,255,255,0.25)',
-                borderWidth: 2,
-                backdropFilter: 'blur(10px)',
-                '&:hover': {
-                  borderWidth: 2,
-                  borderColor: '#fff',
-                  background: 'rgba(255,255,255,0.06)',
-                },
+                color: theme.palette.text.primary,
+                borderColor: theme.palette.divider,
               }}
             >
               כניסה

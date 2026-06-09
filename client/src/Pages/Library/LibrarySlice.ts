@@ -1,9 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
 import type { BookDTO, BookSessionDTO } from "../../types/book";
-import { getApiUrl } from "../../types/env";
 
-const apiUrl: string = getApiUrl();
+const apiUrl: string = import.meta.env.VITE_API_URL;
 export const addBook = createAsyncThunk(
     "posts/addBook",
     async (Book: BookDTO) => {
@@ -21,7 +20,6 @@ export const getMyBooks = createAsyncThunk(
         const response = await axios.get<BookSessionDTO[]>(
             `${apiUrl}/api/Collaborator/3bba5fe8-a0bc-4d0e-9a02-076e227e9643/booksessions`
         );
-        console.log(response.data);
 
         return response.data;
     }
@@ -42,10 +40,8 @@ const MyBooksSlice = createSlice({
     initialState,
     reducers: {
         addData: (state: BooksState, action) => {
-            console.log(action);
             state.items = [...state.items, action.payload];
         },
-        // deleteAllData:()
     },
     extraReducers: builder => {
         builder
@@ -66,7 +62,6 @@ const MyBooksSlice = createSlice({
                 state.status = 'loading';
             })
             .addCase(getMyBooks.fulfilled, (state, action) => {
-                console.log("REDUX PAYLOAD:", action.payload);
                 state.status = 'succeeded';
                 state.items = action.payload;
             })

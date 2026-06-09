@@ -12,6 +12,7 @@ namespace LIBRARY.Data
         public DbSet<BookSession> BookSession { get; set; }
         public DbSet<Login> Logins { get; set; }
         public DbSet<Audience> Audiences { get; set; }
+        public DbSet<Author> Authors { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<BookSessionArchive> BookSessionArchive { get; set; }
         public DbSet<BookArchive> BookArchive { get; set; }

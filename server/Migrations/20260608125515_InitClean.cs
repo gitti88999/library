@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace server.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class InitClean : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -26,20 +26,15 @@ namespace server.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "BookArchive",
+                name: "Authors",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    BookId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Category = table.Column<int>(type: "int", nullable: false),
-                    AudienceId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AuthorId = table.Column<int>(type: "int", nullable: false),
-                    ArchivedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_BookArchive", x => x.Id);
+                    table.PrimaryKey("PK_Authors", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -89,14 +84,49 @@ namespace server.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "BookArchive",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    BookId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AudienceId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    AuthorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ArchivedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BookArchive", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_BookArchive_Audiences_AudienceId",
+                        column: x => x.AudienceId,
+                        principalTable: "Audiences",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_BookArchive_Authors_AuthorId",
+                        column: x => x.AuthorId,
+                        principalTable: "Authors",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_BookArchive_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Categories",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Books",
                 columns: table => new
                 {
                     BookId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Category = table.Column<int>(type: "int", nullable: false),
+                    CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     AudienceId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AuthorId = table.Column<int>(type: "int", nullable: false)
+                    AuthorId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -105,6 +135,18 @@ namespace server.Migrations
                         name: "FK_Books_Audiences_AudienceId",
                         column: x => x.AudienceId,
                         principalTable: "Audiences",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Books_Authors_AuthorId",
+                        column: x => x.AuthorId,
+                        principalTable: "Authors",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_Books_Categories_CategoryId",
+                        column: x => x.CategoryId,
+                        principalTable: "Categories",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -165,9 +207,34 @@ namespace server.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_BookArchive_AudienceId",
+                table: "BookArchive",
+                column: "AudienceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BookArchive_AuthorId",
+                table: "BookArchive",
+                column: "AuthorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_BookArchive_CategoryId",
+                table: "BookArchive",
+                column: "CategoryId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Books_AudienceId",
                 table: "Books",
                 column: "AudienceId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Books_AuthorId",
+                table: "Books",
+                column: "AuthorId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Books_CategoryId",
+                table: "Books",
+                column: "CategoryId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_BookSession_BookId",
@@ -198,9 +265,6 @@ namespace server.Migrations
                 name: "BookSessionArchive");
 
             migrationBuilder.DropTable(
-                name: "Categories");
-
-            migrationBuilder.DropTable(
                 name: "Logins");
 
             migrationBuilder.DropTable(
@@ -211,6 +275,12 @@ namespace server.Migrations
 
             migrationBuilder.DropTable(
                 name: "Audiences");
+
+            migrationBuilder.DropTable(
+                name: "Authors");
+
+            migrationBuilder.DropTable(
+                name: "Categories");
         }
     }
 }

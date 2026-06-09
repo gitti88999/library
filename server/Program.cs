@@ -58,11 +58,11 @@ app.UseAuthorization();
 app.MapControllers();
 
 
-// ✅ כאן המיגרציות
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<LibraryContext>();
     db.Database.Migrate();
-}
 
+    DbSeeder.Seed(db); // 👈 זה הקסם
+}
 app.Run();

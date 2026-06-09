@@ -13,6 +13,7 @@ import {
   Stack,
   Alert,
   CircularProgress,
+  useTheme,
 } from "@mui/material";
 
 const apiUrl = import.meta.env.VITE_API_URL;
@@ -20,6 +21,7 @@ const apiUrl = import.meta.env.VITE_API_URL;
 const Login: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const theme = useTheme();
 
   const [formData, setFormData] = useState({ name: "", password: "" });
   const [loading, setLoading] = useState(false);
@@ -46,12 +48,16 @@ const Login: React.FC = () => {
       setLoading(true);
       const response = await axios.post(`${apiUrl}/api/Auth/login`, formData);
 
-      dispatch(setUser(response.data)); // שמירה ב-Redux + localStorage
+      dispatch(setUser(response.data));
       setSuccess("התחברת בהצלחה");
 
       setTimeout(() => navigate("/library"), 500);
     } catch (err: any) {
-      setError(err.response?.status === 401 ? "שם משתמש או סיסמה שגויים" : "שגיאה בהתחברות");
+      setError(
+        err.response?.status === 401
+          ? "שם משתמש או סיסמה שגויים"
+          : "שגיאה בהתחברות"
+      );
       console.error(err);
     } finally {
       setLoading(false);
@@ -59,23 +65,63 @@ const Login: React.FC = () => {
   };
 
   return (
-    <Box sx={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "linear-gradient(135deg, #0f172a, #1e293b)" }}>
+    <Box
+      sx={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: theme.palette.background.default,
+      }}
+    >
       <Container maxWidth="sm">
-        <Paper sx={{ p: 5, borderRadius: 4, background: "rgba(15,23,42,0.85)", color: "#fff" }}>
-          <Typography variant="h4" sx={{ textAlign: 'center', mb: 3 }}>כניסה למערכת</Typography>
+        <Paper
+          sx={{
+            p: 5,
+            borderRadius: theme.shape.borderRadius,
+            backgroundColor: theme.palette.background.paper,
+            color: theme.palette.text.primary,
+            boxShadow: theme.shadows[20],
+          }}
+        >
+          <Typography variant="h4" sx={{ textAlign: "center", mb: 3 }}>
+            כניסה למערכת
+          </Typography>
+
           <form onSubmit={handleLogin}>
             <Stack spacing={2}>
               {error && <Alert severity="error">{error}</Alert>}
               {success && <Alert severity="success">{success}</Alert>}
 
-              <TextField label="שם משתמש" name="name" value={formData.name} onChange={handleChange} fullWidth slotProps={{
-                  inputLabel: { shrink: true }
-                }} />
-              <TextField label="סיסמה" name="password" type="password" value={formData.password} onChange={handleChange} fullWidth slotProps={{
-                  inputLabel: { shrink: true }
-                }} />
+              <TextField
+                label="שם משתמש"
+                name="name"
+                value={formData.name}
+                onChange={handleChange}
+                fullWidth
+              />
+              <TextField
+                label="סיסמה"
+                name="password"
+                type="password"
+                value={formData.password}
+                onChange={handleChange}
+                fullWidth
+              />
 
-              <Button type="submit" variant="contained" disabled={loading} sx={{ py: 1.5, fontWeight: "bold", background: "linear-gradient(135deg, #2563eb, #7c3aed)" }}>
+              <Button
+                type="submit"
+                variant="contained"
+                disabled={loading}
+                sx={{
+                  py: 1.5,
+                  fontWeight: "bold",
+                  background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+                  "&:hover": {
+                    background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.secondary.dark})`,
+                  },
+                }}
+              >
                 {loading ? <CircularProgress size={22} color="inherit" /> : "התחבר"}
               </Button>
             </Stack>

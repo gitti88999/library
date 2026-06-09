@@ -1,4 +1,3 @@
-// audiencesSlice.ts
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 import type { Audience } from "../../types/book";
@@ -34,7 +33,6 @@ const audiencesSlice = createSlice({
         state.status = "loading";
       })
       .addCase(getAudiences.fulfilled, (state, action) => {
-    console.log("REDUX PAYLOAD:", action.payload); // 🔍 האם זה ריק?
     state.status = "succeeded";
     state.items = action.payload;
 })

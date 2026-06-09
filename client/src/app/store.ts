@@ -4,13 +4,17 @@ import AllBooksSlice  from '../Pages/Search/SearchSlice'
 import  userSlice from '../Pages/Register/RegisterSlice'
 import loginReducer from "../Pages/Login/LoginSlice";
 import AudienceSlice from '../Pages/Library/AudienceSlice';
+import AuthorSlice from '../Pages/Library/AuthorSlice';
+import CategorySlice from '../Pages/Library/CategorySlice';
 export const store = configureStore({
   reducer: {
     allBooks:AllBooksSlice,
     myBooks: MyBooksSlice,
     myUser:userSlice,
     auth:loginReducer,
-    audiences:AudienceSlice
+    audiences:AudienceSlice,
+    categories:CategorySlice,
+    authors:AuthorSlice
     
   },devTools: true,
    
