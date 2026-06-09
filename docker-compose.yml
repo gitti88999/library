@@ -8,7 +8,7 @@ services:
       ACCEPT_EULA: "Y"
       MSSQL_SA_PASSWORD: "ALTgit88999"
     ports:
-      - "1434:1433"  # פורט החיצוני הוא 1434, הפורט הפנימי של הקונטיינר נשאר 1433
+      - "1434:1433" 
     volumes:
       - sql_data:/var/opt/mssql
     healthcheck:
@@ -37,7 +37,6 @@ services:
     environment:
       ASPNETCORE_URLS: http://+:5217
       DOTNET_ENVIRONMENT: Development
-      # כאן חשוב להשתמש בפורט הפנימי של הקונטיינר (1433)
       ConnectionStrings__libraryDB: "Server=db,1433;Database=libraryDB;User Id=sa;Password=ALTgit88999;TrustServerCertificate=true;MultipleActiveResultSets=true"
     depends_on:
       db:

@@ -37,7 +37,7 @@ namespace LIBRARY.Controllers
                     Book = new BookDTO
                     {
                         Name = bs.Book.Name,
-                        Category = bs.Book.Category,
+                        CategoryId = bs.Book.CategoryId,
                         AudienceId = bs.Book.AudienceId,
                         AuthorId = bs.Book.AuthorId
                     }

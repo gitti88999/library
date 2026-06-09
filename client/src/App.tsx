@@ -48,11 +48,11 @@
 // export default App;
 // App.tsx
 // src/App.tsx
-import React from "react";
+import React, { useState, useMemo } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import { useSelector } from "react-redux";
-import theme from "./Theme";
+import { getTheme } from "./Theme";
 
 import Home from "./Pages/Home/Home";
 import Login from "./Pages/Login/Login";
@@ -62,46 +62,51 @@ import Search from "./Pages/Search/Search";
 import BorrowBook from "./Pages/BorrowBook/BorrowBook";
 import Navbar from "./components/Home/NavBar";
 import ProtectedRoute from "./components/ProtectedRoute";
-import type { RootState } from "./store/store";
+import type { RootState } from "./app/store";
 
 const App: React.FC = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   const isLoggedIn = !!user;
 
+  // מצב ערכת נושא
+  const [mode, setMode] = useState<"light" | "dark">(
+    (localStorage.getItem("theme") as "light" | "dark") || "dark"
+  );
+
+  const theme = useMemo(() => getTheme(mode), [mode]);
+
+  const toggleTheme = () => {
+    const newMode: "light" | "dark" = mode === "dark" ? "light" : "dark";
+    setMode(newMode);
+    localStorage.setItem("theme", newMode);
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <Router>
-        <Navbar isLoggedIn={isLoggedIn} />
+        <Navbar isLoggedIn={isLoggedIn} toggleTheme={toggleTheme} currentMode={mode} />
 
         <Routes>
           <Route path="/" element={<Home />} />
-
-          <Route
-            path="/login"
-            element={isLoggedIn ? <Navigate to="/library" /> : <Login />}
-          />
-
+          <Route path="/login" element={isLoggedIn ? <Navigate to="/library" /> : <Login />} />
           <Route path="/register" element={<Register />} />
-
           <Route
             path="/library"
             element={
               <ProtectedRoute>
-                <Library books={user?.books || []} onDelete={() => {}} />
+                <Library />
               </ProtectedRoute>
             }
           />
-
           <Route
             path="/search"
             element={
               <ProtectedRoute>
-                <Search books={user?.books || []} />
+                <Search />
               </ProtectedRoute>
             }
           />
-
           <Route
             path="/borrow/:id"
             element={

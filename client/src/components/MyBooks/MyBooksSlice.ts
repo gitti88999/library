@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
+import { Audience } from "../../types/book";
 const apiUrl: string = import.meta.env.VITE_API_URL;
 console.log(apiUrl);
 
@@ -53,11 +54,13 @@ export const addUser=createAsyncThunk(
 
 )
 export interface BooksState {
+    audiences: Audience[];
     items: Array<any>,
     status: String,
     error: String | undefined,
 }
 const initialState: BooksState = {
+    audiences:[],
     items: [],
     status: '',
     error: '',

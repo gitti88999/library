@@ -22,15 +22,15 @@ namespace LIBRARY.Controllers
             {
                 return BadRequest("The name is required.");
             }
-            if (book.Category==0)
+            if (book.CategoryId==null)
             {
                 return BadRequest("The Category is required.");
             }
-            if (book.AudienceId==0)
+            if (book.AudienceId==null)
             {
                 return BadRequest("The Audience is required.");
             }
-             if (book.AuthorId==0)
+             if (book.AuthorId==null)
             {
                 return BadRequest("The Author is required.");
             }
@@ -43,7 +43,7 @@ namespace LIBRARY.Controllers
             {
                 BookId = Guid.NewGuid(),
                 Name = book.Name,
-                Category = book.Category,
+                CategoryId = book.CategoryId,
                 AudienceId = book.AudienceId,
                 AuthorId = book.AuthorId,
             };
@@ -59,7 +59,7 @@ namespace LIBRARY.Controllers
                 .Select(b => new BookDTO
                 {
                     Name = b.Name,
-                    Category = b.Category,
+                    CategoryId = b.CategoryId,
                     AudienceId = b.AudienceId,
                     AuthorId = b.AuthorId
                 })

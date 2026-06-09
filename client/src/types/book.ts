@@ -1,11 +1,23 @@
 export interface BookDTO {
   name: string;
-  category: number;
-  audienceId: number;
-  authorId: number;
+  categoryId: string;
+  audienceId: string;
+  authorId: string;
 }
 export interface BookSessionDTO {
   book: BookDTO;
   bookSessionId: string;
   enabled: boolean;
+}
+export interface Audience {
+  Id: string;
+  Name: string;
+}
+export interface Author {
+  Id: string;
+  Name: string;
+}
+export interface Category {
+  Id: string;
+  Name: string;
 }

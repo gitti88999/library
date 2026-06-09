@@ -3,7 +3,6 @@ import axios from "axios";
 import type { BookDTO, BookSessionDTO } from "../../types/book";
 
 const apiUrl: string = import.meta.env.VITE_API_URL;
-
 export const addBook = createAsyncThunk(
     "posts/addBook",
     async (Book: BookDTO) => {
@@ -21,7 +20,6 @@ export const getMyBooks = createAsyncThunk(
         const response = await axios.get<BookSessionDTO[]>(
             `${apiUrl}/api/Collaborator/3bba5fe8-a0bc-4d0e-9a02-076e227e9643/booksessions`
         );
-        console.log(response.data);
 
         return response.data;
     }
@@ -29,12 +27,12 @@ export const getMyBooks = createAsyncThunk(
 export interface BooksState {
     items: BookSessionDTO[],
     status: String,
-    error: String | undefined,
+    error: String | null,
 }
 const initialState: BooksState = {
     items: [],
     status: '',
-    error: '',
+    error: null,
 }
 
 const MyBooksSlice = createSlice({
@@ -42,10 +40,8 @@ const MyBooksSlice = createSlice({
     initialState,
     reducers: {
         addData: (state: BooksState, action) => {
-            console.log(action);
             state.items = [...state.items, action.payload];
         },
-        // deleteAllData:()
     },
     extraReducers: builder => {
         builder
@@ -60,19 +56,18 @@ const MyBooksSlice = createSlice({
 
             .addCase(addBook.rejected, (state, action) => {
                 state.status = "failed";
-                state.error = action.error.message;
+                state.error = action.error.message??null;
             })
             .addCase(getMyBooks.pending, (state) => {
                 state.status = 'loading';
             })
             .addCase(getMyBooks.fulfilled, (state, action) => {
-                console.log("REDUX PAYLOAD:", action.payload);
                 state.status = 'succeeded';
                 state.items = action.payload;
             })
             .addCase(getMyBooks.rejected, (state, action) => {
                 state.status = 'failed';
-                state.error = action.error.message;
+                state.error = action.error.message??null;
             })
     },
 })

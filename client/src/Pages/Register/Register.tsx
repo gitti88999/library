@@ -6,11 +6,12 @@ import {
   Container,
   Paper,
   Stack,
-  TextField,
   Button,
   Typography,
   Box,
+  useTheme,
 } from "@mui/material";
+import TextField from "@mui/material/TextField";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 
 const MAP_CONTAINER_STYLE = {
@@ -18,9 +19,10 @@ const MAP_CONTAINER_STYLE = {
   height: "300px",
 };
 
-const DEFAULT_CENTER = { lat: 32.0853, lng: 34.7818 }; // תל אביב ברירת מחדל
+const DEFAULT_CENTER = { lat: 32.0853, lng: 34.7818 };
 
 const Register: React.FC = () => {
+  const theme = useTheme();
   const dispatch = useDispatch<any>();
   const userState = useSelector((state: ReduxRootState) => state.myUser);
 
@@ -43,15 +45,10 @@ const Register: React.FC = () => {
           ...prev,
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
-          
         }));
         setLocationFetched(true);
       },
-      (error) => {
-        console.error("Geolocation error:", error);
-        console.error("Code:", error.code);
-  console.error("Message:", error.message);
-      },
+      (error) => console.error(error),
       { timeout: 30000 }
     );
   }, []);
@@ -60,8 +57,7 @@ const Register: React.FC = () => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]:
-        name === "latitude" || name === "longitude" ? Number(value) : value,
+      [name]: name === "latitude" || name === "longitude" ? Number(value) : value,
     }));
   };
 
@@ -81,26 +77,29 @@ const Register: React.FC = () => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+        background: theme.palette.background.default,
         px: 2,
       }}
     >
       <Container maxWidth="sm">
         <Paper
           sx={{
-            p: 4,
-            borderRadius: 6,
+            p: 5,
+            borderRadius: theme.shape.borderRadius,
             textAlign: "center",
-            background: "rgba(15,23,42,0.75)",
+            backgroundColor: theme.palette.background.paper,
+            color: theme.palette.text.primary,
+            backdropFilter: "blur(18px)",
+            boxShadow: theme.shadows[20],
           }}
         >
-          <Typography variant="h3" sx={{ color: "#fff", mb: 3 }}>
+          <Typography variant="h3" sx={{ mb: 3 }}>
             הרשמה
           </Typography>
 
           {userState.status === "loading" && <p>Registering user...</p>}
           {userState.status === "failed" && (
-            <p style={{ color: "red" }}>{userState.error}</p>
+            <p style={{ color: theme.palette.error.main }}>{userState.error}</p>
           )}
 
           <form onSubmit={handleSubmit}>
@@ -111,7 +110,6 @@ const Register: React.FC = () => {
                 value={formData.name}
                 onChange={handleChange}
                 fullWidth
-                InputLabelProps={{ shrink: true }}
               />
               <TextField
                 label="Email"
@@ -120,7 +118,6 @@ const Register: React.FC = () => {
                 value={formData.email}
                 onChange={handleChange}
                 fullWidth
-                InputLabelProps={{ shrink: true }}
               />
               <TextField
                 label="Password"
@@ -129,7 +126,6 @@ const Register: React.FC = () => {
                 value={formData.password}
                 onChange={handleChange}
                 fullWidth
-                InputLabelProps={{ shrink: true }}
               />
 
               <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
@@ -148,8 +144,6 @@ const Register: React.FC = () => {
                 type="number"
                 value={formData.latitude}
                 fullWidth
-                variant="outlined"
-                InputProps={{ readOnly: true }}
               />
               <TextField
                 label="Longitude"
@@ -157,11 +151,20 @@ const Register: React.FC = () => {
                 type="number"
                 value={formData.longitude}
                 fullWidth
-                variant="outlined"
-                InputProps={{ readOnly: true }}
               />
 
-              <Button variant="contained" type="submit">
+              <Button
+                variant="contained"
+                type="submit"
+                sx={{
+                  py: 1.5,
+                  fontWeight: "bold",
+                  background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
+                  "&:hover": {
+                    background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.secondary.dark})`,
+                  },
+                }}
+              >
                 הירשם
               </Button>
             </Stack>

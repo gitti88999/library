@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import {
   Container,
   Typography,
@@ -7,14 +7,17 @@ import {
   Card,
   CardContent,
   Button,
-  CircularProgress
+  CircularProgress,
+  MenuItem,
 } from "@mui/material";
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import type { AppDispatch, RootState } from "../../app/store";
 import { getBooks } from "./SearchSlice";
-import type { BookDTO } from "../../types/book";
+import { getAudiences } from "../Library/AudienceSlice";
+import { getAuthors } from "../Library/AuthorSlice";
+import { getCategories } from "../Library/CategorySlice";
 
 const Search: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -23,25 +26,71 @@ const Search: React.FC = () => {
   const books = useSelector((state: RootState) => state.allBooks.items);
   const status = useSelector((state: RootState) => state.allBooks.status);
 
+  const audiences = useSelector((state: RootState) => state.audiences.items);
+  const authors = useSelector((state: RootState) => state.authors.items);
+  const categories = useSelector((state: RootState) => state.categories.items);
+
   const [searchTerm, setSearchTerm] = useState("");
   const [isTableView, setIsTableView] = useState(false);
 
-  // קריאה לשרת
+  const [selectedAudience, setSelectedAudience] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedAuthor, setSelectedAuthor] = useState("");
+
   useEffect(() => {
     dispatch(getBooks());
+    dispatch(getAudiences());
+    dispatch(getAuthors());
+    dispatch(getCategories());
   }, [dispatch]);
 
   const safeBooks = Array.isArray(books) ? books : [];
-  const results = safeBooks.filter((b) =>
-    (b?.name ?? "").toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
-  // עמודות לטבלה
+  // maps
+  const audienceMap = useMemo(() => {
+    const m: Record<string, string> = {};
+    audiences.forEach((a: any) => (m[a.id] = a.name));
+    return m;
+  }, [audiences]);
+
+  const categoryMap = useMemo(() => {
+    const m: Record<string, string> = {};
+    categories.forEach((c: any) => (m[c.id] = c.name));
+    return m;
+  }, [categories]);
+
+  const authorMap = useMemo(() => {
+    const m: Record<string, string> = {};
+    authors.forEach((a: any) => (m[a.id] = a.name));
+    return m;
+  }, [authors]);
+
+  const results = safeBooks.filter((b: any) => {
+    const matchesSearch = (b.name ?? "")
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+
+    return (
+      matchesSearch &&
+      (!selectedAudience || b.audienceId === selectedAudience) &&
+      (!selectedCategory || b.categoryId === selectedCategory) &&
+      (!selectedAuthor || b.authorId === selectedAuthor)
+    );
+  });
+
+  const rows = results.map((book: any) => ({
+    id: book.id ?? book.name, 
+    name: book.name,
+    category: categoryMap[book.categoryId] || "",
+    audience: audienceMap[book.audienceId] || "",
+    author: authorMap[book.authorId] || "",
+  }));
+
   const columns: GridColDef[] = [
     { field: "name", headerName: "שם הספר", flex: 1 },
     { field: "category", headerName: "קטגוריה", flex: 1 },
-    { field: "audienceId", headerName: "קהל יעד", flex: 1 },
-    { field: "authorId", headerName: "מחבר", flex: 1 },
+    { field: "audience", headerName: "קהל יעד", flex: 1 },
+    { field: "author", headerName: "מחבר", flex: 1 },
     {
       field: "select",
       headerName: "בחר",
@@ -52,16 +101,11 @@ const Search: React.FC = () => {
           size="small"
           onClick={() => navigate(`/borrow/${params.row.id}`)}
         >
-          בחר ספר
+          בחר
         </Button>
       ),
     },
   ];
-
-  const rows = results.map((book, index) => ({
-    id: index,
-    ...book
-  }));
 
   return (
     <Container maxWidth="md" sx={{ mt: 8, direction: "rtl" }}>
@@ -69,74 +113,101 @@ const Search: React.FC = () => {
         חיפוש ספרים
       </Typography>
 
-      {/* 🔍 TextField */}
       <TextField
         fullWidth
         label="חפש ספר..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        disabled={status === "loading"}
-        sx={{
-          mb: 3,
-          "& input": {
-            textAlign: "right"
-          }
-        }}
+        sx={{ mb: 2 }}
       />
 
-      {/* 🔄 LOADING */}
-      {status === "loading" && <CircularProgress sx={{ mb: 3 }} />}
+      <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
+        <TextField
+          select
+          label="קהל יעד"
+          value={selectedAudience}
+          onChange={(e) => setSelectedAudience(e.target.value)}
+        >
+          <MenuItem value="">הכל</MenuItem>
+          {audiences.map((a: any) => (
+            <MenuItem key={a.id} value={a.id}>
+              {a.name}
+            </MenuItem>
+          ))}
+        </TextField>
 
-      {/* 🔀 Toggle View */}
+        <TextField
+          select
+          label="קטגוריה"
+          value={selectedCategory}
+          onChange={(e) => setSelectedCategory(e.target.value)}
+        >
+          <MenuItem value="">הכל</MenuItem>
+          {categories.map((c: any) => (
+            <MenuItem key={c.id} value={c.id}>
+              {c.name}
+            </MenuItem>
+          ))}
+        </TextField>
+
+        <TextField
+          select
+          label="מחבר"
+          value={selectedAuthor}
+          onChange={(e) => setSelectedAuthor(e.target.value)}
+        >
+          <MenuItem value="">הכל</MenuItem>
+          {authors.map((a: any) => (
+            <MenuItem key={a.id} value={a.id}>
+              {a.name}
+            </MenuItem>
+          ))}
+        </TextField>
+      </Stack>
+
+      {status === "loading" && <CircularProgress />}
+
       <Button
         variant="contained"
-        onClick={() => setIsTableView(!isTableView)}
         sx={{ mb: 3 }}
-        disabled={status === "loading"}
+        onClick={() => setIsTableView(!isTableView)}
       >
-        {isTableView ? "תצוגת כרטיסים" : "תצוגת טבלה"}
+        {isTableView ? "כרטיסים" : "טבלה"}
       </Button>
 
-      {/* 📊 Table / Cards */}
       {isTableView ? (
-        <div style={{ height: 400, width: "100%" }}>
+        <div style={{ height: 420 }}>
           <DataGrid
             rows={rows}
             columns={columns}
-            pageSizeOptions={[5, 10]}
-            sx={{
-              direction: "rtl",
-              "& .MuiDataGrid-cell": { textAlign: "right" },
-              "& .MuiDataGrid-columnHeaders": { textAlign: "right" },
-            }}
+            getRowId={(row) => row.id}
+            pageSizeOptions={[5, 10, 20]}
           />
         </div>
       ) : (
-        <Stack spacing={2} alignItems="flex-end">
-          {results.length === 0 && status !== "loading" ? (
-            <Typography>לא נמצאו תוצאות</Typography>
-          ) : (
-            results.map((book, index) => (
-              <Card key={index}>
-                <CardContent>
-                  <Typography variant="h6">{book.name}</Typography>
-                  <Typography color="text.secondary">
-                    מחבר: {book.authorId}
-                  </Typography>
-                  <Typography color="text.secondary">
-                    קטגוריה: {book.category} | קהל יעד: {book.audienceId}
-                  </Typography>
-                  <Button
-                    variant="contained"
-                    sx={{ mt: 1 }}
-                    onClick={() => navigate(`/borrow/${index}`)}
-                  >
-                    בחר ספר
-                  </Button>
-                </CardContent>
-              </Card>
-            ))
-          )}
+        <Stack spacing={2}>
+          {results.map((book: any) => (
+            <Card key={book.name}>
+              <CardContent>
+                <Typography variant="h6">{book.name}</Typography>
+                <Typography>
+                  מחבר: {authorMap[book.authorId]}
+                </Typography>
+                <Typography>
+                  קטגוריה: {categoryMap[book.categoryId]} | קהל יעד:{" "}
+                  {audienceMap[book.audienceId]}
+                </Typography>
+
+                <Button
+                  variant="contained"
+                  sx={{ mt: 1 }}
+                  onClick={() => navigate(`/borrow/${book.name}`)}
+                >
+                  בחר
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
         </Stack>
       )}
     </Container>
