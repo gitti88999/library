@@ -46,6 +46,7 @@ const Library: React.FC = () => {
 
   // ספרים
   const  items  = useSelector((state: RootState) => state.myBooks.items);
+  console.log(items);
   const  status  = useSelector((state: RootState) => state.myBooks.status);
   const  error  = useSelector((state: RootState) => state.myBooks.error);
 
