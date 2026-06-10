@@ -65,7 +65,10 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import type { RootState } from "./app/store";
 
 const App: React.FC = () => {
-  const user = useSelector((state: RootState) => state.auth.user);
+  // const user = useSelector((state: RootState) => state.auth.user);
+  const user = useSelector(
+  (state: RootState) => state.myUser.currentUser
+);
   const isLoggedIn = !!user;
 
   // מצב ערכת נושא

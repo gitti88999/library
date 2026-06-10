@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
+
+import { useEffect, useState, useMemo } from "react";
 import {
   Container,
   Typography,
@@ -14,12 +15,12 @@ import {
   MenuItem,
   Select,
   InputLabel,
-  FormControl
-} from '@mui/material';
-import { useDispatch, useSelector } from 'react-redux';
-import type { AppDispatch, RootState } from '../../app/store';
-import { getMyBooks, addBook } from './LibrarySlice';
-import type { BookDTO, BookSessionDTO } from '../../types/book';
+  FormControl,
+} from "@mui/material";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "../../app/store";
+import { getMyBooks, addBook } from "./LibrarySlice";
+import { BookDTO } from "../../types/book";
 import { getAudiences } from './AudienceSlice';
 import { getAuthors } from './AuthorSlice';
 import { getCategories } from './CategorySlice';
@@ -27,40 +28,86 @@ import { getCategories } from './CategorySlice';
 const Library: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
 
-  const books = useSelector((state: RootState) => state.myBooks.items);
-  const audiences = useSelector((state: RootState) => state.audiences.items);
-  const authors = useSelector((state: RootState) => state.authors.items);
-  const categories = useSelector((state: RootState) => state.categories.items);
-
+  // Hooks חייבים להיות בתוך הקומפוננטה
   const [open, setOpen] = useState(false);
-
   const [book, setBook] = useState<BookDTO>({
-    name: '',
-    categoryId: '',
-    audienceId: '',
-    authorId: '',
+    name: "",
+    categoryId: "",
+    audienceId: "",
+    authorId: "",
   });
+
+  // משתמש נוכחי
+  const currentUser = useSelector(
+    (state: RootState) => state.myUser.currentUser
+  );
+  const allState = useSelector((state: RootState) => state);
+
+
+  // ספרים
+  const  items  = useSelector((state: RootState) => state.myBooks.items);
+  const  status  = useSelector((state: RootState) => state.myBooks.status);
+  const  error  = useSelector((state: RootState) => state.myBooks.error);
+
+  // רשימות לבחירה
+  const audiences = useSelector((state: RootState) => state.audiences.items);
+  const categories = useSelector((state: RootState) => state.categories.items);
+  const authors = useSelector((state: RootState) => state.authors.items);
 
   useEffect(() => {
     dispatch(getAudiences());
     dispatch(getAuthors());
     dispatch(getCategories());
-    dispatch(getMyBooks());
+    console.log(currentUser);
+    
+    if (currentUser?.id) {
+      dispatch(getMyBooks());
+      console.log('dispatch get my books');
+      
+    }
   }, [dispatch]);
+
+  useEffect(() => {
+    console.log({status});
+    
+    switch (status) {
+      case "succeeded":
+        console.log({ items })
+        break;
+      case "failed":
+        console.log({ error })
+        break
+    }
+  }, [status])
 
   const safeAudiences = useMemo(() => audiences ?? [], [audiences]);
   const safeAuthors = useMemo(() => authors ?? [], [authors]);
   const safeCategories = useMemo(() => categories ?? [], [categories]);
+  // Fetch ספרים כשמשתמש מחובר
+  // useEffect(() => {
+  //   if (currentUser?.id) {
+  //     dispatch(getMyBooks());
+  //   }
+  // }, [dispatch, currentUser?.id]);
 
-  const handleAdd = () => {
-    dispatch(addBook(book));
-    dispatch(getMyBooks());
-    setOpen(false);
+  // הוספת ספר חדש
+  const handleAdd = async () => {
+    try {
+      const res = await dispatch(addBook(book));
+      await dispatch(getMyBooks());
+      // console.log("res",res.payload.name);
+      setBook({ name: "", categoryId: "", audienceId: "", authorId: "" });
+      setOpen(false);
+      dispatch(getMyBooks());
+    } catch (err) {
+      console.error(err);
+    }
   };
 
-  const results = (books || []).filter(
-    (b: BookSessionDTO) => b?.book?.name
-  );
+  if (!currentUser) return <div>יש להתחבר למערכת</div>;
+  if (status === "loading") return <div>טוען ספרים...</div>;
+  if (status === "failed") return <div>{error}</div>;
+
 
   return (
     <Container maxWidth="md" sx={{ mt: 8 }}>
@@ -73,10 +120,11 @@ const Library: React.FC = () => {
       </Button>
 
       <Stack spacing={2}>
-        {results.length === 0 ? (
+        {items.length === 0 ? (
+
           <Typography>אין ספרים להצגה</Typography>
         ) : (
-          results.map((item: BookSessionDTO) => (
+          items.map((item) => (
             <Card key={item.bookSessionId}>
               <CardContent>
                 <Typography variant="h6">{item.book.name ?? item.book.name}</Typography>

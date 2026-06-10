@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { addUser } from "./RegisterSlice";
+import { addUser } from "../UserSlice";
 import type { RootState as ReduxRootState } from "../../app/store";
 import {
   Container,
@@ -20,11 +20,11 @@ const MAP_CONTAINER_STYLE = {
 };
 
 const DEFAULT_CENTER = { lat: 32.0853, lng: 34.7818 };
-
 const Register: React.FC = () => {
   const theme = useTheme();
   const dispatch = useDispatch<any>();
   const userState = useSelector((state: ReduxRootState) => state.myUser);
+const [success, setSuccess] = useState("");
 
   const [formData, setFormData] = useState({
     name: "",
@@ -64,7 +64,11 @@ const Register: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await dispatch(addUser(formData)).unwrap();
+      const newUser =await dispatch(addUser(formData)).unwrap();
+      setSuccess("נרשמת בהצלחה");
+      console.log("newUser.collaboratorId",newUser.collaboratorId);
+      console.log("newUser.name",newUser.name);
+
     } catch (error) {
       console.error("Registration failed:", error);
     }
