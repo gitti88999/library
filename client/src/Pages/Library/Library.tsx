@@ -59,13 +59,12 @@ const Library: React.FC = () => {
     dispatch(getAuthors());
     dispatch(getCategories());
     console.log(currentUser);
-    
+
     if (currentUser?.id) {
       dispatch(getMyBooks());
       console.log('dispatch get my books');
-      
     }
-  }, [dispatch]);
+  }, [dispatch, currentUser?.id]);
 
   useEffect(() => {
     console.log({status});
