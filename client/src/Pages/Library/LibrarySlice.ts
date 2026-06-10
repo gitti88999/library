@@ -107,24 +107,24 @@ const apiUrl: string = import.meta.env.VITE_API_URL;
 
 // Fetch books for the current user
 export const getMyBooks = createAsyncThunk(
-  "books/getBooks",
+  "myBooks/getMyBooks",
   async (_, thunkAPI) => {
     const state = thunkAPI.getState() as RootState;
     const userId = state.myUser.currentUser?.id;
     console.log("Fetching books for userId:", userId);
     if (!userId) throw new Error("User not logged in");
-try{
-    const response = await axios.get<BookSessionDTO[]>(
-      `${apiUrl}/api/Collaborator/${userId}/booksessions`
-    );
-    console.log("Fetched books:", response.data);
-    return response.data;
-  }
-  catch (err) {
-    console.log(err);
-    thunkAPI.rejectWithValue(err)
-    
-  }
+    try {
+      const response = await axios.get<BookSessionDTO[]>(
+        `${apiUrl}/api/Collaborator/${userId}/booksessions`
+      );
+      console.log("Fetched books:", response.data);
+      return response.data;
+    } catch (err: any) {
+      console.log(err);
+      return thunkAPI.rejectWithValue(
+        err?.response?.data ?? err?.message ?? "Failed to load books"
+      );
+    }
   }
 );
 
