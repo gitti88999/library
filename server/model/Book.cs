@@ -22,4 +22,9 @@ namespace LIBRARY.Models
         public Guid AudienceId { get; set; }
         public Guid AuthorId { get; set; }
     }
+    public class AddBookParams
+{
+    public BookDTO Book { get; set; } = null!;
+    public Guid CollaboratorId { get; set; }
+}
 }

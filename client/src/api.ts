@@ -1,5 +1,5 @@
 // src/config.ts
-export const apiUrl = (): string => {
+export const  = (): string => {
   // בסביבת פיתוח / build רגיל (Vite)
   if (typeof import.meta !== "undefined" && import.meta.env?.VITE_API_URL) {
     return import.meta.env.VITE_API_URL;

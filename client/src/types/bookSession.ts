@@ -9,5 +9,4 @@ export interface BookSession {
     id: string;
     bookId: string;
     enabled: boolean;
-    collaborator: Collaborator;
-}
+collaboratorId: string;}

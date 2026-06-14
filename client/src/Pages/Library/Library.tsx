@@ -24,37 +24,37 @@ import { BookDTO } from "../../types/book";
 import { getAudiences } from './AudienceSlice';
 import { getAuthors } from './AuthorSlice';
 import { getCategories } from './CategorySlice';
-
 const Library: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
 
-  // Hooks חייבים להיות בתוך הקומפוננטה
+ 
   const [open, setOpen] = useState(false);
   const [book, setBook] = useState<BookDTO>({
+    id:"",
     name: "",
     categoryId: "",
     audienceId: "",
     authorId: "",
+    
   });
-
-  // משתמש נוכחי
+ 
   const currentUser = useSelector(
     (state: RootState) => state.myUser.currentUser
   );
+  const [refresh, setRefresh] = useState(false);
   const allState = useSelector((state: RootState) => state);
 
-
-  // ספרים
   const  items  = useSelector((state: RootState) => state.myBooks.items);
-  console.log(items);
   const  status  = useSelector((state: RootState) => state.myBooks.status);
   const  error  = useSelector((state: RootState) => state.myBooks.error);
+console.log("items",items);
 
-  // רשימות לבחירה
   const audiences = useSelector((state: RootState) => state.audiences.items);
   const categories = useSelector((state: RootState) => state.categories.items);
   const authors = useSelector((state: RootState) => state.authors.items);
-
+const books = useSelector(
+  (state: RootState) => state.myBooks.items
+);
   useEffect(() => {
     dispatch(getAudiences());
     dispatch(getAuthors());
@@ -65,7 +65,7 @@ const Library: React.FC = () => {
       dispatch(getMyBooks());
       console.log('dispatch get my books');
     }
-  }, [dispatch, currentUser?.id]);
+  }, [dispatch, currentUser?.id,refresh]);
 
   useEffect(() => {
     console.log({status});
@@ -83,30 +83,55 @@ const Library: React.FC = () => {
   const safeAudiences = useMemo(() => audiences ?? [], [audiences]);
   const safeAuthors = useMemo(() => authors ?? [], [authors]);
   const safeCategories = useMemo(() => categories ?? [], [categories]);
-  // Fetch ספרים כשמשתמש מחובר
-  // useEffect(() => {
-  //   if (currentUser?.id) {
-  //     dispatch(getMyBooks());
-  //   }
-  // }, [dispatch, currentUser?.id]);
+ const onlyBooks: BookDTO[] = books.map(item => item.book ?? item).filter(Boolean);
+  
 
-  // הוספת ספר חדש
-  const handleAdd = async () => {
-    try {
-      const res = await dispatch(addBook(book));
-      await dispatch(getMyBooks());
-      // console.log("res",res.payload.name);
-      setBook({ name: "", categoryId: "", audienceId: "", authorId: "" });
-      setOpen(false);
-      dispatch(getMyBooks());
-    } catch (err) {
-      console.error(err);
-    }
-  };
+const [successMsg, setSuccessMsg] = useState<string | null>(null);
+const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+const handleAdd = async () => {
+  if (!currentUser?.id) return;
+
+  try {
+    const result = await dispatch(
+      addBook({
+        name: book.name,
+        categoryId: book.categoryId,
+        audienceId: book.audienceId,
+        authorId: book.authorId,
+        collaboratorId: currentUser.id,
+      })
+    ).unwrap();
+
+    setSuccessMsg("הספר נוסף בהצלחה");
+    setErrorMsg(null);
+
+    setBook({
+      id: "",
+      name: "",
+      categoryId: "",
+      audienceId: "",
+      authorId: "",
+    });
+
+    setOpen(false);
+
+   
+    await dispatch(getMyBooks());
+
+  } catch (err: any) {
+    setSuccessMsg(null);
+
+    setErrorMsg(
+      typeof err === "string"
+        ? err
+        : err?.data || err?.message || "הספר כבר קיים או שגיאה בהוספה"
+    );
+  }
+};
   if (!currentUser) return <div>יש להתחבר למערכת</div>;
   if (status === "loading") return <div>טוען ספרים...</div>;
-  if (status === "failed") return <div>{error}</div>;
+
 
 
   return (
@@ -118,27 +143,27 @@ const Library: React.FC = () => {
       <Button variant="contained" onClick={() => setOpen(true)} sx={{ mb: 3 }}>
         הוספת ספר חדש
       </Button>
-
+{error && (
+      <Typography color="error" sx={{ mb: 2 }}>
+        {error}
+      </Typography>
+    )}
       <Stack spacing={2}>
-        {items.length === 0 ? (
+        {onlyBooks.length === 0 ? (
 
           <Typography>אין ספרים להצגה</Typography>
         ) : (
-          items.map((item) => (
-            <Card key={item.bookSessionId}>
-              <CardContent>
-                <Typography variant="h6">{item.book.name ?? item.book.name}</Typography>
-
-                <Typography color="text.secondary">
-                  מחבר: {item.book.authorId}
-                </Typography>
-
-                <Typography color="text.secondary">
-                  קטגוריה: {item.book.categoryId} | קהל יעד: {item.book.audienceId}
-                </Typography>
-              </CardContent>
-            </Card>
-          ))
+          onlyBooks.map((book) => (
+    <Card key={book.id ?? book.name}>
+    <CardContent>
+      <Typography variant="h6">{book.name}</Typography>
+      <Typography color="text.secondary">מחבר: {book.authorId}</Typography>
+      <Typography color="text.secondary">
+        קטגוריה: {book.categoryId} | קהל יעד: {book.audienceId}
+      </Typography>
+    </CardContent>
+  </Card>
+))
         )}
       </Stack>
 
