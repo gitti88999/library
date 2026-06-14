@@ -115,7 +115,7 @@ const Search: React.FC = () => {
 
       <TextField
         fullWidth
-        label="חפש ספר..."
+        label="...חפש ספר"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         sx={{ mb: 2 }}

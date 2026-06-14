@@ -477,63 +477,68 @@ const Library: React.FC = () => {
         <DialogTitle>הוספת ספר</DialogTitle>
 
         <DialogContent>
-          <TextField
-            fullWidth
-            label="שם הספר"
-            value={book.name}
-            onChange={(e) =>
-              setBook({ ...book, name: e.target.value })
-            }
-            sx={{ mt: 2 }}
-          />
+          <Stack spacing={2} sx={{ mt: 1 }}>
 
-          <FormControl fullWidth sx={{ mt: 2 }}>
-            <InputLabel>קטגוריה</InputLabel>
-            <Select
-              value={book.categoryId}
-              onChange={(e) =>
-                setBook({ ...book, categoryId: String(e.target.value) })
-              }
-            >
-              {categories.map((c: any) => (
-                <MenuItem key={c.id} value={c.id}>
-                  {c.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+            <TextField
+              label="שם הספר"
+              value={book.name}
+              
+              
+              onChange={(e) => setBook({ ...book, name: e.target.value })}
+            />
 
-          <FormControl fullWidth sx={{ mt: 2 }}>
-            <InputLabel>קהל יעד</InputLabel>
-            <Select
-              value={book.audienceId}
-              onChange={(e) =>
-                setBook({ ...book, audienceId: String(e.target.value) })
-              }
-            >
-              {audiences.map((a: any) => (
-                <MenuItem key={a.id} value={a.id}>
-                  {a.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+            <FormControl fullWidth>
+              <InputLabel>קטגוריה</InputLabel>
+              <Select
+                value={book.categoryId || ''}
+                label="קטגוריה"
+                onChange={(e) =>
+                  setBook({ ...book, categoryId: String(e.target.value) })
+                }
+              >
+                {safeCategories.map((c: any) => (
+                  <MenuItem key={c.id ?? c.Id} value={c.id ?? c.Id}>
+                    {c.name ?? c.Name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
 
-          <FormControl fullWidth sx={{ mt: 2 }}>
-            <InputLabel>מחבר</InputLabel>
-            <Select
-              value={book.authorId}
-              onChange={(e) =>
-                setBook({ ...book, authorId: String(e.target.value) })
-              }
-            >
-              {authors.map((a: any) => (
-                <MenuItem key={a.id} value={a.id}>
-                  {a.name}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+            <FormControl fullWidth>
+              <InputLabel>קהל יעד</InputLabel>
+              <Select
+                value={book.audienceId || ''}
+                label="קהל יעד"
+                onChange={(e) =>
+                  setBook({ ...book, audienceId: String(e.target.value) })
+                }
+              >
+                {safeAudiences.map((a: any) => (
+                  <MenuItem key={a.id ?? a.Id} value={a.id ?? a.Id}>
+                    {a.name ?? a.Name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+            <FormControl fullWidth>
+              <InputLabel>מחבר</InputLabel>
+              <Select
+                value={book.authorId || ''}
+                label="מחבר"
+                onChange={(e) =>
+                  setBook({ ...book, authorId: String(e.target.value) })
+                }
+              >
+                {safeAuthors.map((a: any) => (
+                  <MenuItem key={a.id ?? a.Id} value={a.id ?? a.Id}>
+                    {a.name ?? a.Name}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+
+          </Stack>
         </DialogContent>
 
         <DialogActions>

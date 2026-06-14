@@ -1,10 +1,21 @@
 import { createTheme } from '@mui/material/styles';
+import createCache from '@emotion/cache';
+import rtlPlugin from 'stylis-plugin-rtl';
+import { prefixer } from 'stylis';
 
+// RTL cache
+export const rtlCache = createCache({
+  key: 'muirtl',
+  stylisPlugins: [prefixer, rtlPlugin],
+});
+
+// Theme
 export const getTheme = (mode: 'light' | 'dark') => {
   const isDark = mode === 'dark';
 
   return createTheme({
     direction: 'rtl',
+
     palette: {
       mode,
       primary: { main: '#2563eb' },
@@ -20,12 +31,28 @@ export const getTheme = (mode: 'light' | 'dark') => {
         secondary: isDark ? '#cbd5f5' : '#6b7280',
       },
 
-      divider: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.12)',
+      divider: isDark
+        ? 'rgba(255,255,255,0.12)'
+        : 'rgba(0,0,0,0.12)',
     },
 
-    shape: { borderRadius: 12 },
+    shape: {
+      borderRadius: 12,
+    },
+
+    typography: {
+      fontFamily: 'Arial, sans-serif',
+    },
 
     components: {
+      MuiCssBaseline: {
+        styleOverrides: {
+          body: {
+            direction: 'rtl',
+          },
+        },
+      },
+
       MuiPaper: {
         styleOverrides: {
           root: ({ theme }) => ({
@@ -57,6 +84,9 @@ export const getTheme = (mode: 'light' | 'dark') => {
             },
             '& .MuiInputLabel-root': {
               color: theme.palette.text.secondary,
+            },
+            '& .MuiOutlinedInput-input': {
+              textAlign: 'right',
             },
           }),
         },

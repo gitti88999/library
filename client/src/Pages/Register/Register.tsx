@@ -1,181 +1,207 @@
-import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { addUser } from "../UserSlice";
-import type { RootState as ReduxRootState } from "../../app/store";
+import React, { useEffect, useState } from "react";
 import {
-  Container,
-  Paper,
-  Stack,
+  TextField,
   Button,
+  Paper,
+  List,
+  ListItemButton,
+  Container,
+  Stack,
   Typography,
-  Box,
-  useTheme,
 } from "@mui/material";
-import TextField from "@mui/material/TextField";
-import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 
-const MAP_CONTAINER_STYLE = {
-  width: "100%",
-  height: "300px",
+import { useDebounce } from "../../api";
+import MiniMap from "./MiniMap";
+import { registerUser } from "../UserSlice";
+import { useDispatch } from "react-redux";
+import type { AppDispatch } from "../../app/store";
+
+/* ---------- TYPES ---------- */
+interface Place {
+  display_name: string;
+  lat: string;
+  lon: string;
+}
+
+/* ---------- reverse geocode ---------- */
+const reverseGeocode = async (lat: number, lon: number) => {
+  const res = await fetch(
+    `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`
+  );
+  return await res.json();
 };
 
-const DEFAULT_CENTER = { lat: 32.0853, lng: 34.7818 };
-const Register: React.FC = () => {
-  const theme = useTheme();
-  const dispatch = useDispatch<any>();
-  const userState = useSelector((state: ReduxRootState) => state.myUser);
-const [success, setSuccess] = useState("");
-
-  const [formData, setFormData] = useState({
+const Register = () => {
+  
+const dispatch = useDispatch<AppDispatch>();
+  const [form, setForm] = useState({
     name: "",
     email: "",
     password: "",
-    latitude: DEFAULT_CENTER.lat,
-    longitude: DEFAULT_CENTER.lng,
   });
 
-  const [locationFetched, setLocationFetched] = useState(false);
+  const [address, setAddress] = useState({
+    city: "",
+    street: "",
+    houseNumber: "",
+  });
+
+  const [coords, setCoords] = useState({
+    lat: 32.0853,
+    lng: 34.7818,
+  });
+
+  const [results, setResults] = useState<Place[]>([]);
+  const query = useDebounce(
+    `${address.city} ${address.street} ${address.houseNumber}`,
+    300
+  );
 
   useEffect(() => {
-    if (!navigator.geolocation) return;
+    const load = async () => {
+      if (query.trim().length < 3) return;
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setFormData((prev) => ({
-          ...prev,
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        }));
-        setLocationFetched(true);
-      },
-      (error) => console.error(error),
-      { timeout: 30000 }
-    );
-  }, []);
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&limit=5&q=${query}`
+      );
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: name === "latitude" || name === "longitude" ? Number(value) : value,
-    }));
+      const data = await res.json();
+      setResults(data);
+    };
+
+    load();
+  }, [query]);
+
+const handleSelect = async (place: Place) => {
+  setCoords({
+    lat: parseFloat(place.lat),
+    lng: parseFloat(place.lon),
+  });
+
+  const data = await reverseGeocode(
+    parseFloat(place.lat),
+    parseFloat(place.lon)
+  );
+
+  const a = data.address;
+
+  setAddress({
+    city: a.city || a.town || a.village || "",
+    street: a.road || "",
+    houseNumber: a.house_number || "",
+  });
+
+  setResults([]);
+};
+
+  const handleMapClick = async (lat: number, lng: number) => {
+    setCoords({ lat, lng });
+
+    const data = await reverseGeocode(lat, lng);
+
+    const a = data.address;
+
+    setAddress({
+      city: a.city || a.town || a.village || "",
+      street: a.road || "",
+      houseNumber: a.house_number || "",
+    });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const newUser =await dispatch(addUser(formData)).unwrap();
-      setSuccess("נרשמת בהצלחה");
-      console.log("newUser.collaboratorId",newUser.collaboratorId);
-      console.log("newUser.name",newUser.name);
-
-    } catch (error) {
-      console.error("Registration failed:", error);
-    }
+  const handleFormChange = (key: string, value: string) => {
+    setForm((p) => ({ ...p, [key]: value }));
   };
+
+  const handleAddressChange = (key: string, value: string) => {
+    setAddress((p) => ({ ...p, [key]: value }));
+  };
+
+const handleSubmit = async () => {
+  const payload = {
+    name: form.name,
+    email: form.email,
+    password: form.password,
+    latitude: coords.lat,
+    longitude: coords.lng,
+  };
+
+  console.log("REGISTER PAYLOAD:", payload);
+
+  try {
+    await dispatch(registerUser(payload)).unwrap();
+    console.log("נרשם בהצלחה");
+  } catch (err) {
+    console.error("שגיאת הרשמה:", err);
+  }
+};
 
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        background: theme.palette.background.default,
-        px: 2,
-      }}
-    >
-      <Container maxWidth="sm">
-        <Paper
-          sx={{
-            p: 5,
-            borderRadius: theme.shape.borderRadius,
-            textAlign: "center",
-            backgroundColor: theme.palette.background.paper,
-            color: theme.palette.text.primary,
-            backdropFilter: "blur(18px)",
-            boxShadow: theme.shadows[20],
-          }}
-        >
-          <Typography variant="h3" sx={{ mb: 3 }}>
-            הרשמה
-          </Typography>
+    <Container maxWidth="sm" sx={{ mt: 5 }}>
+      <Typography variant="h4">הרשמה</Typography>
 
-          {userState.status === "loading" && <p>Registering user...</p>}
-          {userState.status === "failed" && (
-            <p style={{ color: theme.palette.error.main }}>{userState.error}</p>
-          )}
+      <Stack spacing={2}>
+        <TextField
+          label="שם"
+          value={form.name}
+          onChange={(e) => handleFormChange("name", e.target.value)}
+        />
 
-          <form onSubmit={handleSubmit}>
-            <Stack spacing={3}>
-              <TextField
-                label="שם משתמש"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                fullWidth
-              />
-              <TextField
-                label="Email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                fullWidth
-              />
-              <TextField
-                label="Password"
-                name="password"
-                type="password"
-                value={formData.password}
-                onChange={handleChange}
-                fullWidth
-              />
+        <TextField
+          label="אימייל"
+          value={form.email}
+          onChange={(e) => handleFormChange("email", e.target.value)}
+        />
 
-              <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
-                <GoogleMap
-                  mapContainerStyle={MAP_CONTAINER_STYLE}
-                  center={{ lat: formData.latitude, lng: formData.longitude }}
-                  zoom={12}
-                >
-                  <Marker position={{ lat: formData.latitude, lng: formData.longitude }} />
-                </GoogleMap>
-              </LoadScript>
+        <TextField
+          label="סיסמה"
+          type="password"
+          value={form.password}
+          onChange={(e) => handleFormChange("password", e.target.value)}
+        />
 
-              <TextField
-                label="Latitude"
-                name="latitude"
-                type="number"
-                value={formData.latitude}
-                fullWidth
-              />
-              <TextField
-                label="Longitude"
-                name="longitude"
-                type="number"
-                value={formData.longitude}
-                fullWidth
-              />
+        <TextField
+          label="עיר"
+          value={address.city}
+          onChange={(e) => handleAddressChange("city", e.target.value)}
+        />
 
-              <Button
-                variant="contained"
-                type="submit"
-                sx={{
-                  py: 1.5,
-                  fontWeight: "bold",
-                  background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                  "&:hover": {
-                    background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.secondary.dark})`,
-                  },
-                }}
-              >
-                הירשם
-              </Button>
-            </Stack>
-          </form>
-        </Paper>
-      </Container>
-    </Box>
+        <TextField
+          label="רחוב"
+          value={address.street}
+          onChange={(e) => handleAddressChange("street", e.target.value)}
+        />
+
+        <TextField
+          label="מספר בית"
+          value={address.houseNumber}
+          onChange={(e) =>
+            handleAddressChange("houseNumber", e.target.value)
+          }
+        />
+
+        {results.length > 0 && (
+          <Paper sx={{ maxHeight: 200, overflow: "auto" }}>
+            <List>
+              {results.map((p, i) => (
+                <ListItemButton key={i} onClick={() => handleSelect(p)}>
+                  {p.display_name}
+                </ListItemButton>
+              ))}
+            </List>
+          </Paper>
+        )}
+
+        <MiniMap
+          lat={coords.lat}
+          lng={coords.lng}
+          onClick={handleMapClick}
+        />
+
+        <Button variant="contained" onClick={handleSubmit}>
+          הירשם
+        </Button>
+      </Stack>
+    </Container>
   );
 };
 
