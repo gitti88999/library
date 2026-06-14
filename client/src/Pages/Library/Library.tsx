@@ -176,6 +176,8 @@ const handleAdd = async () => {
             <TextField
               label="שם הספר"
               value={book.name}
+              
+              
               onChange={(e) => setBook({ ...book, name: e.target.value })}
             />
 
