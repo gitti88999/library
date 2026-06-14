@@ -1,38 +1,49 @@
-import { useEffect, useRef } from "react";
-import L from "leaflet";
+import { MapContainer, TileLayer, useMapEvents } from "react-leaflet";
+import { useEffect } from "react";
+import { useMap } from "react-leaflet";
 
-interface Props {
+type Props = {
   lat: number;
   lng: number;
-}
+  onClick?: (lat: number, lng: number) => void;
+};
 
-const MiniMap: React.FC<Props> = ({ lat, lng }) => {
-  const mapRef = useRef<L.Map | null>(null);
-  const containerRef = useRef<HTMLDivElement | null>(null);
+const ClickHandler = ({
+  onClick,
+}: {
+  onClick?: (lat: number, lng: number) => void;
+}) => {
+  useMapEvents({
+    click(e) {
+      onClick?.(e.latlng.lat, e.latlng.lng);
+    },
+  });
+
+  return null;
+};
+
+const RecenterMap = ({ lat, lng }: { lat: number; lng: number }) => {
+  const map = useMap();
 
   useEffect(() => {
-    if (!containerRef.current) return;
+    map.setView([lat, lng]);
+  }, [lat, lng, map]);
 
-    // יצירת מפה פעם אחת בלבד
-    if (!mapRef.current) {
-      mapRef.current = L.map(containerRef.current).setView([lat, lng], 13);
+  return null;
+};
 
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        attribution: "© OpenStreetMap",
-      }).addTo(mapRef.current);
-
-      L.marker([lat, lng]).addTo(mapRef.current);
-    } else {
-      // עדכון מיקום
-      mapRef.current.setView([lat, lng], 13);
-    }
-  }, [lat, lng]);
-
+const MiniMap = ({ lat, lng, onClick }: Props) => {
   return (
-    <div
-      ref={containerRef}
-      style={{ height: 180, width: "100%", borderRadius: 10 }}
-    />
+    <MapContainer
+      center={[lat, lng]}
+      zoom={13}
+      style={{ height: "300px", width: "100%" }}
+    >
+      <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+
+      <ClickHandler onClick={onClick} />
+      <RecenterMap lat={lat} lng={lng} />
+    </MapContainer>
   );
 };
 

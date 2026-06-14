@@ -2,7 +2,6 @@ import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 
 const apiUrl = import.meta.env.VITE_API_URL;
-console.log("VITE_API_URL =", apiUrl);
 
 /* ---------- Types ---------- */
 
@@ -96,8 +95,8 @@ export const searchAddress = async (query: string) => {
       limit: 5,
     },
     headers: {
-      "User-Agent": "LibraryApp/1.0",
-    },
+  "X-Client": "web"
+}
   });
 
   return res.data;
