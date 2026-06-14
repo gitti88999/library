@@ -1,181 +1,148 @@
-import React, { useState, useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { addUser } from "../UserSlice";
-import type { RootState as ReduxRootState } from "../../app/store";
+import React, { useEffect, useState } from "react";
 import {
-  Container,
-  Paper,
-  Stack,
+  TextField,
   Button,
+  Paper,
+  List,
+  ListItemButton,
+  Container,
+  Stack,
   Typography,
-  Box,
-  useTheme,
 } from "@mui/material";
-import TextField from "@mui/material/TextField";
-import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
+import { useDebounce } from "../../api";
+import { searchAddress } from "../UserSlice";
+import MiniMap from "./MiniMap";
 
-const MAP_CONTAINER_STYLE = {
-  width: "100%",
-  height: "300px",
-};
+interface Place {
+  display_name: string;
+  lat: string;
+  lon: string;
+}
 
-const DEFAULT_CENTER = { lat: 32.0853, lng: 34.7818 };
-const Register: React.FC = () => {
-  const theme = useTheme();
-  const dispatch = useDispatch<any>();
-  const userState = useSelector((state: ReduxRootState) => state.myUser);
-const [success, setSuccess] = useState("");
-
-  const [formData, setFormData] = useState({
+const Register = () => {
+  const [form, setForm] = useState({
     name: "",
     email: "",
     password: "",
-    latitude: DEFAULT_CENTER.lat,
-    longitude: DEFAULT_CENTER.lng,
+    city: "",
+    street: "",
+    houseNumber: "",
   });
+  const [results, setResults] = useState<Place[]>([]);
+  const [selected, setSelected] = useState<Place | null>(null);
 
-  const [locationFetched, setLocationFetched] = useState(false);
-
+  const addressQuery = useDebounce(
+    `${form.street} ${form.houseNumber} ${form.city}`,
+    400
+  );
+const lat = selected ? parseFloat(selected.lat) : 32.0853;
+const lng = selected ? parseFloat(selected.lon) : 34.7818;
   useEffect(() => {
-    if (!navigator.geolocation) return;
+    const load = async () => {
+      if (addressQuery.trim().length < 5) return;
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setFormData((prev) => ({
-          ...prev,
-          latitude: position.coords.latitude,
-          longitude: position.coords.longitude,
-        }));
-        setLocationFetched(true);
-      },
-      (error) => console.error(error),
-      { timeout: 30000 }
-    );
-  }, []);
+      const data = await searchAddress(addressQuery);
+      setResults(data);
+    };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: name === "latitude" || name === "longitude" ? Number(value) : value,
-    }));
+    load();
+  }, [addressQuery]);
+
+  const handleSelect = (place: Place) => {
+    setSelected(place);
+    setResults([]);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    try {
-      const newUser =await dispatch(addUser(formData)).unwrap();
-      setSuccess("נרשמת בהצלחה");
-      console.log("newUser.collaboratorId",newUser.collaboratorId);
-      console.log("newUser.name",newUser.name);
+  const handleChange = (key: string, value: string) => {
+    setForm({ ...form, [key]: value });
+  };
 
-    } catch (error) {
-      console.error("Registration failed:", error);
+  const handleSubmit = async () => {
+    if (!selected) {
+      alert("יש לבחור כתובת מהרשימה");
+      return;
     }
+
+    const payload = {
+      ...form,
+      latitude: parseFloat(selected.lat),
+      longitude: parseFloat(selected.lon),
+    };
+
+    console.log("REGISTER PAYLOAD:", payload);
+
+    // כאן אתה עושה dispatch(registerUser(payload))
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        background: theme.palette.background.default,
-        px: 2,
-      }}
-    >
-      <Container maxWidth="sm">
-        <Paper
-          sx={{
-            p: 5,
-            borderRadius: theme.shape.borderRadius,
-            textAlign: "center",
-            backgroundColor: theme.palette.background.paper,
-            color: theme.palette.text.primary,
-            backdropFilter: "blur(18px)",
-            boxShadow: theme.shadows[20],
-          }}
-        >
-          <Typography variant="h3" sx={{ mb: 3 }}>
-            הרשמה
-          </Typography>
+    <Container maxWidth="sm" sx={{ mt: 5 }}>
+      <Typography variant="h4" gutterBottom>
+        הרשמה
+      </Typography>
 
-          {userState.status === "loading" && <p>Registering user...</p>}
-          {userState.status === "failed" && (
-            <p style={{ color: theme.palette.error.main }}>{userState.error}</p>
-          )}
+      <Stack spacing={2}>
+        <TextField
+          label="שם"
+          value={form.name}
+          onChange={(e) => handleChange("name", e.target.value)}
+        />
 
-          <form onSubmit={handleSubmit}>
-            <Stack spacing={3}>
-              <TextField
-                label="שם משתמש"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                fullWidth
-              />
-              <TextField
-                label="Email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                fullWidth
-              />
-              <TextField
-                label="Password"
-                name="password"
-                type="password"
-                value={formData.password}
-                onChange={handleChange}
-                fullWidth
-              />
+        <TextField
+          label="אימייל"
+          value={form.email}
+          onChange={(e) => handleChange("email", e.target.value)}
+        />
 
-              <LoadScript googleMapsApiKey={import.meta.env.VITE_GOOGLE_MAPS_API_KEY}>
-                <GoogleMap
-                  mapContainerStyle={MAP_CONTAINER_STYLE}
-                  center={{ lat: formData.latitude, lng: formData.longitude }}
-                  zoom={12}
+        <TextField
+          label="סיסמה"
+          type="password"
+          value={form.password}
+          onChange={(e) => handleChange("password", e.target.value)}
+        />
+
+        <TextField
+          label="עיר"
+          value={form.city}
+          onChange={(e) => handleChange("city", e.target.value)}
+        />
+
+        <TextField
+          label="רחוב"
+          value={form.street}
+          onChange={(e) => handleChange("street", e.target.value)}
+        />
+
+        <TextField
+          label="מספר בית"
+          value={form.houseNumber}
+          onChange={(e) => handleChange("houseNumber", e.target.value)}
+        />
+
+        {/* AUTOCOMPLETE RESULTS */}
+        {results.length > 0 && (
+          <Paper sx={{ maxHeight: 200, overflow: "auto" }}>
+            <List>
+              {results.map((place, i) => (
+                <ListItemButton
+                  key={i}
+                  onClick={() => handleSelect(place)}
                 >
-                  <Marker position={{ lat: formData.latitude, lng: formData.longitude }} />
-                </GoogleMap>
-              </LoadScript>
-
-              <TextField
-                label="Latitude"
-                name="latitude"
-                type="number"
-                value={formData.latitude}
-                fullWidth
-              />
-              <TextField
-                label="Longitude"
-                name="longitude"
-                type="number"
-                value={formData.longitude}
-                fullWidth
-              />
-
-              <Button
-                variant="contained"
-                type="submit"
-                sx={{
-                  py: 1.5,
-                  fontWeight: "bold",
-                  background: `linear-gradient(135deg, ${theme.palette.primary.main}, ${theme.palette.secondary.main})`,
-                  "&:hover": {
-                    background: `linear-gradient(135deg, ${theme.palette.primary.dark}, ${theme.palette.secondary.dark})`,
-                  },
-                }}
-              >
-                הירשם
-              </Button>
-            </Stack>
-          </form>
-        </Paper>
-      </Container>
-    </Box>
+                  {place.display_name}
+                </ListItemButton>
+              ))}
+            </List>
+          </Paper>
+        )}
+        {selected && (
+          <div style={{ marginTop: 10 }}>
+            <MiniMap lat={lat} lng={lng} />
+          </div>
+        )}
+        <Button variant="contained" onClick={handleSubmit}>
+          הירשם
+        </Button>
+      </Stack>
+    </Container>
   );
 };
 
