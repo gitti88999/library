@@ -4,6 +4,7 @@ using LIBRARY.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// 🟢 קודם מגדירים את כל השירותים
 builder.Services.AddDbContext<LibraryContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("libraryDB")));
 
@@ -29,11 +30,13 @@ builder.Services.AddCors(options =>
     });
 });
 
+// 🟢 רק אחרי זה בונים את האפליקציה
 var app = builder.Build();
 
-app.MapGet("/health", () => Results.Ok());
+// middleware
 app.UseCors("AllowFrontend");
 
+app.MapGet("/health", () => Results.Ok());
 app.MapControllers();
 
 if (app.Environment.IsDevelopment())
@@ -48,21 +51,16 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// CORS
-app.UseCors("AllowFrontend");
-
 // Authentication & Authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.MapControllers();
-
-
+// DB Migration & Seeding
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<LibraryContext>();
     db.Database.Migrate();
-
-    DbSeeder.Seed(db); // 👈 זה הקסם
+    DbSeeder.Seed(db);
 }
+
 app.Run();
