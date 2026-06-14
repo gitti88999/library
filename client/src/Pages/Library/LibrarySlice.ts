@@ -39,7 +39,22 @@ interface AddBookRequest {
   collaboratorId: string;
 }
 
+export const archiveAndDeleteBookSession = createAsyncThunk(
+  "myBooks/archiveAndDelete",
+  async (id: string, thunkAPI) => {
+    try {
+      const response = await axios.put(
+        `${apiUrl}/api/BookSession/${id}/archiveAndDelete`
+      );
 
+      return response.data;
+    } catch (err: any) {
+      return thunkAPI.rejectWithValue(
+        err.response?.data || "שגיאה במחיקת הספר"
+      );
+    }
+  }
+);
 export const addBook = createAsyncThunk(
   "myBooks/addBook",
   async (request: AddBookRequest, thunkAPI) => {
@@ -106,7 +121,15 @@ const myBooksSlice = createSlice({
         // state.error = action.error.message || "Failed to add book";
           state.error = action.payload as string;
 
-      });
+      })
+      .addCase(archiveAndDeleteBookSession.fulfilled, (state, action) => {
+      state.items = state.items.filter(
+      (x: any) => x.id !== action.meta.arg
+        );
+      })
+    .addCase(archiveAndDeleteBookSession.rejected, (state, action) => {
+      state.error = action.payload as string;
+    })
   },
 });
 

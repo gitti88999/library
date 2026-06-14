@@ -45,67 +45,7 @@ namespace LIBRARY.Controllers
         }
 
       
-// public class AddBookRequest
-//     {
-//         public string Name { get; set; }
-//         public Guid CategoryId { get; set; }
-//         public Guid AudienceId { get; set; }
-//         public Guid AuthorId { get; set; }
-//         public Guid CollaboratorId { get; set; }
-//     }
-// [HttpPost("add-with-session")]
-// public async Task<ActionResult> AddBookWithSession(AddBookRequest request)
-// {
-//     if (string.IsNullOrWhiteSpace(request.Name))
-//         return BadRequest();
 
-//     var existingBook = await _context.Books
-//         .FirstOrDefaultAsync(b =>
-//             b.Name == request.Name &&
-//             b.AuthorId == request.AuthorId);
-
-//     Guid bookId;
-
-//     if (existingBook == null)
-//     {
-//         var newBook = new Book
-//         {
-//             BookId = Guid.NewGuid(),
-//             Name = request.Name,
-//             CategoryId = request.CategoryId,
-//             AudienceId = request.AudienceId,
-//             AuthorId = request.AuthorId
-//         };
-
-//         _context.Books.Add(newBook);
-//         await _context.SaveChangesAsync();
-
-//         bookId = newBook.BookId;
-//     }
-//     else
-//     {
-//         bookId = existingBook.BookId;
-//     }
-
-//     var session = new BookSession
-//     {
-//         Id = Guid.NewGuid(),
-//         BookId = bookId,
-//         CollaboratorId = request.CollaboratorId,
-//         Enabled = true
-//     };
-
-//     _context.BookSession.Add(session);
-//     await _context.SaveChangesAsync();
-
-//    return Ok(new
-// {
-//     session.Id,
-//     session.BookId,
-//     session.CollaboratorId,
-//     session.Enabled
-// });
-// }
 public class AddBookRequest
     {
         public string Name { get; set; }
