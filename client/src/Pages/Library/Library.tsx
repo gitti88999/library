@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useMemo } from 'react';
+
+import { useEffect, useState, useMemo } from "react";
 import {
   Container,
   Typography,
@@ -14,53 +15,124 @@ import {
   MenuItem,
   Select,
   InputLabel,
-  FormControl
-} from '@mui/material';
-import { useDispatch, useSelector } from 'react-redux';
-import type { AppDispatch, RootState } from '../../app/store';
-import { getMyBooks, addBook } from './LibrarySlice';
-import type { BookDTO, BookSessionDTO } from '../../types/book';
+  FormControl,
+} from "@mui/material";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "../../app/store";
+import { getMyBooks, addBook } from "./LibrarySlice";
+import { BookDTO } from "../../types/book";
 import { getAudiences } from './AudienceSlice';
 import { getAuthors } from './AuthorSlice';
 import { getCategories } from './CategorySlice';
-
 const Library: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
 
-  const books = useSelector((state: RootState) => state.myBooks.items);
-  const audiences = useSelector((state: RootState) => state.audiences.items);
-  const authors = useSelector((state: RootState) => state.authors.items);
-  const categories = useSelector((state: RootState) => state.categories.items);
-
+ 
   const [open, setOpen] = useState(false);
-
   const [book, setBook] = useState<BookDTO>({
-    name: '',
-    categoryId: '',
-    audienceId: '',
-    authorId: '',
+    id:"",
+    name: "",
+    categoryId: "",
+    audienceId: "",
+    authorId: "",
+    
   });
+ 
+  const currentUser = useSelector(
+    (state: RootState) => state.myUser.currentUser
+  );
+  const [refresh, setRefresh] = useState(false);
+  const allState = useSelector((state: RootState) => state);
 
+  const  items  = useSelector((state: RootState) => state.myBooks.items);
+  const  status  = useSelector((state: RootState) => state.myBooks.status);
+  const  error  = useSelector((state: RootState) => state.myBooks.error);
+console.log("items",items);
+
+  const audiences = useSelector((state: RootState) => state.audiences.items);
+  const categories = useSelector((state: RootState) => state.categories.items);
+  const authors = useSelector((state: RootState) => state.authors.items);
+const books = useSelector(
+  (state: RootState) => state.myBooks.items
+);
   useEffect(() => {
     dispatch(getAudiences());
     dispatch(getAuthors());
     dispatch(getCategories());
-    dispatch(getMyBooks());
-  }, [dispatch]);
+    console.log(currentUser);
+
+    if (currentUser?.id) {
+      dispatch(getMyBooks());
+      console.log('dispatch get my books');
+    }
+  }, [dispatch, currentUser?.id,refresh]);
+
+  useEffect(() => {
+    console.log({status});
+    
+    switch (status) {
+      case "succeeded":
+        console.log({ items })
+        break;
+      case "failed":
+        console.log({ error })
+        break
+    }
+  }, [status])
 
   const safeAudiences = useMemo(() => audiences ?? [], [audiences]);
   const safeAuthors = useMemo(() => authors ?? [], [authors]);
   const safeCategories = useMemo(() => categories ?? [], [categories]);
+ const onlyBooks: BookDTO[] = books.map(item => item.book ?? item).filter(Boolean);
+  
 
-  const handleAdd = () => {
-    dispatch(addBook(book));
-    dispatch(getMyBooks());
+const [successMsg, setSuccessMsg] = useState<string | null>(null);
+const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+const handleAdd = async () => {
+  if (!currentUser?.id) return;
+
+  try {
+    const result = await dispatch(
+      addBook({
+        name: book.name,
+        categoryId: book.categoryId,
+        audienceId: book.audienceId,
+        authorId: book.authorId,
+        collaboratorId: currentUser.id,
+      })
+    ).unwrap();
+
+    setSuccessMsg("הספר נוסף בהצלחה");
+    setErrorMsg(null);
+
+    setBook({
+      id: "",
+      name: "",
+      categoryId: "",
+      audienceId: "",
+      authorId: "",
+    });
+
     setOpen(false);
-  };
 
-  const results = (books || []).filter(
-    (b: BookSessionDTO) => b?.book?.name
-  );
+   
+    await dispatch(getMyBooks());
+
+  } catch (err: any) {
+    setSuccessMsg(null);
+
+    setErrorMsg(
+      typeof err === "string"
+        ? err
+        : err?.data || err?.message || "הספר כבר קיים או שגיאה בהוספה"
+    );
+  }
+};
+  if (!currentUser) return <div>יש להתחבר למערכת</div>;
+  if (status === "loading") return <div>טוען ספרים...</div>;
+
+
 
   return (
     <Container maxWidth="md" sx={{ mt: 8 }}>
@@ -71,26 +143,27 @@ const Library: React.FC = () => {
       <Button variant="contained" onClick={() => setOpen(true)} sx={{ mb: 3 }}>
         הוספת ספר חדש
       </Button>
-
+{error && (
+      <Typography color="error" sx={{ mb: 2 }}>
+        {error}
+      </Typography>
+    )}
       <Stack spacing={2}>
-        {results.length === 0 ? (
+        {onlyBooks.length === 0 ? (
+
           <Typography>אין ספרים להצגה</Typography>
         ) : (
-          results.map((item: BookSessionDTO) => (
-            <Card key={item.bookSessionId}>
-              <CardContent>
-                <Typography variant="h6">{item.book.name ?? item.book.name}</Typography>
-
-                <Typography color="text.secondary">
-                  מחבר: {item.book.authorId}
-                </Typography>
-
-                <Typography color="text.secondary">
-                  קטגוריה: {item.book.categoryId} | קהל יעד: {item.book.audienceId}
-                </Typography>
-              </CardContent>
-            </Card>
-          ))
+          onlyBooks.map((book) => (
+    <Card key={book.id ?? book.name}>
+    <CardContent>
+      <Typography variant="h6">{book.name}</Typography>
+      <Typography color="text.secondary">מחבר: {book.authorId}</Typography>
+      <Typography color="text.secondary">
+        קטגוריה: {book.categoryId} | קהל יעד: {book.audienceId}
+      </Typography>
+    </CardContent>
+  </Card>
+))
         )}
       </Stack>
 
