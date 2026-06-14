@@ -9,18 +9,16 @@ export const addBook = createAsyncThunk(
         const response = await axios.post(
             `${apiUrl}/api/Book`, Book
         );
-
+        console.log(Book);
         return await response.data;
     }
 );
-
 export const getMyBooks = createAsyncThunk(
     "books/getBooks",
     async () => {
         const response = await axios.get<BookSessionDTO[]>(
-            `${apiUrl}/api/Collaborator/3bba5fe8-a0bc-4d0e-9a02-076e227e9643/booksessions`
+            `${apiUrl}/api/Collaborator/01cf5c02-41e5-413a-8627-67de23a060/booksessions`
         );
-
         return response.data;
     }
 );
@@ -34,7 +32,6 @@ const initialState: BooksState = {
     status: '',
     error: null,
 }
-
 const MyBooksSlice = createSlice({
     name: 'myBooks',
     initialState,
@@ -48,15 +45,13 @@ const MyBooksSlice = createSlice({
             .addCase(addBook.pending, (state) => {
                 state.status = "loading";
             })
-
             .addCase(addBook.fulfilled, (state, action) => {
                 state.status = "succeeded";
                 state.items.push(action.payload);
             })
-
             .addCase(addBook.rejected, (state, action) => {
                 state.status = "failed";
-                state.error = action.error.message??null;
+                state.error = action.error.message ?? null;
             })
             .addCase(getMyBooks.pending, (state) => {
                 state.status = 'loading';
@@ -67,7 +62,7 @@ const MyBooksSlice = createSlice({
             })
             .addCase(getMyBooks.rejected, (state, action) => {
                 state.status = 'failed';
-                state.error = action.error.message??null;
+                state.error = action.error.message ?? null;
             })
     },
 })

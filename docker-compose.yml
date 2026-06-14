@@ -6,7 +6,7 @@ services:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
       ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: "ALTgit88999"
+      MSSQL_SA_PASSWORD: ${SA_PASSWORD}
     ports:
       - "1434:1433" 
     volumes:
@@ -18,7 +18,7 @@ services:
           "/opt/mssql-tools18/bin/sqlcmd",
           "-S", "localhost",
           "-U", "sa",
-          "-P", "ALTgit88999",
+          "-P", "${SA_PASSWORD}",
           "-C",
           "-Q", "SELECT 1"
         ]
@@ -37,7 +37,7 @@ services:
     environment:
       ASPNETCORE_URLS: http://+:5217
       DOTNET_ENVIRONMENT: Development
-      ConnectionStrings__libraryDB: "Server=db,1433;Database=libraryDB;User Id=sa;Password=ALTgit88999;TrustServerCertificate=true;MultipleActiveResultSets=true"
+      ConnectionStrings__libraryDB: "Server=db,1433;Database=libraryDB;User Id=sa;Password={SA_PASSWORD};TrustServerCertificate=true;MultipleActiveResultSets=true"
     depends_on:
       db:
         condition: service_healthy

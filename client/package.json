@@ -24,7 +24,9 @@
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-redux": "^9.2.0",
-    "react-router-dom": "^6.30.3"
+    "react-router-dom": "^6.30.3",
+    "stylis": "^4.4.0",
+    "stylis-plugin-rtl": "^2.1.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",
@@ -36,6 +38,7 @@
     "@types/react": "^19.2.16",
     "@types/react-dom": "^19.2.3",
     "@types/react-router-dom": "^5.3.3",
+    "@types/stylis": "^4.2.7",
     "@vitejs/plugin-react": "^6.0.1",
     "babel-jest": "^29.x",
     "eslint": "^9.39.4",

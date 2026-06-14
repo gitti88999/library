@@ -14,23 +14,22 @@ const Navbar: React.FC<Props> = ({ isLoggedIn, toggleTheme, currentMode }) => {
   return (
     <AppBar position="sticky" sx={{ top: 0, zIndex: 1100 }}>
       <Toolbar>
-        <Button color="inherit" component={Link} to="/">Home</Button>
+        <Button color="inherit" component={Link} to="/">דף הבית</Button>
 
         {!isLoggedIn && (
           <>
-            <Button color="inherit" component={Link} to="/login">Login</Button>
-            <Button color="inherit" component={Link} to="/register">Register</Button>
+            <Button color="inherit" component={Link} to="/login">כניסה</Button>
+            <Button color="inherit" component={Link} to="/register">הרשמה</Button>
           </>
         )}
 
         {isLoggedIn && (
           <>
-            <Button color="inherit" component={Link} to="/library">Library</Button>
-            <Button color="inherit" component={Link} to="/search">Search</Button>
+            <Button color="inherit" component={Link} to="/library">הספרים שלי</Button>
+            <Button color="inherit" component={Link} to="/search">חיפוש ספר</Button>
           </>
         )}
-
-        {/* כפתור החלפת Theme */}
+        
         <IconButton color="inherit" onClick={toggleTheme}>
           {currentMode === "dark" ? <Brightness7Icon /> : <Brightness4Icon />}
         </IconButton>
