@@ -8,7 +8,7 @@ import {
   Stack,
 } from "@mui/material";
 import { useState } from "react";
-
+// import { searchBookSessions } from "./SearchSlice";
 /* ---------- חישוב מרחק (Haversine) ---------- */
 const getDistanceKm = (
   lat1: number,
@@ -41,6 +41,7 @@ type Copy = {
 };
 
 const BorrowBook = () => {
+  
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [selectedCopy, setSelectedCopy] = useState<number | null>(null);
@@ -112,3 +113,57 @@ const BorrowBook = () => {
 };
 
 export default BorrowBook;
+// import React, { useEffect } from "react";
+// import { useParams } from "react-router-dom";
+// import { useDispatch, useSelector } from "react-redux";
+// import type { AppDispatch, RootState } from "../../app/store";
+
+// import { fetchBookSessionsByBookId } from "../../Pages/BorrowBook/BorrowBookSlice";
+
+// const BorrowBook: React.FC = () => {
+//   const dispatch = useDispatch<AppDispatch>();
+
+//   const { bookId } = useParams<{ bookId: string }>();
+
+//   const { sessions, status } = useSelector(
+//     (state: RootState) => state.borrowBook
+//   );
+
+//   useEffect(() => {
+//     console.log("bookId param:", bookId);
+
+//     if (!bookId) return;
+
+//     dispatch(fetchBookSessionsByBookId(bookId));
+//   }, [bookId, dispatch]);
+
+//   if (status === "loading") {
+//     return <div>Loading...</div>;
+//   }
+
+//   return (
+//     <div style={{ padding: 20 }}>
+//       <h2>Borrow Book</h2>
+
+//       {sessions.length === 0 ? (
+//         <p>No sessions found</p>
+//       ) : (
+//         sessions.map((item: any) => (
+//           <div
+//             key={item.bookSessionId}
+//             style={{
+//               border: "1px solid gray",
+//               margin: 10,
+//               padding: 10,
+//             }}
+//           >
+//             <h3>{item.book?.name}</h3>
+//             <p>Enabled: {item.enabled ? "Yes" : "No"}</p>
+//           </div>
+//         ))
+//       )}
+//     </div>
+//   );
+// };
+
+// export default BorrowBook;
