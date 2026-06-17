@@ -22,6 +22,7 @@ namespace LIBRARY.Controllers
             var books = await _context.Books
                 .Select(b => new BookDTO
                 {
+                    Id = b.BookId,
                     Name = b.Name,
                     CategoryId = b.CategoryId,
                     AudienceId = b.AudienceId,
@@ -35,6 +36,17 @@ namespace LIBRARY.Controllers
             }
 
             return Ok(books);
+        }
+        [HttpGet("by-name/{name}")]
+        public async Task<IActionResult> GetBookIdByName(string name)
+        {
+            var book = await _context.Books
+                .FirstOrDefaultAsync(b => b.Name == name);
+
+            if (book == null)
+                return NotFound();
+
+            return Ok(new { bookId = book.BookId });
         }
     }
 

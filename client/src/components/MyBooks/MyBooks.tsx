@@ -1,87 +1,3 @@
-// import React, { useEffect, useState } from "react";
-// import './MyBooks.css'
-// import { useDispatch, useSelector } from "react-redux";
-// import { addBook, addUser, fetchPosts, type BooksState } from "./MyBooksSlice.ts";
-// import type { AppDispatch, RootState } from "../../app/store.ts";
-
-// function MyBooks() {
-//     const dispatch: AppDispatch = useDispatch<AppDispatch>();
-//     const books: BooksState = useSelector((state: RootState) => state.myBooks);
-
-
-//     const [book, setBook] = useState({
-//         name: "",
-//         category: 1,
-//         audienceId: 1,
-//         autherId: 1
-//     });
-    
-//     const [user, setUser] = useState({
-//         name: "",
-//         email: "",
-//         Password:"",
-//         citId: 1,
-//         Street:"",
-//         Building:1,
-//         Apartment:1,
-//     });
-//     useEffect(() => {
-//         dispatch(fetchPosts());
-//     }, []);
-
-//     useEffect(() => {
-
-//     }, [books]);
-    
-//     const handleAddBook = () => {
-
-//         dispatch(addBook(book));
-//     };
-//      const handleAddUser = () => {
-
-//         dispatch(addUser(user));
-//     };
-
-
-//     return <>
-//         <div>COLOBORATE LIBRARY!!!!!!!!!!!!!!</div>
-//         <input
-//             type="text"
-//             placeholder="name"
-//             value={book.name}
-//             onChange={(e) =>
-//                 setBook({ ...book, name: e.target.value })
-//             }
-//         />
-//         {/* <button
-//     onClick={() =>
-//         dispatch(
-//             toggleBookSession(
-//                 "3bba5fe8-a0bc-4d0e-9a02-076e227e9643"
-//             )
-//         )
-//     }
-// >
-//     Toggle Book Session
-// </button> */}
-//         <button onClick={handleAddBook}>
-//             Add Book
-//         </button>
-//        <input
-//             type="text"
-//             placeholder="name user"
-//             value={user.name}
-//             onChange={(e) =>
-//         setUser({ ...user, name: e.target.value })
-//     }
-// />
-//         <button onClick={handleAddUser}>
-//             Add User
-//         </button>
-//     </>
-// }
-// export default MyBooks
-
 import React, { useEffect, useState } from 'react';
 import {
   Container,
@@ -108,8 +24,8 @@ const MyBooks: React.FC = () => {
 
   // חיפוש בזמן אמת
   const results = booksState.items.filter((book) =>
-  typeof book.name === "string" &&
-  book.name.toLowerCase().includes(query.toLowerCase())
+  typeof book.book.name === "string" &&
+  book.book.name.toLowerCase().includes(query.toLowerCase())
 );
 
   return (

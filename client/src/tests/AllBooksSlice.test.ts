@@ -1,5 +1,6 @@
 import axios from "axios";
-import reducer, { getMyBooks, BooksState } from "../Pages/Library/LibrarySlice";
+import reducer, { getMyBooks, BooksState } from "../slices/LibrarySlice";
+import { BooksStatus } from "../types/book";
 
 
 jest.mock("axios");
@@ -9,7 +10,7 @@ const mockedAxios = axios as jest.Mocked<typeof axios>;
 describe("AllBooksSlice", () => {
   const initialState: BooksState = {
     items: [],
-    status: "idle",
+    status: BooksStatus.Idle,
     error: null,
   };
 

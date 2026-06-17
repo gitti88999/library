@@ -13,11 +13,12 @@ import {
 import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import type { AppDispatch, RootState } from "../../app/store";
-import { getBooks } from "./SearchSlice";
-import { getAudiences } from "../Library/AudienceSlice";
-import { getAuthors } from "../Library/AuthorSlice";
-import { getCategories } from "../Library/CategorySlice";
+import type { AppDispatch, RootState } from "../app/store";
+
+import { getBooks } from "../slices/SearchSlice";
+import { getAudiences } from "../slices/AudienceSlice";
+import { getAuthors } from "../slices/AuthorSlice";
+import { getCategories } from "../slices/CategorySlice";
 
 const Search: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -46,7 +47,6 @@ const Search: React.FC = () => {
 
   const safeBooks = Array.isArray(books) ? books : [];
 
-  // maps
   const audienceMap = useMemo(() => {
     const m: Record<string, string> = {};
     audiences.forEach((a: any) => (m[a.id] = a.name));
@@ -78,8 +78,9 @@ const Search: React.FC = () => {
     );
   });
 
+  // ✅ חשוב: משתמשים ב-ID שמגיע מהשרת
   const rows = results.map((book: any) => ({
-    id: book.id ?? book.name, 
+    id: book.id,
     name: book.name,
     category: categoryMap[book.categoryId] || "",
     audience: audienceMap[book.audienceId] || "",
@@ -106,7 +107,6 @@ const Search: React.FC = () => {
       ),
     },
   ];
-
   return (
     <Container maxWidth="md" sx={{ mt: 8, direction: "rtl" }}>
       <Typography variant="h4" gutterBottom>
@@ -115,7 +115,7 @@ const Search: React.FC = () => {
 
       <TextField
         fullWidth
-        label="...חפש ספר"
+        label="חפש ספר..."
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         sx={{ mb: 2 }}
@@ -186,32 +186,34 @@ const Search: React.FC = () => {
         </div>
       ) : (
         <Stack spacing={2}>
-          {results.map((book: any) => (
-            <Card key={book.name}>
-              <CardContent>
-                <Typography variant="h6">{book.name}</Typography>
-                <Typography>
-                  מחבר: {authorMap[book.authorId]}
-                </Typography>
-                <Typography>
-                  קטגוריה: {categoryMap[book.categoryId]} | קהל יעד:{" "}
-                  {audienceMap[book.audienceId]}
-                </Typography>
+          {results
+            .filter(b => b.id != null)
+            .map((book: any) => (
+              <Card key={book.id}>
+                <CardContent>
+                  <Typography variant="h6">{book.name}</Typography>
 
-                <Button
-                  variant="contained"
-                  sx={{ mt: 1 }}
-                  
-                  onClick={() => {
-                console.log("NAVIGATE TO:", book.id); // 👈 כאן
-              navigate(`/borrow/${book.name}`);
+                  <Typography>
+                    מחבר: {authorMap[book.authorId]}
+                  </Typography>
+
+                  <Typography>
+                    קטגוריה: {categoryMap[book.categoryId]} | קהל יעד:{" "}
+                    {audienceMap[book.audienceId]}
+                  </Typography>
+
+                  <Button
+                    variant="contained"
+                    sx={{ mt: 1 }}
+                    onClick={() => {
+                      navigate(`/borrow/${book.id}`);
                     }}
-                >
-                  בחר
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+                  >
+                    בחר
+                  </Button>
+                </CardContent>
+              </Card>
+            ))}
         </Stack>
       )}
     </Container>

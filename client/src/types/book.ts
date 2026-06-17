@@ -4,7 +4,7 @@ export interface BookDTO {
   categoryId: string;
   audienceId: string;
   authorId: string;
-  collaboratorId?: string; // <-- הוסף את זה
+  collaboratorId?: string; 
 
 }
 export interface BookSessionDTO {
@@ -27,4 +27,14 @@ export interface Category {
 export interface AddBookParams {
   book: BookDTO;
   collaboratorId: string;
+}
+export enum BooksStatus {
+  Idle = "idle",
+  Loading = "loading",
+  Succeeded = "succeeded",
+  Failed = "failed",
+}
+export interface Book {
+  id: string;
+  name: string;
 }

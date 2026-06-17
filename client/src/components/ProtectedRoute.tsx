@@ -5,6 +5,7 @@ import type { RootState } from "../app/store";
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // const user = useSelector((state: RootState) => state.auth.user);
+
   const authLoading = useSelector((state: RootState) => state.myUser.authLoading);
 
   const user = useSelector((state: RootState) => state.myUser.currentUser);

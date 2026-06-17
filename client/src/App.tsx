@@ -2,27 +2,27 @@ import React, { useState, useMemo, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import { CacheProvider } from "@emotion/react";
+
 import { useDispatch, useSelector } from "react-redux";
 
 import { getTheme, rtlCache } from "./Theme";
-
-import Home from "./Pages/Home/Home";
-import Login from "./Pages/Login/Login";
-import Register from "./Pages/Register/Register";
-import Library from "./Pages/Library/Library";
-import Search from "./Pages/Search/Search";
-import BorrowBook from "./Pages/BorrowBook/BorrowBook";
+import Home from "./Pages/Home";
+import Login from "./Pages/Login";
+import Register from "./Pages/Register";
+import Library from "./Pages/Library";
+import Search from "./Pages/Search";
+import BorrowBook from "./Pages/BorrowBook";
 import Navbar from "./components/Home/NavBar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import type { AppDispatch, RootState } from "./app/store";
-import Borrow from "./Pages/BorrowBook/BorrowBook";
-import { fetchMe } from "./Pages/UserSlice";
+import Borrow from "./Pages/BorrowBook";
+import { fetchMe } from "./slices/UserSlice";
 
 const App: React.FC = () => {
-  // const user = useSelector((state: RootState) => state.auth.user);
   const user = useSelector(
   (state: RootState) => state.myUser.currentUser
 );
+
 const dispatch = useDispatch<AppDispatch>();
 useEffect(() => {
   dispatch(fetchMe());

@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import type { Audience } from "../../types/book";
+import type { Audience } from "../types/book";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 

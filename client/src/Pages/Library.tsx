@@ -1,5 +1,3 @@
-
-
 import { useEffect, useState, useMemo } from "react";
 import {
   Container,
@@ -20,20 +18,20 @@ import {
 } from "@mui/material";
 
 import { useDispatch, useSelector } from "react-redux";
-import type { AppDispatch, RootState } from "../../app/store";
+import type { AppDispatch, RootState } from "../app/store";
 
-import { getMyBooks, addBook } from "./LibrarySlice";
-import { BookDTO } from "../../types/book";
+import { getMyBooks, addBook } from "../slices/LibrarySlice";
+import { BookDTO } from "../types/book";
 
-import { getAudiences } from "./AudienceSlice";
-import { getAuthors } from "./AuthorSlice";
-import { getCategories } from "./CategorySlice";
+import { getAudiences } from "../slices/AudienceSlice";
+import { getAuthors } from "../slices/AuthorSlice";
+import { getCategories } from "../slices/CategorySlice";
 
 import axios from "axios";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
-
+console.log("BOOKS PAGE MOUNTED");
 const Library: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
 
@@ -62,6 +60,9 @@ const Library: React.FC = () => {
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  // =====================
+  // LOAD DATA
+  // =====================
   useEffect(() => {
     dispatch(getAudiences());
     dispatch(getAuthors());
@@ -139,7 +140,7 @@ const Library: React.FC = () => {
     }
   };
 
-
+console.log("BOOKS:",items);
   if (!currentUser) return <div>יש להתחבר למערכת</div>;
   if (status === "loading") return <div>טוען...</div>;
 
@@ -214,6 +215,10 @@ const Library: React.FC = () => {
           })
         )}
       </Stack>
+
+      {/* =====================
+          DIALOG
+      ===================== */}
       <Dialog open={open} onClose={() => setOpen(false)}>
         <DialogTitle>הוספת ספר</DialogTitle>
 
@@ -289,3 +294,4 @@ const Library: React.FC = () => {
 };
 
 export default Library;
+

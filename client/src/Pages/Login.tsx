@@ -3,8 +3,8 @@ import React, { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { Box, Container, Paper, Typography, TextField, Button, Stack, Alert, CircularProgress, useTheme } from "@mui/material";
-import { loginUser } from "../UserSlice"; // זה ה-asyncThunk מה-userSlice
-import type { AppDispatch } from "../../app/store";
+import { loginUser } from "../slices/UserSlice"; // זה ה-asyncThunk מה-userSlice
+import type { AppDispatch } from "../app/store";
 
 const Login: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -16,12 +16,15 @@ const Login: React.FC = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setError("");
-    setSuccess("");
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+ const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  setError("");
+  setSuccess("");
 
+  setFormData(prev => ({
+    ...prev,
+    [e.target.name]: e.target.value
+  }));
+};
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");

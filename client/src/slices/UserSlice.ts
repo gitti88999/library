@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
+import { NewUser, User, UserResponse } from "../types/user";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -10,27 +11,7 @@ interface Book {
   name: string;
 }
 
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  books: Book[];
-}
-interface NewUser {
-  name: string;
-  email: string;
-  password: string;
-  latitude: number;
-  longitude: number;
-}
-interface UserResponse {
-  collaboratorId: string;
-  name: string;
-  email: string;
-  latitude: number;
-  longitude: number;
-  token?: string;
-}
+
 
 interface UserState {
   currentUser: User | null;
@@ -55,23 +36,11 @@ const initialState: UserState = {
   isAuthChecked: false,
   authLoading: true, // 👈 להוסיף
 };
-// interface UserState {
-//   currentUser: User | null;
-//   status: "idle" | "loading" | "succeeded" | "failed";
-//   error: string | null;
-// }
-
-// const initialState: UserState = {
-//   currentUser: null,
-//   status: "idle",
-//   error: null,
-// };
-
-/* ---------- Async (LOGIN) ---------- */
 
 export const loginUser = createAsyncThunk(
   "user/loginUser",
   async (data: { name: string; password: string }) => {
+
     const res = await axios.post(`${apiUrl}/api/Auth/login`
       , data,{ withCredentials: true });
     console.log("LOGIN RESPONSE:", res.data);
@@ -85,12 +54,10 @@ export const addUser = createAsyncThunk<UserResponse, NewUser>(
       `${apiUrl}/api/Auth/register`,
       user
     );
-    console.log("REGISTER RESPONSE:", response.data); // 👈 חשוב
 
     return response.data;
   }
 );
-/* ---------- Async (REGISTER) ---------- */
 
 export const registerUser = createAsyncThunk(
   "user/registerUser",
@@ -121,13 +88,11 @@ export const searchAddress = async (query: string) => {
       limit: 5,
     },
     headers: {
-  "X-Client": "web"
-}
+      "X-Client": "web"
+    }
   });
-
   return res.data;
 };
-/* ---------- Slice ---------- */
 
 const userSlice = createSlice({
   name: "user",
@@ -153,24 +118,18 @@ setCurrentUser: (state, action: PayloadAction<User | null>) => {
   extraReducers: (builder) => {
     builder
 
-      /* LOGIN */
-      // .addCase(loginUser.fulfilled, (state, action) => {
-      //   state.currentUser = {
-      //     id: action.payload.collaboratorId,
-      //     name: action.payload.name,
-      //     email: action.payload.email,
-      //     books: action.payload.bookSessions || [],
-      //   };
-      // })
-  .addCase(loginUser.fulfilled, (state, action) => {
-  state.currentUser = {
-    id: action.payload.collaboratorId,
-    name: action.payload.name,
-    email: "", // לא מוחזר מהשרת
-    books: [],
-  };
-})
+      .addCase(loginUser.fulfilled, (state, action) => {
+        const c = action.payload.collaborator;
 
+        state.currentUser = {
+          id: action.payload.collaboratorId,
+          name: c?.name,
+          email: c?.email,
+          books: action.payload.bookSessions || [],
+          latitude: c?.latitude,
+          longitude: c?.longitude
+        };
+      })
       .addCase(addUser.pending, (state) => {
         state.status = "loading";
         state.error = null;
@@ -182,7 +141,9 @@ setCurrentUser: (state, action: PayloadAction<User | null>) => {
           id: action.payload.collaboratorId,
           name: action.payload.name,
           email: action.payload.email,
-          books: [], // API לא מחזיר ספרים ברישום
+          books: [],
+          latitude: action.payload.latitude,
+          longitude: action.payload.longitude
         };
       })
 
@@ -196,11 +157,13 @@ setCurrentUser: (state, action: PayloadAction<User | null>) => {
 
 .addCase(fetchMe.fulfilled, (state, action) => {
   state.currentUser = {
-    id: action.payload.collaboratorId,
-    name: action.payload.name,
-    email: action.payload.email,
-    books: action.payload.bookSessions || [],
-  };
+          id: action.payload.collaboratorId,
+          name: action.payload.name,
+          email: action.payload.email,
+          books: [],
+          latitude: action.payload.latitude,
+          longitude: action.payload.longitude
+        };
 
   state.isAuthChecked = true;
   state.status = "succeeded";
@@ -218,6 +181,8 @@ setCurrentUser: (state, action: PayloadAction<User | null>) => {
           name: action.payload.name,
           email: action.payload.email,
           books: action.payload.bookSessions || [],
+          latitude: action.payload.latitude,
+          longitude: action.payload.longitude
         };
       });
   },

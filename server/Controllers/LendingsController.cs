@@ -1,51 +1,76 @@
-// using Microsoft.AspNetCore.Mvc;
-// using Microsoft.EntityFrameworkCore;
-// using LIBRARY.Models;
-// using LIBRARY.Data;
-// namespace LIBRARY.Controllers
-// {
-//     [ApiController]
-//     [Route("api/[controller]")]
-//     public class LendingsController : ControllerBase
-//     {
-//         private readonly LibraryContext _context;
-//         public CollaboratorController(LibraryContext context)
-//         {
-//             _context = context;
-//         }
-//         [HttpGet("collaborator/{collaboratorId}/booksessions")]
-//         public async Task<IActionResult> GetBookSessionsByBorrower(Guid collaboratorId)
-//         {
-//             var bookSessions = await _context.BookSession
-//                 .Where(bs => bs.CollaboratorId == collaboratorId)
-//                 .Select(bs => new BookSessionWithBookDTO
-//                 {
-//                     BookSessionId = bs.Id,
-//                     Enabled = bs.Enabled,
-//                     Book = new BookDTO
-//                     {
-//                         Name = bs.Book.Name,
-//                         Category = bs.Book.Category,
-//                         AudienceId = bs.Book.AudienceId,
-//                         AutherId = bs.Book.AutherId
-//                     }
-//                 })
-//                 .ToListAsync();
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using LIBRARY.Models;
+using LIBRARY.Data;
+namespace LIBRARY.Controllers
+{
+    [ApiController]
+    [Route("api/[controller]")]
+    public class LendingsController : ControllerBase
+    {
+        private readonly LibraryContext _context;
 
-//             if (!bookSessions.Any())
-//             {
-//                 var collaboratorExists = await _context.Collaborators
-//                     .AnyAsync(c => c.CollaboratorId == collaboratorId);
+        public LendingsController(LibraryContext context)
+        {
+            _context = context;
+        }
 
-//                 if (!collaboratorExists)
-//                 {
-//                     return NotFound($"Collaborator with id {collaboratorId} does not exist.");
-//                 }
+        [HttpPost("nearby")]
+        public async Task<IActionResult> GetNearbySessions([FromBody] NearbyBookSessionsRequest request)
+        {
+            var sessions = await _context.BookSession
+                .Where(s => s.BookId == request.BookId)
+                .Include(s => s.Collaborator)
+                .Select(s => new
+                {
+                    s.Id,
+                    s.CollaboratorId,
+                    s.Collaborator.Name,
+                    Lat = s.Collaborator.Latitude,
+                    Lng = s.Collaborator.Longitude
+                })
+                .ToListAsync();
 
-//                 return NotFound($"No book sessions found for collaborator {collaboratorId}.");
-//             }
+            var result = sessions
+                .Select(s => new NearbyBookSessionDto
+                {
+                    BookSessionId = s.Id,
+                    CollaboratorId = s.CollaboratorId,
+                    CollaboratorName = s.Name,
+                    Lat = s.Lat,
+                    Lng = s.Lng,
+                    DistanceKm = GetDistanceKm(
+                        request.UserLat,
+                        request.UserLng,
+                        s.Lat,
+                        s.Lng
+                    )
+                })
+                .OrderBy(x => x.DistanceKm)
+                .Take(3)
+                .ToList();
 
-//             return Ok(bookSessions);
-//         }
-//     }
-// }
+            return Ok(result);
+        }
+
+        private double GetDistanceKm(double lat1, double lon1, double lat2, double lon2)
+        {
+            const double R = 6371;
+
+            var dLat = ToRad(lat2 - lat1);
+            var dLon = ToRad(lon2 - lon1);
+
+            var a =
+                Math.Sin(dLat / 2) * Math.Sin(dLat / 2) +
+                Math.Cos(ToRad(lat1)) *
+                Math.Cos(ToRad(lat2)) *
+                Math.Sin(dLon / 2) *
+                Math.Sin(dLon / 2);
+
+            var c = 2 * Math.Atan2(Math.Sqrt(a), Math.Sqrt(1 - a));
+            return R * c;
+        }
+
+        private double ToRad(double angle) => angle * Math.PI / 180;
+    }
+}
