@@ -1,8 +1,10 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import { CacheProvider } from "@emotion/react";
-import { useSelector } from "react-redux";
+
+import { useDispatch, useSelector } from "react-redux";
+
 import { getTheme, rtlCache } from "./Theme";
 import Home from "./Pages/Home";
 import Login from "./Pages/Login";
@@ -12,13 +14,19 @@ import Search from "./Pages/Search";
 import BorrowBook from "./Pages/BorrowBook";
 import Navbar from "./components/Home/NavBar";
 import ProtectedRoute from "./components/ProtectedRoute";
-import type { RootState } from "./app/store";
+import type { AppDispatch, RootState } from "./app/store";
+import Borrow from "./Pages/BorrowBook";
+import { fetchMe } from "./slices/UserSlice";
 
 const App: React.FC = () => {
   const user = useSelector(
   (state: RootState) => state.myUser.currentUser
 );
-  // const isLoggedIn = !!user;
+
+const dispatch = useDispatch<AppDispatch>();
+useEffect(() => {
+  dispatch(fetchMe());
+}, [dispatch]);
   const isLoggedIn = !!user?.id;
 
   const [mode, setMode] = useState<"light" | "dark">(
@@ -81,6 +89,7 @@ const App: React.FC = () => {
                   </ProtectedRoute>
                 }
               />
+             
             </Routes>
           </Router>
         </div>

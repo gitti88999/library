@@ -1,10 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using LIBRARY.Models;
 using LIBRARY.Data;
-
+using Microsoft.AspNetCore.Authentication.Cookies;
 var builder = WebApplication.CreateBuilder(args);
-
-// 🟢 קודם מגדירים את כל השירותים
 builder.Services.AddDbContext<LibraryContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("libraryDB")));
 
@@ -17,7 +15,19 @@ builder.Services.AddOpenApi();
 
 // Services
 builder.Services.AddScoped<JwtService>();
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.Cookie.Name = "auth";
+        options.Cookie.HttpOnly = true;
 
+        options.Cookie.SameSite = SameSiteMode.Lax; // או None רק אם HTTPS אמיתי
+        options.Cookie.SecurePolicy = CookieSecurePolicy.None;
+
+        options.LoginPath = "/api/Auth/login";
+    });
+
+builder.Services.AddAuthorization();
 // CORS
 builder.Services.AddCors(options =>
 {
@@ -26,16 +36,16 @@ builder.Services.AddCors(options =>
         policy
             .WithOrigins("http://localhost:5173")
             .AllowAnyHeader()
-            .AllowAnyMethod();
+            .AllowAnyMethod()
+            .AllowCredentials();
     });
 });
 
-// 🟢 רק אחרי זה בונים את האפליקציה
 var app = builder.Build();
-
-// middleware
+app.UseRouting();
 app.UseCors("AllowFrontend");
-
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapGet("/health", () => Results.Ok());
 app.MapControllers();
 
@@ -48,14 +58,7 @@ if (app.Environment.IsDevelopment())
         c.RoutePrefix = string.Empty;
     });
 }
-
 app.UseHttpsRedirection();
-
-// Authentication & Authorization
-app.UseAuthentication();
-app.UseAuthorization();
-
-// DB Migration & Seeding
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<LibraryContext>();

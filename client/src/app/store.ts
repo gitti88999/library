@@ -1,12 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit'
 import myBooksReducer from '../slices/LibrarySlice'
 import AllBooksSlice from '../slices/SearchSlice'
-
 import AudienceSlice from '../slices/AudienceSlice';
 import AuthorSlice from '../slices/AuthorSlice';
 import CategorySlice from '../slices/CategorySlice';
 import userReducer from '../slices/UserSlice'
 import lendingsReducer from "../slices/LendingsSlice"; 
+
 export const store = configureStore({
   reducer: {
     allBooks: AllBooksSlice,
