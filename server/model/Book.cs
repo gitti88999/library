@@ -16,7 +16,7 @@ namespace LIBRARY.Models
         public Author author { get; set; }
     }
     public class BookDTO
-    {
+    {    
         public string Name { get; set; }
         public Guid CategoryId { get; set; }
         public Guid AudienceId { get; set; }
@@ -27,4 +27,13 @@ namespace LIBRARY.Models
     public BookDTO Book { get; set; } = null!;
     public Guid CollaboratorId { get; set; }
 }
+public class AddBookRequest
+    {
+        public string Name { get; set; }
+        public Guid CategoryId { get; set; }
+        public Guid AudienceId { get; set; }
+        public Guid AuthorId { get; set; }
+        public Guid CollaboratorId { get; set; }
+    }
+
 }

@@ -201,7 +201,11 @@ const Search: React.FC = () => {
                 <Button
                   variant="contained"
                   sx={{ mt: 1 }}
-                  onClick={() => navigate(`/borrow/${book.name}`)}
+                  
+                  onClick={() => {
+                console.log("NAVIGATE TO:", book.id); // 👈 כאן
+              navigate(`/borrow/${book.name}`);
+                    }}
                 >
                   בחר
                 </Button>
@@ -215,3 +219,4 @@ const Search: React.FC = () => {
 };
 
 export default Search;
+

@@ -4,7 +4,10 @@ using LIBRARY.Models;
 using LIBRARY.Data;
 using System.Security.Cryptography;
 using System.Text;
-
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Cookies;
 namespace LIBRARY.Controllers
 {
     [ApiController]
@@ -86,53 +89,66 @@ namespace LIBRARY.Controllers
                 user
             });
         }
-        // התחברות
-        [HttpPost("login")]
-        public async Task<ActionResult> Login(LoginDTO loginDto)
-        {
-            if (loginDto == null)
-            {
-                return BadRequest("Invalid data.");
-            }
+  [HttpGet("me")]
+public IActionResult Me()
+{
+    if (User?.Identity?.IsAuthenticated != true)
+        return Unauthorized();
 
-            if (string.IsNullOrWhiteSpace(loginDto.Name) ||
-                string.IsNullOrWhiteSpace(loginDto.Password))
-            {
-                return BadRequest("Name and password are required.");
-            }
+    var userId = User.FindFirst("UserId")?.Value;
+    var name = User.FindFirst(ClaimTypes.Name)?.Value;
 
-            string passwordHash = ComputeSha256Hash(loginDto.Password);
+    if (userId == null)
+        return Unauthorized();
 
-            var collaborator = await _context.Collaborators
-                .FirstOrDefaultAsync(c =>
-                    c.Name == loginDto.Name &&
-                    c.Password == passwordHash);
+    return Ok(new
+    {
+        collaboratorId = userId,
+        name = name
+    });
+}
+     
+[HttpPost("login")]
+public async Task<ActionResult> Login(LoginDTO loginDto)
+{
+    if (loginDto == null)
+        return BadRequest("Invalid data.");
 
-            if (collaborator == null)
-            {
-                return Unauthorized("Invalid name or password.");
-            }
-            // var loginRecord = new Login
-            // {
-            //     Id = Guid.NewGuid(),
-            //     CollaboratorId = collaborator.CollaboratorId,
-            //     LoginDate = DateTime.UtcNow
-            // };
+    if (string.IsNullOrWhiteSpace(loginDto.Name) ||
+        string.IsNullOrWhiteSpace(loginDto.Password))
+    {
+        return BadRequest("Name and password are required.");
+    }
 
-            // _context.Logins.Add(loginRecord);
-            // await _context.SaveChangesAsync();
+    string passwordHash = ComputeSha256Hash(loginDto.Password);
 
-            var login = new Login
-            {
-                Id = Guid.NewGuid(),
-                CollaboratorId = collaborator.CollaboratorId,
-                LoginDate = DateTime.UtcNow,
-            };
-            _context.Logins.Add(login);
-            await _context.SaveChangesAsync();
-            return Ok(login);
-        }
+    var collaborator = await _context.Collaborators
+        .FirstOrDefaultAsync(c =>
+            c.Name == loginDto.Name &&
+            c.Password == passwordHash);
 
+    if (collaborator == null)
+        return Unauthorized("Invalid name or password.");
+
+    var claims = new List<Claim>
+    {
+        new Claim(ClaimTypes.Name, collaborator.Name),
+        new Claim("UserId", collaborator.CollaboratorId.ToString())
+    };
+
+    var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+    var principal = new ClaimsPrincipal(identity);
+
+    await HttpContext.SignInAsync(
+    CookieAuthenticationDefaults.AuthenticationScheme,
+    principal);
+
+    return Ok(new
+    {
+        collaborator.CollaboratorId,
+        collaborator.Name
+    });
+}
         // SHA256 Hash
         private static string ComputeSha256Hash(string rawData)
         {

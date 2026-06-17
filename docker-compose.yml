@@ -6,7 +6,7 @@ services:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
       ACCEPT_EULA: "Y"
-      MSSQL_SA_PASSWORD: ${SA_PASSWORD}
+      MSSQL_SA_PASSWORD: "ALTgit88999"
     ports:
       - "1434:1433" 
     volumes:
@@ -18,7 +18,7 @@ services:
           "/opt/mssql-tools18/bin/sqlcmd",
           "-S", "localhost",
           "-U", "sa",
-          "-P", "${SA_PASSWORD}",
+          "-P",  "ALTgit88999",
           "-C",
           "-Q", "SELECT 1"
         ]
@@ -64,3 +64,4 @@ networks:
 
 volumes:
   sql_data:
+

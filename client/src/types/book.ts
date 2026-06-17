@@ -1,5 +1,5 @@
 export interface BookDTO {
-  id: string; // <-- הוסיפי
+  id: string; 
   name: string;
   categoryId: string;
   audienceId: string;

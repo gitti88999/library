@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState } from "react";
 import {
   TextField,
   Button,
@@ -22,6 +22,8 @@ interface Place {
   lat: string;
   lon: string;
 }
+
+
 
 /* ---------- reverse geocode ---------- */
 const reverseGeocode = async (lat: number, lon: number) => {
@@ -202,7 +204,7 @@ const handleSubmit = async () => {
         </Button>
       </Stack>
     </Container>
-  );
+);
 };
 
 export default Register;

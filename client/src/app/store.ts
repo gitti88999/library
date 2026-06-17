@@ -6,6 +6,8 @@ import AudienceSlice from '../Pages/Library/AudienceSlice';
 import AuthorSlice from '../Pages/Library/AuthorSlice';
 import CategorySlice from '../Pages/Library/CategorySlice';
 import userReducer from '../Pages/UserSlice'
+// import borrowBookReducer from "../Pages/BorrowBook/BorrowBookSlice";
+
 export const store = configureStore({
   reducer: {
     allBooks: AllBooksSlice,
@@ -13,7 +15,9 @@ export const store = configureStore({
     myUser: userReducer,
     audiences: AudienceSlice,
     categories: CategorySlice,
-    authors: AuthorSlice
+    authors: AuthorSlice,
+    // borrowBook: borrowBookReducer,
+
   },
   devTools: true,
 })

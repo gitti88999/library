@@ -45,15 +45,25 @@ namespace LIBRARY.Controllers
         }
 
       
+//  [HttpGet("search-by-name/{name}")]
+// public async Task<IActionResult> SearchByName(string name)
+// {
+//     var book = await _context.Books
+//         .FirstOrDefaultAsync(b => b.Name == name);
 
-public class AddBookRequest
-    {
-        public string Name { get; set; }
-        public Guid CategoryId { get; set; }
-        public Guid AudienceId { get; set; }
-        public Guid AuthorId { get; set; }
-        public Guid CollaboratorId { get; set; }
-    }
+//     if (book == null)
+//         return NotFound("Book not found");
+
+//     var sessions = await _context.BookSession
+//         .Where(s => s.BookId == book.Id)
+//         .ToListAsync();
+
+//     return Ok(new
+//     {
+//         book,
+//         sessions
+//     });
+// }
 
     [HttpPost("add-with-session")]
     public async Task<ActionResult> AddBookWithSession(AddBookRequest request)
@@ -69,7 +79,6 @@ public class AddBookRequest
 
         Guid bookId;
 
-        // יצירת ספר אם לא קיים
         if (existingBook == null)
         {
             var newBook = new Book
