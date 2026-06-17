@@ -1,46 +1,46 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import type { Category } from "../../types/book";
+import type { Author } from "../types/book";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
-export const getCategories = createAsyncThunk(
-  "categorys/getCategories",
+export const getAuthors = createAsyncThunk(
+  "authors/getAuthors",
   async () => {
-    const response = await axios.get<Category[]>(`${apiUrl}/api/category`);
+    const response = await axios.get<Author[]>(`${apiUrl}/api/author`);
     return response.data ?? [];
   }
 );
 
-interface CategoryState {
-  items: Category[];
+interface AuthorsState {
+  items: Author[];
   status: "idle" | "loading" | "succeeded" | "failed";
   error?: string;
 }
 
-const initialState: CategoryState = {
+const initialState: AuthorsState = {
   items: [],
   status: "idle",
 };
 
-const CategorySlice = createSlice({
-  name: "categories",
+const AuthorsSlice = createSlice({
+  name: "authors",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(getCategories.pending, (state) => {
+      .addCase(getAuthors.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(getCategories.fulfilled, (state, action) => {
+      .addCase(getAuthors.fulfilled, (state, action) => {
     state.status = "succeeded";
     state.items = action.payload;
 })
-      .addCase(getCategories.rejected, (state, action) => {
+      .addCase(getAuthors.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
       });
   },
 });
 
-export default CategorySlice.reducer;
+export default AuthorsSlice.reducer;

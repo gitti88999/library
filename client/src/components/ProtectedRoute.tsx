@@ -7,7 +7,6 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   // const user = useSelector((state: RootState) => state.auth.user);
   const user = useSelector((state: RootState) => state.myUser.currentUser);
  
-console.log("user",user)
   if (!user) {
     return <Navigate to="/login" replace />;
   }

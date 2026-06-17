@@ -1,11 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit'
-import myBooksReducer from '../Pages/Library/LibrarySlice'
-import AllBooksSlice from '../Pages/Search/SearchSlice'
+import myBooksReducer from '../slices/LibrarySlice'
+import AllBooksSlice from '../slices/SearchSlice'
 
-import AudienceSlice from '../Pages/Library/AudienceSlice';
-import AuthorSlice from '../Pages/Library/AuthorSlice';
-import CategorySlice from '../Pages/Library/CategorySlice';
-import userReducer from '../Pages/UserSlice'
+import AudienceSlice from '../slices/AudienceSlice';
+import AuthorSlice from '../slices/AuthorSlice';
+import CategorySlice from '../slices/CategorySlice';
+import userReducer from '../slices/UserSlice'
+import lendingsReducer from "../slices/LendingsSlice"; 
 export const store = configureStore({
   reducer: {
     allBooks: AllBooksSlice,
@@ -13,7 +14,8 @@ export const store = configureStore({
     myUser: userReducer,
     audiences: AudienceSlice,
     categories: CategorySlice,
-    authors: AuthorSlice
+    authors: AuthorSlice,
+    lendings: lendingsReducer
   },
   devTools: true,
 })

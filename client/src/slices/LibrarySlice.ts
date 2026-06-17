@@ -1,8 +1,8 @@
 
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
-import type { BookDTO, BookSessionDTO } from "../../types/book";
-import { RootState } from "../../app/store";
+import { BookDTO, BookSessionDTO, BooksStatus } from "../types/book";
+import { RootState } from "../app/store";
 
 const apiUrl: string = import.meta.env.VITE_API_URL;
 
@@ -12,16 +12,13 @@ export const getMyBooks = createAsyncThunk(
   async (_, thunkAPI) => {
     const state = thunkAPI.getState() as RootState;
     const userId = state.myUser.currentUser?.id;
-    console.log("Fetching books for userId:", userId);
     if (!userId) throw new Error("User not logged in");
     try {
       const response = await axios.get<BookSessionDTO[]>(
         `${apiUrl}/api/Collaborator/${userId}/booksessions`
       );
-      console.log("Fetched books:", response.data);
       return response.data;
     } catch (err: any) {
-      console.log(err);
       return thunkAPI.rejectWithValue(
         err?.response?.data ?? err?.message ?? "Failed to load books"
       );
@@ -52,8 +49,6 @@ export const addBook = createAsyncThunk(
       return response.data;
     } 
     catch (err: any) {
-  console.log("Status:", err.response?.status);
-  console.log("Server error:", err.response?.data);
 
   return thunkAPI.rejectWithValue(
     err.response?.data || "שגיאה בהוספת הספר"
@@ -64,13 +59,13 @@ export const addBook = createAsyncThunk(
 );
 export interface BooksState {
   items: BookSessionDTO[] ;
-  status: "idle" | "loading" | "succeeded" | "failed";
+  status: BooksStatus;
   error: string | null;
 }
 
 const initialState: BooksState = {
   items: [],
-  status: "idle",
+  status: BooksStatus.Idle,
   error: null,
 };
 
@@ -81,23 +76,21 @@ const myBooksSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(getMyBooks.pending, (state) => {
-        state.status = "loading";
+        state.status = BooksStatus.Loading;
       })
       .addCase(getMyBooks.fulfilled, (state, action) => {
-        console.log('success')
-        state.status = "succeeded";
+        state.status = BooksStatus.Succeeded;
         state.items = action.payload; 
-        // console.log("state.items",state.items);// <-- כאן מעדכן את רשימת הספרים
       })
       .addCase(getMyBooks.rejected, (state, action) => {
-        state.status = "failed";
+        state.status = BooksStatus.Failed;
         state.error = action.error.message || "Failed to load books";
       })
       .addCase(addBook.pending, (state) => {
-        state.status = "loading";
+        state.status = BooksStatus.Loading;
       })
       .addCase(addBook.fulfilled, (state, action: PayloadAction<BookSessionDTO>) => {
-        state.status = "succeeded";
+        state.status = BooksStatus.Succeeded;
         // Push the new book to the list immediately
         // state.items?.push(action.payload);
       })

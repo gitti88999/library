@@ -3,25 +3,23 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import { CacheProvider } from "@emotion/react";
 import { useSelector } from "react-redux";
-
 import { getTheme, rtlCache } from "./Theme";
-
-import Home from "./Pages/Home/Home";
-import Login from "./Pages/Login/Login";
-import Register from "./Pages/Register/Register";
-import Library from "./Pages/Library/Library";
-import Search from "./Pages/Search/Search";
-import BorrowBook from "./Pages/BorrowBook/BorrowBook";
+import Home from "./Pages/Home";
+import Login from "./Pages/Login";
+import Register from "./Pages/Register";
+import Library from "./Pages/Library";
+import Search from "./Pages/Search";
+import BorrowBook from "./Pages/BorrowBook";
 import Navbar from "./components/Home/NavBar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import type { RootState } from "./app/store";
 
 const App: React.FC = () => {
-  // const user = useSelector((state: RootState) => state.auth.user);
   const user = useSelector(
   (state: RootState) => state.myUser.currentUser
 );
-  const isLoggedIn = !!user;
+  // const isLoggedIn = !!user;
+  const isLoggedIn = !!user?.id;
 
   const [mode, setMode] = useState<"light" | "dark">(
     (localStorage.getItem("theme") as "light" | "dark") || "dark"
@@ -52,7 +50,7 @@ const App: React.FC = () => {
 
               <Route
                 path="/login"
-                element={isLoggedIn ? <Navigate to="/library" /> : <Login />}
+                element={<Login />}
               />
 
               <Route path="/register" element={<Register />} />

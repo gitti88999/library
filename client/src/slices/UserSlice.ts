@@ -1,36 +1,11 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
+import { NewUser, User, UserResponse } from "../types/user";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
 /* ---------- Types ---------- */
 
-interface Book {
-  id: string;
-  name: string;
-}
-
-interface User {
-  id: string;
-  name: string;
-  email: string;
-  books: Book[];
-}
-interface NewUser {
-  name: string;
-  email: string;
-  password: string;
-  latitude: number;
-  longitude: number;
-}
-interface UserResponse {
-  collaboratorId: string;
-  name: string;
-  email: string;
-  latitude: number;
-  longitude: number;
-  token?: string;
-}
 interface UserState {
   currentUser: User | null;
   status: "idle" | "loading" | "succeeded" | "failed";
@@ -43,25 +18,11 @@ const initialState: UserState = {
   error: null,
   profileOpen: false,
 };
-// interface UserState {
-//   currentUser: User | null;
-//   status: "idle" | "loading" | "succeeded" | "failed";
-//   error: string | null;
-// }
-
-// const initialState: UserState = {
-//   currentUser: null,
-//   status: "idle",
-//   error: null,
-// };
-
-/* ---------- Async (LOGIN) ---------- */
 
 export const loginUser = createAsyncThunk(
   "user/loginUser",
   async (data: { name: string; password: string }) => {
     const res = await axios.post(`${apiUrl}/api/Auth/login`, data);
-    console.log("LOGIN RESPONSE:", res.data);
     return res.data;
   }
 );
@@ -72,12 +33,10 @@ export const addUser = createAsyncThunk<UserResponse, NewUser>(
       `${apiUrl}/api/Auth/register`,
       user
     );
-    console.log("REGISTER RESPONSE:", response.data); // 👈 חשוב
 
     return response.data;
   }
 );
-/* ---------- Async (REGISTER) ---------- */
 
 export const registerUser = createAsyncThunk(
   "user/registerUser",
@@ -95,13 +54,11 @@ export const searchAddress = async (query: string) => {
       limit: 5,
     },
     headers: {
-  "X-Client": "web"
-}
+      "X-Client": "web"
+    }
   });
-
   return res.data;
 };
-/* ---------- Slice ---------- */
 
 const userSlice = createSlice({
   name: "user",
@@ -118,13 +75,16 @@ const userSlice = createSlice({
   extraReducers: (builder) => {
     builder
 
-      /* LOGIN */
       .addCase(loginUser.fulfilled, (state, action) => {
+        const c = action.payload.collaborator;
+
         state.currentUser = {
           id: action.payload.collaboratorId,
-          name: action.payload.name,
-          email: action.payload.email,
+          name: c?.name,
+          email: c?.email,
           books: action.payload.bookSessions || [],
+          latitude: c?.latitude,
+          longitude: c?.longitude
         };
       })
       .addCase(addUser.pending, (state) => {
@@ -138,7 +98,9 @@ const userSlice = createSlice({
           id: action.payload.collaboratorId,
           name: action.payload.name,
           email: action.payload.email,
-          books: [], // API לא מחזיר ספרים ברישום
+          books: [],
+          latitude: action.payload.latitude,
+          longitude: action.payload.longitude
         };
       })
 
@@ -153,6 +115,8 @@ const userSlice = createSlice({
           name: action.payload.name,
           email: action.payload.email,
           books: action.payload.bookSessions || [],
+          latitude: action.payload.latitude,
+          longitude: action.payload.longitude
         };
       });
   },

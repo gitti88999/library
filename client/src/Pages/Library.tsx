@@ -18,12 +18,12 @@ import {
   FormControl,
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
-import type { AppDispatch, RootState } from "../../app/store";
-import { getMyBooks, addBook } from "./LibrarySlice";
-import { BookDTO } from "../../types/book";
-import { getAudiences } from './AudienceSlice';
-import { getAuthors } from './AuthorSlice';
-import { getCategories } from './CategorySlice';
+import type { AppDispatch, RootState } from "../app/store";
+import { getMyBooks, addBook } from "../slices/LibrarySlice";
+import { BookDTO } from "../types/book";
+import { getAudiences } from '../slices/AudienceSlice';
+import { getAuthors } from '../slices/AuthorSlice';
+import { getCategories } from '../slices/CategorySlice';
 const Library: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
 
@@ -42,12 +42,10 @@ const Library: React.FC = () => {
     (state: RootState) => state.myUser.currentUser
   );
   const [refresh, setRefresh] = useState(false);
-  const allState = useSelector((state: RootState) => state);
 
   const  items  = useSelector((state: RootState) => state.myBooks.items);
   const  status  = useSelector((state: RootState) => state.myBooks.status);
   const  error  = useSelector((state: RootState) => state.myBooks.error);
-console.log("items",items);
 
   const audiences = useSelector((state: RootState) => state.audiences.items);
   const categories = useSelector((state: RootState) => state.categories.items);
@@ -55,30 +53,18 @@ console.log("items",items);
 const books = useSelector(
   (state: RootState) => state.myBooks.items
 );
-  useEffect(() => {
-    dispatch(getAudiences());
-    dispatch(getAuthors());
-    dispatch(getCategories());
-    console.log(currentUser);
+ useEffect(() => {
+  dispatch(getAudiences());
+  dispatch(getAuthors());
+  dispatch(getCategories());
+}, [dispatch]);
 
-    if (currentUser?.id) {
-      dispatch(getMyBooks());
-      console.log('dispatch get my books');
-    }
-  }, [dispatch, currentUser?.id,refresh]);
+useEffect(() => {
+  if (currentUser?.id) {
+    dispatch(getMyBooks());
+  }
+}, [dispatch, currentUser?.id]);
 
-  useEffect(() => {
-    console.log({status});
-    
-    switch (status) {
-      case "succeeded":
-        console.log({ items })
-        break;
-      case "failed":
-        console.log({ error })
-        break
-    }
-  }, [status])
 
   const safeAudiences = useMemo(() => audiences ?? [], [audiences]);
   const safeAuthors = useMemo(() => authors ?? [], [authors]);
@@ -102,10 +88,8 @@ const handleAdd = async () => {
         collaboratorId: currentUser.id,
       })
     ).unwrap();
-
     setSuccessMsg("הספר נוסף בהצלחה");
     setErrorMsg(null);
-
     setBook({
       id: "",
       name: "",
@@ -113,12 +97,8 @@ const handleAdd = async () => {
       audienceId: "",
       authorId: "",
     });
-
     setOpen(false);
-
-   
     await dispatch(getMyBooks());
-
   } catch (err: any) {
     setSuccessMsg(null);
 
@@ -131,9 +111,6 @@ const handleAdd = async () => {
 };
   if (!currentUser) return <div>יש להתחבר למערכת</div>;
   if (status === "loading") return <div>טוען ספרים...</div>;
-
-
-
   return (
     <Container maxWidth="md" sx={{ mt: 8 }}>
       <Typography variant="h4" gutterBottom>
@@ -143,15 +120,11 @@ const handleAdd = async () => {
       <Button variant="contained" onClick={() => setOpen(true)} sx={{ mb: 3 }}>
         הוספת ספר חדש
       </Button>
-{error && (
-      <Typography color="error" sx={{ mb: 2 }}>
-        {error}
-      </Typography>
-    )}
+
       <Stack spacing={2}>
         {onlyBooks.length === 0 ? (
 
-          <Typography>אין ספרים להצגה</Typography>
+          <Typography>אין ברשותך ספרים</Typography>
         ) : (
           onlyBooks.map((book) => (
     <Card key={book.id ?? book.name}>
@@ -166,21 +139,15 @@ const handleAdd = async () => {
 ))
         )}
       </Stack>
-
       <Dialog open={open} onClose={() => setOpen(false)}>
         <DialogTitle>הוספת ספר</DialogTitle>
-
         <DialogContent>
           <Stack spacing={2} sx={{ mt: 1 }}>
-
             <TextField
               label="שם הספר"
               value={book.name}
-              
-              
               onChange={(e) => setBook({ ...book, name: e.target.value })}
             />
-
             <FormControl fullWidth>
               <InputLabel>קטגוריה</InputLabel>
               <Select
@@ -197,7 +164,6 @@ const handleAdd = async () => {
                 ))}
               </Select>
             </FormControl>
-
             <FormControl fullWidth>
               <InputLabel>קהל יעד</InputLabel>
               <Select
@@ -214,7 +180,6 @@ const handleAdd = async () => {
                 ))}
               </Select>
             </FormControl>
-
             <FormControl fullWidth>
               <InputLabel>מחבר</InputLabel>
               <Select
@@ -231,10 +196,8 @@ const handleAdd = async () => {
                 ))}
               </Select>
             </FormControl>
-
           </Stack>
         </DialogContent>
-
         <DialogActions>
           <Button onClick={() => setOpen(false)}>ביטול</Button>
           <Button variant="contained" onClick={handleAdd}>

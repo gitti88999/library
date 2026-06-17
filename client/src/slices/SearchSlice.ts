@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
-import type { BookDTO} from "../../types/book";
+import { BookDTO, BooksStatus} from "../types/book";
 const apiUrl: string = import.meta.env.VITE_API_URL;
 export const getBooks = createAsyncThunk<BookDTO[]>(
   "books/getBooks",
@@ -11,13 +11,13 @@ export const getBooks = createAsyncThunk<BookDTO[]>(
 );
 export interface BooksState {
   items: BookDTO[];
-  status: 'idle' | 'loading' | 'succeeded' | 'failed'; 
+  status: BooksStatus; 
   error: string | null;
 }
 
 const initialState: BooksState = {
   items: [],
-  status: 'idle',
+  status: BooksStatus.Idle,
   error: null,
 };
 
@@ -32,15 +32,15 @@ const AllBooksSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(getBooks.pending, (state) => {
-        state.status = 'loading'; 
+        state.status = BooksStatus.Loading; 
       })
       .addCase(getBooks.fulfilled, (state, action) => {
-        state.status = 'succeeded'; 
+        state.status = BooksStatus.Succeeded; 
         state.items = action.payload;
         state.error = null;
       })
       .addCase(getBooks.rejected, (state, action) => {
-        state.status = 'failed'; 
+        state.status = BooksStatus.Failed; 
         state.error = action.error.message ?? null;
       });
   },

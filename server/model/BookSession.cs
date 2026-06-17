@@ -25,3 +25,19 @@ namespace LIBRARY.Models
     public BookDTO Book { get; set; }
 }
 }
+public class NearbyBookSessionsRequest
+{
+    public Guid BookId { get; set; }
+    public double UserLat { get; set; }
+    public double UserLng { get; set; }
+}
+
+public class NearbyBookSessionDto
+{
+    public Guid BookSessionId { get; set; }
+    public Guid CollaboratorId { get; set; }
+    public string CollaboratorName { get; set; }
+    public double Lat { get; set; }
+    public double Lng { get; set; }
+    public double DistanceKm { get; set; }
+}

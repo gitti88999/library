@@ -1,16 +1,16 @@
 // MyBooksSlice.test.ts
 
 import { mockedAxios } from './setupTests';
-import reducer, { addBook, getMyBooks } from "../Pages/Library/LibrarySlice";
-
+import reducer, { addBook, getMyBooks } from "../slices/LibrarySlice";
+import { BooksStatus } from '../types/book';
 
 describe("MyBooksSlice", () => {
 
   const initialState = {
-    items: [],
-    status: "",
-    error: ""
-  };
+  items: [],
+  status: BooksStatus.Idle,
+  error: "",
+};
 
   it("should handle initial state", () => {
     expect(reducer(undefined, { type: "" })).toEqual(initialState);

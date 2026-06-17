@@ -10,11 +10,11 @@ import {
   Typography,
 } from "@mui/material";
 
-import { useDebounce } from "../../api";
+import { useDebounce } from "../api";
 import MiniMap from "./MiniMap";
-import { registerUser } from "../UserSlice";
+import { registerUser } from "../slices/UserSlice";
 import { useDispatch } from "react-redux";
-import type { AppDispatch } from "../../app/store";
+import type { AppDispatch } from "../app/store";
 
 /* ---------- TYPES ---------- */
 interface Place {
@@ -125,13 +125,10 @@ const handleSubmit = async () => {
     longitude: coords.lng,
   };
 
-  console.log("REGISTER PAYLOAD:", payload);
 
   try {
     await dispatch(registerUser(payload)).unwrap();
-    console.log("נרשם בהצלחה");
   } catch (err) {
-    console.error("שגיאת הרשמה:", err);
   }
 };
 
