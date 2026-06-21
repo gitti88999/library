@@ -27,10 +27,24 @@ export const fetchNearbySessions = createAsyncThunk(
     }
   }
 );
+export const requestBorrow = createAsyncThunk(
+  "lendings/requestBorrow",
+  async (data: { bookSessionId: string; AName: string,AEmail:string,BName:string,BEmail:string }, thunkAPI) => {
+    try {
+      const res = await api.post("/api/Lendings/request", data);
+      return res.data;
+    } catch (err: any) {
+      return thunkAPI.rejectWithValue(
+        err.response?.data || "Request failed"
+      );
+    }
+  }
+);
 export type NearbySession = {
   bookSessionId: string;
   collaboratorId: string;
   collaboratorName: string;
+  collaboratorEmail:string;
   lat: number;
   lng: number;
   distanceKm: number;
@@ -69,12 +83,24 @@ const lendingsSlice = createSlice({
       })
       .addCase(fetchNearbySessions.fulfilled, (state, action) => {
         state.status = "succeeded";
+        console.log(action.payload);
+
         state.items = action.payload;
       })
       .addCase(fetchNearbySessions.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload as string;
-      });
+      })
+      .addCase(requestBorrow.pending, (state) => {
+        state.status = "loading";
+      })
+      .addCase(requestBorrow.fulfilled, (state) => {
+        state.status = "succeeded";
+      })
+      .addCase(requestBorrow.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload as string;
+      })
   },
 });
 
