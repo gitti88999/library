@@ -59,5 +59,10 @@ namespace LIBRARY.Controllers
 
             return Ok(bookSessions);
         }
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            return Ok(await _context.Collaborators.ToListAsync());
+        }
     }
 }

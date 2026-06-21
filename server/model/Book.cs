@@ -36,5 +36,35 @@ public class AddBookRequest
         public Guid AuthorId { get; set; }
         public Guid CollaboratorId { get; set; }
     }
+public class BorrowRequest
+{
+    public int Id { get; set; }
 
+    public int BookId { get; set; }
+    public string BookName { get; set; }
+
+    public int RequesterId { get; set; }
+    public string RequesterName { get; set; }
+    public string RequesterEmail { get; set; }
+
+    public int OwnerId { get; set; }
+    public string OwnerName { get; set; }
+    public string OwnerEmail { get; set; }
+
+    public bool IsApproved { get; set; } = false;
+}
+public class CreateBorrowRequestDto
+{
+    public Guid BookId { get; set; }
+
+    public Guid  RequesterId { get; set; }
+    public string RequesterName { get; set; }
+    public string RequesterEmail { get; set; }
+}
+public class ApproveDto
+{
+    public Guid BookId { get; set; }
+    public string RequesterEmail { get; set; }
+    public string RequesterName { get; set; }
+}
 }
