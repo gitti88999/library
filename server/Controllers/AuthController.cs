@@ -104,7 +104,7 @@ public IActionResult Me()
     return Ok(new
     {
         collaboratorId = userId,
-        name = name
+        name
     });
 }  
 [HttpPost("login")]
@@ -147,7 +147,8 @@ public async Task<ActionResult> Login(LoginDTO loginDto)
         collaborator.CollaboratorId,
         collaborator.Name,
         collaborator.Email,
-
+        collaborator.Latitude,
+        collaborator.Longitude
     });
 }
         // SHA256 Hash

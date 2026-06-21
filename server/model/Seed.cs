@@ -51,23 +51,6 @@ public static class DbSeeder
             context.SaveChanges();
         }
 
-        // ===== BOOKS =====
-        if (!context.Books.Any())
-        {
-            var audience = context.Audiences.First();
-            var category = context.Categories.First();
-            var author = context.Authors.First();
-
-            context.Books.Add(new Book
-            {
-                BookId = Guid.NewGuid(),
-                Name = "ספר ראשון",
-                AudienceId = audience.Id,
-                CategoryId = category.Id,
-                AuthorId = author.Id
-            });
-
-            context.SaveChanges();
-        }
+        
     }
 }
