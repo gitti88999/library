@@ -2,6 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LIBRARY.Models;
 using LIBRARY.Data;
+using System.Net;
+using System.Net.Mail;
 namespace LIBRARY.Controllers
 {
     [ApiController]
@@ -45,25 +47,7 @@ namespace LIBRARY.Controllers
         }
 
       
-//  [HttpGet("search-by-name/{name}")]
-// public async Task<IActionResult> SearchByName(string name)
-// {
-//     var book = await _context.Books
-//         .FirstOrDefaultAsync(b => b.Name == name);
 
-//     if (book == null)
-//         return NotFound("Book not found");
-
-//     var sessions = await _context.BookSession
-//         .Where(s => s.BookId == book.Id)
-//         .ToListAsync();
-
-//     return Ok(new
-//     {
-//         book,
-//         sessions
-//     });
-// }
 
     [HttpPost("add-with-session")]
     public async Task<ActionResult> AddBookWithSession(AddBookRequest request)
@@ -100,7 +84,6 @@ namespace LIBRARY.Controllers
             bookId = existingBook.BookId;
         }
 
-        // בדיקה אם כבר קיימת BookSession עבור אותו משתמש
         var existingSession = await _context.BookSession
             .FirstOrDefaultAsync(s =>
                 s.BookId == bookId &&
@@ -111,7 +94,7 @@ namespace LIBRARY.Controllers
             return BadRequest("הספר כבר קיים אצל המשתמש");
         }
 
-        // יצירת BookSession חדשה
+     
         var session = new BookSession
         {
             Id = Guid.NewGuid(),
@@ -156,12 +139,10 @@ namespace LIBRARY.Controllers
                 };
                 _context.BookSessionArchive.Add(sessionArchive);
 
-                // מחיקה מהטבלה המקורית
+         
                 _context.BookSession.Remove(session);
 await _context.SaveChangesAsync();
-                // בדיקה אם נותרו מופעים נוספים עבור אותו ספר
-                // bool hasOtherSessions = _context.BookSession.Any(s => s.BookId == bookId);
-                // Console.WriteLine(hasOtherSessions);
+              
                 bool hasOtherSessions = _context.BookSession
                         .AsNoTracking()
                         .Any(s => s.BookId == bookId);
@@ -208,6 +189,7 @@ await _context.SaveChangesAsync();
                 return StatusCode(500, $"Error occurred: {ex.Message}");
             }
         }
+        
 
     }
 

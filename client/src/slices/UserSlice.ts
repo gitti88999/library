@@ -22,12 +22,7 @@ interface UserState {
   authLoading: boolean;
 
 }
-// const initialState: UserState = {
-//   currentUser: null,
-//   status: "idle",
-//   error: null,
-//   profileOpen: false,
-// };
+
 const initialState: UserState = {
   currentUser: null,
   status: "idle",
@@ -87,6 +82,7 @@ export const fetchMe = createAsyncThunk(
     return await res.json();
   }
 );
+
 export const searchAddress = async (query: string) => {
   const res = await axios.get("https://nominatim.openstreetmap.org/search", {
     params: {
