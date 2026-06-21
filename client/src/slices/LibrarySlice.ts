@@ -35,7 +35,6 @@ interface AddBookRequest {
   authorId: string;
   collaboratorId: string;
 }
-
 export const archiveAndDeleteBookSession = createAsyncThunk(
   "myBooks/archiveAndDelete",
   async (id: string, thunkAPI) => {
@@ -87,7 +86,9 @@ const initialState: BooksState = {
 const myBooksSlice = createSlice({
   name: "myBooks",
   initialState,
-  reducers: {},
+  reducers: {clearBooks: (state) => {
+      state.items = [];
+    },},
   extraReducers: (builder) => {
     builder
       .addCase(getMyBooks.pending, (state) => {
@@ -99,7 +100,7 @@ const myBooksSlice = createSlice({
       })
       .addCase(getMyBooks.rejected, (state, action) => {
         state.status = BooksStatus.Failed;
-        state.error = action.error.message || "Failed to load books";
+        // state.error = action.error.message || "Failed to load books";
       })
       .addCase(addBook.pending, (state) => {
         state.status = BooksStatus.Loading;

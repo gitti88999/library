@@ -219,6 +219,5 @@ const Search: React.FC = () => {
     </Container>
   );
 };
-
 export default Search;
 

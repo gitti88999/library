@@ -2,7 +2,9 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LIBRARY.Models;
 using LIBRARY.Data;
+using LIBRARY.server.Services;
 namespace LIBRARY.Controllers
+
 {
     [ApiController]
     [Route("api/[controller]")]
@@ -72,5 +74,38 @@ namespace LIBRARY.Controllers
         }
 
         private double ToRad(double angle) => angle * Math.PI / 180;
+      
+        private readonly IEmailService _emailService;
+
+        public LendingsController(LibraryContext context, IEmailService emailService)
+        {
+            _context = context;
+            _emailService = emailService;
+        }
+
+        [HttpPost("request")]
+        public async Task<IActionResult> RequestBorrow(Guid bookId, string requesterName, string requesterEmail)
+        {
+            var book = await _context.Books.FirstOrDefaultAsync(x => x.BookId == bookId);
+            if (book == null)
+                return NotFound();
+
+            var owner = await _context.BookSession
+                .Include(x => x.Collaborator)
+                .FirstOrDefaultAsync(x => x.BookId == bookId);
+
+            if (owner == null)
+                return BadRequest();
+
+            await _emailService.SendAsync(
+                owner.Collaborator.Email,
+                "בקשת השאלה",
+                $"{requesterName} רוצה את הספר {book.Name}"
+            );
+
+            return Ok();
+        }
     }
-}
+    }
+
+   
