@@ -53,13 +53,13 @@ public class BorrowRequest
 
     public bool IsApproved { get; set; } = false;
 }
-public class CreateBorrowRequestDto
+public class BorrowRequestDto
 {
-    public Guid BookId { get; set; }
-
-    public Guid  RequesterId { get; set; }
-    public string RequesterName { get; set; }
-    public string RequesterEmail { get; set; }
+    public Guid BookSessionId { get; set; }
+    public string RequesterName { get; set; } = "";
+    public string RequesterEmail { get; set; } = "";
+    public string OwnerName { get; set; } = "";
+    public string OwnerEmail { get; set; } = "";
 }
 public class ApproveDto
 {

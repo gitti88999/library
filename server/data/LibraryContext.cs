@@ -65,7 +65,7 @@ namespace LIBRARY.Data
             : base(options)
         {
         }
-
+        public DbSet<ArchivedUser> ArchivedUsers { get; set; }
         public DbSet<Book> Books { get; set; }
         public DbSet<Collaborator> Collaborators { get; set; }
         public DbSet<BookSession> BookSession { get; set; }

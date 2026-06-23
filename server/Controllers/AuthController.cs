@@ -147,6 +147,8 @@ public async Task<ActionResult> Login(LoginDTO loginDto)
         collaborator.CollaboratorId,
         collaborator.Name,
         collaborator.Email,
+        collaborator.Latitude,
+        collaborator.Longitude,
 
     });
 }
