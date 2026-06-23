@@ -64,5 +64,41 @@ namespace LIBRARY.Controllers
         {
             return Ok(await _context.Collaborators.ToListAsync());
         }
+// [HttpDelete("delete")]
+// public async Task<IActionResult> DeleteUser([FromBody] DeleteUserDto dto)
+// {
+//     var user = await _context.Collaborators
+//         .FirstOrDefaultAsync(x => x.Name == dto.Name);
+
+//     if (user == null)
+//         return NotFound("User not found");
+
+//     if (user.Password != dto.Password)
+//         return Unauthorized("Invalid credentials");
+
+//     // 1. ארכוב
+//     var archived = new ArchivedUser
+//     {
+//         Name = user.Name,
+//         Email = user.Email,
+//         Password = user.Password,
+//         DeletedAt = DateTime.UtcNow
+//     };
+
+//     _context.ArchivedUsers.Add(archived);
+
+//     // 2. מחיקת BookSessions של המשתמש
+//     var sessions = _context.BookSession
+//         .Where(x => x.CollaboratorId == user.CollaboratorId);
+
+//     _context.BookSession.RemoveRange(sessions);
+
+//     // 3. מחיקת המשתמש
+//     _context.Collaborators.Remove(user);
+
+//     await _context.SaveChangesAsync();
+
+//     return Ok("User deleted and archived successfully");
+// }
     }
 }
