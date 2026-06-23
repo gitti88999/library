@@ -22,40 +22,24 @@ namespace LIBRARY.Controllers
         [HttpPost("nearby")]
         public async Task<IActionResult> GetNearbySessions([FromBody] NearbyBookSessionsRequest request)
         {
-            var sessions = await _context.BookSession
-                .Where(s => s.BookId == request.BookId)
-                .Include(s => s.Collaborator)
-                .Select(s => new
-                {
-                    s.Id,
-                    s.CollaboratorId,
-                    s.Collaborator.Name,
-                    Lat = s.Collaborator.Latitude,
-                    Lng = s.Collaborator.Longitude
-                })
-                .ToListAsync();
+            BookSessionId = x.Id,
+            CollaboratorId = x.CollaboratorId,
+            CollaboratorName = x.Collaborator!.Name,
+            CollaboratorEmail = x.Collaborator!.Email,
+            Lat = x.Collaborator.Latitude,
+            Lng = x.Collaborator.Longitude,
+            DistanceKm = GetDistanceKm(
+                request.UserLat,
+                request.UserLng,
+                x.Collaborator.Latitude,
+                x.Collaborator.Longitude
+            )
+        })
+        .OrderBy(x => x.DistanceKm)
+        .ToList();
 
-            var result = sessions
-                .Select(s => new NearbyBookSessionDto
-                {
-                    BookSessionId = s.Id,
-                    CollaboratorId = s.CollaboratorId,
-                    CollaboratorName = s.Name,
-                    Lat = s.Lat,
-                    Lng = s.Lng,
-                    DistanceKm = GetDistanceKm(
-                        request.UserLat,
-                        request.UserLng,
-                        s.Lat,
-                        s.Lng
-                    )
-                })
-                .OrderBy(x => x.DistanceKm)
-                .Take(3)
-                .ToList();
-
-            return Ok(result);
-        }
+    return Ok(result);
+}
 
         private double GetDistanceKm(double lat1, double lon1, double lat2, double lon2)
         {

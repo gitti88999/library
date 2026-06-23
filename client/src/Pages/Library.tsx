@@ -349,16 +349,14 @@ import {
   InputLabel,
   FormControl,
 } from "@mui/material";
-
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../app/store";
-
 import { getMyBooks, addBook } from "../slices/LibrarySlice";
+import { BookDTO } from "../types/book";
 
 import { getAudiences } from "../slices/AudienceSlice";
 import { getAuthors } from "../slices/AuthorSlice";
 import { getCategories } from "../slices/CategorySlice";
-
 import axios from "axios";
 
 const apiUrl = import.meta.env.VITE_API_URL;
@@ -475,6 +473,7 @@ const Library: React.FC = () => {
       setPendingSessionId(undefined);
     }
   };
+
 
   const handleCancelDelete = () => {
     setDeleteOpen(false);
