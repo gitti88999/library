@@ -27,6 +27,12 @@ export interface NewUser {
   latitude: number;
   longitude: number;
 }
+export interface UpdateUser {
+  Name: string;
+  Email: string;
+  Latitude: number;
+  Longitude: number;
+}
 export interface UserResponse {
   collaboratorId: string;
   name: string;

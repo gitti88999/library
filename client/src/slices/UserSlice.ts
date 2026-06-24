@@ -1,10 +1,10 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
-import { NewUser, User, UserResponse } from "../types/user";
 import { useState } from "react";
+import { NewUser, User, UserResponse, UpdateUser } from "../types/user";
 
 const apiUrl = import.meta.env.VITE_API_URL;
-
+axios.defaults.withCredentials = true;
 /* ---------- Types ---------- */
 
 interface Book {
@@ -69,7 +69,7 @@ export const registerUser = createAsyncThunk(
     return res.data;
   }
 );
-export const fetchMe = createAsyncThunk(
+export const fetchMe = createAsyncThunk<UserResponse>(
   "user/fetchMe",
   async () => {
     const res = await fetch(`${apiUrl}/api/Auth/me`, {
@@ -80,7 +80,7 @@ export const fetchMe = createAsyncThunk(
       throw new Error("not authenticated");
     }
 
-    return await res.json();
+    return (await res.json()) as UserResponse;
   }
 );
 
@@ -97,6 +97,33 @@ export const searchAddress = async (query: string) => {
   });
   return res.data;
 };
+export const updateUser = createAsyncThunk<
+  UserResponse,
+  { id: string; data: UpdateUser }
+>(
+  "user/updateUser",
+  async ({ id, data },thunkAPI) => {
+    const response = await axios.put<UserResponse>(
+      `${apiUrl}/api/Auth/${id}`,
+      data
+    );
+      // thunkAPI.dispatch(fetchMe());
+    return response.data;
+  }
+);
+export const deleteUser = createAsyncThunk<
+  string,
+  string
+>(
+  "user/deleteUser",
+  async (id: string) => {
+    await axios.delete(
+      `${apiUrl}/api/Auth/${id}`
+    );
+
+    return id;
+  }
+);
 
 const userSlice = createSlice({
   name: "user",
@@ -144,7 +171,7 @@ const userSlice = createSlice({
       })
 
       .addCase(fetchMe.fulfilled, (state, action) => {
-        const c = action.payload.collaborator;
+        // const c = action.payload.collaborator;
         state.currentUser = mapUser(action.payload);
 
         state.isAuthChecked = true;
@@ -159,6 +186,9 @@ const userSlice = createSlice({
       /* REGISTER */
       .addCase(registerUser.fulfilled, (state, action) => {
         const c = action.payload.collaborator;
+        state.currentUser = mapUser(action.payload);
+      })
+      .addCase(updateUser.fulfilled, (state, action) => {
         state.currentUser = mapUser(action.payload);
       });
   },

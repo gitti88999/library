@@ -33,4 +33,11 @@ namespace LIBRARY.Models
         public string Email { get; set; }
         public string GoogleId { get; set; }
     }
+    public class UpdateUserDTO
+{
+    public string Name { get; set; }
+    public string Email { get; set; }
+    public double Latitude { get; set; }
+    public double Longitude { get; set; }
+}
 }
