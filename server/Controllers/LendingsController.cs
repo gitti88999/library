@@ -11,16 +11,20 @@ namespace LIBRARY.Controllers
     public class LendingsController : ControllerBase
     {
         private readonly LibraryContext _context;
-        private readonly IEmailService _emailService;
 
+        
 
-         public LendingsController(LibraryContext context, IEmailService emailService)
-        {
-            _context = context;
-            _emailService = emailService;
-        }
-        [HttpPost("nearby")]
-        public async Task<IActionResult> GetNearbySessions([FromBody] NearbyBookSessionsRequest request)
+       [HttpPost("nearby")]
+public async Task<ActionResult<List<NearbyBookSessionDto>>> GetNearbySessions(
+    [FromBody] NearbyBookSessionsRequest request)
+{
+    var sessions = await _context.BookSession
+        .Include(x => x.Collaborator)
+        .Where(x => x.BookId == request.BookId && x.Collaborator != null)
+        .ToListAsync();
+
+    var result = sessions
+        .Select(x => new NearbyBookSessionDto
         {
             BookSessionId = x.Id,
             CollaboratorId = x.CollaboratorId,
@@ -61,27 +65,36 @@ namespace LIBRARY.Controllers
 
         private double ToRad(double angle) => angle * Math.PI / 180;
       
+        private readonly IEmailService _emailService;
 
-       
+        public LendingsController(LibraryContext context, IEmailService emailService)
+        {
+            _context = context;
+            _emailService = emailService;
+        }
 
-       [HttpPost("request")]
-public async Task<IActionResult> RequestBorrow([FromBody] BorrowRequestDto request)
-{
-    var owner = await _context.BookSession
-        .Include(x => x.Collaborator)
-        .FirstOrDefaultAsync(x => x.Id == request.BookSessionId);
+        [HttpPost("request")]
+        public async Task<IActionResult> RequestBorrow(Guid bookId, string requesterName, string requesterEmail)
+        {
+            var book = await _context.Books.FirstOrDefaultAsync(x => x.BookId == bookId);
+            if (book == null)
+                return NotFound();
 
-    if (owner == null)
-        return BadRequest();
+            var owner = await _context.BookSession
+                .Include(x => x.Collaborator)
+                .FirstOrDefaultAsync(x => x.BookId == bookId);
 
-    await _emailService.SendAsync(
-        owner.Collaborator.Email,
-        "בקשת השאלה",
-        $"{request.RequesterName} רוצה את הספר"
-    );
+            if (owner == null)
+                return BadRequest();
 
-    return Ok();
-}
+            await _emailService.SendAsync(
+                owner.Collaborator.Email,
+                "בקשת השאלה",
+                $"{requesterName} רוצה את הספר {book.Name}"
+            );
+
+            return Ok();
+        }
     }
     }
 

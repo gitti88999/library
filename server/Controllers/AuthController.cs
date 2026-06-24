@@ -24,7 +24,7 @@ namespace LIBRARY.Controllers
 
         // הרשמה
         [HttpPost("register")]
-        public async Task<ActionResult> Register( CollaboratorDTO collaborator)
+        public async Task<ActionResult> Register(CollaboratorDTO collaborator)
         {
             if (!ModelState.IsValid)
             {
@@ -89,70 +89,78 @@ namespace LIBRARY.Controllers
                 user
             });
         }
-  [HttpGet("me")]
-public IActionResult Me()
-{
-    if (User?.Identity?.IsAuthenticated != true)
-        return Unauthorized();
+        [HttpGet("me")]
+        public async Task<IActionResult> Me()
+        {
+            if (User?.Identity?.IsAuthenticated != true)
+                return Unauthorized();
 
-    var userId = User.FindFirst("UserId")?.Value;
-    var name = User.FindFirst(ClaimTypes.Name)?.Value;
+            var userId = User.FindFirst("UserId")?.Value;
 
-    if (userId == null)
-        return Unauthorized();
+            if (userId == null)
+                return Unauthorized();
 
-    return Ok(new
-    {
-        collaboratorId = userId,
-        name
-    });
-}  
-[HttpPost("login")]
-public async Task<ActionResult> Login(LoginDTO loginDto)
-{
-    if (loginDto == null)
-        return BadRequest("Invalid data.");
+            var guid = Guid.Parse(userId);
 
-    if (string.IsNullOrWhiteSpace(loginDto.Name) ||
-        string.IsNullOrWhiteSpace(loginDto.Password))
-    {
-        return BadRequest("Name and password are required.");
-    }
+            var user = await _context.Collaborators
+                .FirstOrDefaultAsync(x => x.CollaboratorId == guid);
 
-    string passwordHash = ComputeSha256Hash(loginDto.Password);
+            if (user == null)
+                return Unauthorized();
 
-    var collaborator = await _context.Collaborators
-        .FirstOrDefaultAsync(c =>
-            c.Name == loginDto.Name &&
-            c.Password == passwordHash);
+            return Ok(new
+            {
+                collaboratorId = user.CollaboratorId,
+                name = user.Name,
+                email = user.Email,
+                latitude = user.Latitude,
+                longitude = user.Longitude
+            });
+        }
+        [HttpPost("login")]
+        public async Task<ActionResult> Login(LoginDTO loginDto)
+        {
+            if (loginDto == null)
+                return BadRequest("Invalid data.");
 
-    if (collaborator == null)
-        return Unauthorized("Invalid name or password.");
+            if (string.IsNullOrWhiteSpace(loginDto.Name) ||
+                string.IsNullOrWhiteSpace(loginDto.Password))
+            {
+                return BadRequest("Name and password are required.");
+            }
 
-    var claims = new List<Claim>
+            string passwordHash = ComputeSha256Hash(loginDto.Password);
+
+            var collaborator = await _context.Collaborators
+                .FirstOrDefaultAsync(c =>
+                    c.Name == loginDto.Name &&
+                    c.Password == passwordHash);
+
+            if (collaborator == null)
+                return Unauthorized("Invalid name or password.");
+
+            var claims = new List<Claim>
     {
         new Claim(ClaimTypes.Name, collaborator.Name),
         new Claim("UserId", collaborator.CollaboratorId.ToString())
     };
 
-    var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-    var principal = new ClaimsPrincipal(identity);
+            var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var principal = new ClaimsPrincipal(identity);
 
-    await HttpContext.SignInAsync(
-    CookieAuthenticationDefaults.AuthenticationScheme,
-    principal);
+            await HttpContext.SignInAsync(
+            CookieAuthenticationDefaults.AuthenticationScheme,
+            principal);
 
-    return Ok(new
-    {
-        collaborator.CollaboratorId,
-        collaborator.Name,
-        collaborator.Email,
-        collaborator.Latitude,
-        collaborator.Longitude,
-
-        collaborator.Longitude
-    });
-}
+            return Ok(new
+            {
+                collaborator.CollaboratorId,
+                collaborator.Name,
+                collaborator.Email,
+                collaborator.Latitude,
+                collaborator.Longitude
+            });
+        }
         // SHA256 Hash
         private static string ComputeSha256Hash(string rawData)
         {
@@ -170,6 +178,40 @@ public async Task<ActionResult> Login(LoginDTO loginDto)
             }
 
             return builder.ToString();
+        }
+        [HttpPut("{id}")]
+        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateUserDTO dto)
+        {
+            if (dto == null)
+                return BadRequest("Invalid data");
+
+            // 🔐 בדיקת משתמש מחובר
+            var userId = User.FindFirst("UserId")?.Value;
+            if (userId == null || userId != id.ToString())
+                return Unauthorized();
+
+            var collaborator = await _context.Collaborators
+                .FirstOrDefaultAsync(c => c.CollaboratorId == id);
+
+            if (collaborator == null)
+                return NotFound("User not found");
+
+            // עדכון שדות
+            collaborator.Name = dto.Name;
+            collaborator.Email = dto.Email;
+            collaborator.Latitude = dto.Latitude;
+            collaborator.Longitude = dto.Longitude;
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new
+            {
+                collaborator.CollaboratorId,
+                collaborator.Name,
+                collaborator.Email,
+                collaborator.Latitude,
+                collaborator.Longitude
+            });
         }
     }
 }
