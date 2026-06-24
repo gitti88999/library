@@ -37,6 +37,7 @@ public class NearbyBookSessionDto
     public Guid BookSessionId { get; set; }
     public Guid CollaboratorId { get; set; }
     public string CollaboratorName { get; set; }
+    public string CollaboratorEmail { get; set; }
     public double Lat { get; set; }
     public double Lng { get; set; }
     public double DistanceKm { get; set; }

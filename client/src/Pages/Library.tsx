@@ -17,11 +17,10 @@ import {
   InputLabel,
   FormControl,
 } from "@mui/material";
-
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../app/store";
-
 import { getMyBooks, addBook } from "../slices/LibrarySlice";
+import { BookDTO } from "../types/book";
 
 import { getAudiences } from "../slices/AudienceSlice";
 import { getAuthors } from "../slices/AuthorSlice";
@@ -143,6 +142,7 @@ const Library: React.FC = () => {
       setPendingSessionId(undefined);
     }
   };
+
 
   const handleCancelDelete = () => {
     setDeleteOpen(false);

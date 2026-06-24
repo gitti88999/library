@@ -20,8 +20,8 @@ interface UserState {
   error: string | null;
   profileOpen: boolean;
   isAuthChecked: boolean;
-authLoading: boolean;
- locationGranted: boolean;
+  authLoading: boolean;
+
 }
 
 const initialState: UserState = {
@@ -31,16 +31,22 @@ const initialState: UserState = {
   profileOpen: false,
   isAuthChecked: false,
   authLoading: true, 
-  locationGranted: false
+}
 
-};
+const mapUser = (payload: any) => ({
+  id: payload.collaboratorId,
+  name: payload.name ?? payload.collaborator?.name,
+  email: payload.email ?? payload.collaborator?.email,
+  books: payload.bookSessions || [],
+  latitude: payload.latitude ?? payload.collaborator?.latitude,
+  longitude: payload.longitude ?? payload.collaborator?.longitude,
+});
 export const loginUser = createAsyncThunk(
   "user/loginUser",
   async (data: { name: string; password: string }) => {
 
     const res = await axios.post(`${apiUrl}/api/Auth/login`
-      , data,{ withCredentials: true });
-    console.log("LOGIN RESPONSE:", res.data);
+      , data, { withCredentials: true });
     return res.data;
   }
 );
@@ -101,6 +107,7 @@ const userSlice = createSlice({
       state.status = "idle";
       state.error = null;
     },
+<<<<<<< HEAD
 setLocationGranted: (state, action: PayloadAction<boolean>) => {
   state.locationGranted = action.payload;
 },
@@ -113,22 +120,25 @@ setAuthLoading: (state, action: PayloadAction<boolean>) => {
 setCurrentUser: (state, action: PayloadAction<User | null>) => {
     state.currentUser = action.payload;
   },
+=======
+
+    setAuthChecked: (state, action) => {
+      state.isAuthChecked = action.payload;
+    },
+    setAuthLoading: (state, action: PayloadAction<boolean>) => {
+      state.authLoading = action.payload;
+    },
+    setCurrentUser: (state, action: PayloadAction<User | null>) => {
+      state.currentUser = action.payload;
+    },
+>>>>>>> 83ac28b9cef918837d530561bfa46de3d1866c7f
   },
 
   extraReducers: (builder) => {
     builder
 
       .addCase(loginUser.fulfilled, (state, action) => {
-        const c = action.payload.collaborator;
-
-        state.currentUser = {
-          id: action.payload.collaboratorId,
-          name: c?.name,
-          email: c?.email,
-          books: action.payload.bookSessions || [],
-          latitude: c?.latitude,
-          longitude: c?.longitude
-        };
+        state.currentUser = mapUser(action.payload);
       })
       .addCase(addUser.pending, (state) => {
         state.status = "loading";
@@ -137,14 +147,7 @@ setCurrentUser: (state, action: PayloadAction<User | null>) => {
 
       .addCase(addUser.fulfilled, (state, action: PayloadAction<UserResponse>) => {
         state.status = "succeeded";
-        state.currentUser = {
-          id: action.payload.collaboratorId,
-          name: action.payload.name,
-          email: action.payload.email,
-          books: [],
-          latitude: action.payload.latitude,
-          longitude: action.payload.longitude
-        };
+        state.currentUser = mapUser(action.payload);
       })
 
       .addCase(addUser.rejected, (state, action) => {
@@ -152,40 +155,32 @@ setCurrentUser: (state, action: PayloadAction<User | null>) => {
         state.error = action.error.message || "Failed to register user";
       })
       .addCase(fetchMe.pending, (state) => {
-  state.status = "loading";
-})
+        state.status = "loading";
+      })
 
-.addCase(fetchMe.fulfilled, (state, action) => {
-  state.currentUser = {
-          id: action.payload.collaboratorId,
-          name: action.payload.name,
-          email: action.payload.email,
-          books: [],
-          latitude: action.payload.latitude,
-          longitude: action.payload.longitude
-        };
+      .addCase(fetchMe.fulfilled, (state, action) => {
+        const c = action.payload.collaborator;
+        state.currentUser = mapUser(action.payload);
 
-  state.isAuthChecked = true;
-  state.status = "succeeded";
-})
+        state.isAuthChecked = true;
+        state.status = "succeeded";
+      })
 
-.addCase(fetchMe.rejected, (state) => {
-  state.currentUser = null;
-  state.isAuthChecked = true;
-  state.status = "failed";
-})
+      .addCase(fetchMe.rejected, (state) => {
+        state.currentUser = null;
+        state.isAuthChecked = true;
+        state.status = "failed";
+      })
       /* REGISTER */
       .addCase(registerUser.fulfilled, (state, action) => {
-        state.currentUser = {
-          id: action.payload.collaboratorId,
-          name: action.payload.name,
-          email: action.payload.email,
-          books: action.payload.bookSessions || [],
-          latitude: action.payload.latitude,
-          longitude: action.payload.longitude
-        };
+        const c = action.payload.collaborator;
+        state.currentUser = mapUser(action.payload);
       });
   },
 });
+<<<<<<< HEAD
 export const { setAuthChecked, setLocationGranted,logout,setCurrentUser, setAuthLoading } = userSlice.actions;
+=======
+export const { setAuthChecked, logout, setCurrentUser, setAuthLoading } = userSlice.actions;
+>>>>>>> 83ac28b9cef918837d530561bfa46de3d1866c7f
 export default userSlice.reducer;
