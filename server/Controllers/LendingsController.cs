@@ -12,10 +12,7 @@ namespace LIBRARY.Controllers
     {
         private readonly LibraryContext _context;
 
-        public LendingsController(LibraryContext context)
-        {
-            _context = context;
-        }
+        
 
        [HttpPost("nearby")]
 public async Task<ActionResult<List<NearbyBookSessionDto>>> GetNearbySessions(

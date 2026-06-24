@@ -14,6 +14,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 
+import { useLocation } from "react-router-dom";
 const BorrowBook = () => {
   const { id } = useParams();
   const dispatch = useDispatch<AppDispatch>();
@@ -22,11 +23,13 @@ const BorrowBook = () => {
     (state: RootState) => state.lendings
   );
 
+  const location = useLocation();
+  const bookState = location.state?.book;
   const [selected, setSelected] = useState<string | null>(null);
   const user = useSelector((state: RootState) => state.myUser.currentUser);
   const B = useSelector((state: RootState) => state.lendings);
 
-  if (!user) return;
+  if (!user) return null;
   const userLocation = {
     lat: user.latitude,
     lng: user.longitude,
@@ -73,7 +76,7 @@ const BorrowBook = () => {
       </Typography>
 
       <Typography sx={{ mb: 2 }}>
-        ספר נבחר: {book?.book?.name}
+        ספר נבחר: {bookState?.name || book?.book?.name || ""}
       </Typography>
 
       {status === "loading" && <CircularProgress />}

@@ -206,7 +206,7 @@ const Search: React.FC = () => {
                     variant="contained"
                     sx={{ mt: 1 }}
                     onClick={() => {
-                      navigate(`/borrow/${book.id}`);
+                      navigate(`/borrow/${book.id}`,{state:{book}});
                     }}
                   >
                     בחר
