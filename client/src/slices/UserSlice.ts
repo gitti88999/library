@@ -107,20 +107,6 @@ const userSlice = createSlice({
       state.status = "idle";
       state.error = null;
     },
-<<<<<<< HEAD
-setLocationGranted: (state, action: PayloadAction<boolean>) => {
-  state.locationGranted = action.payload;
-},
-setAuthChecked: (state, action) => {
-    state.isAuthChecked = action.payload;
-  },
-setAuthLoading: (state, action: PayloadAction<boolean>) => {
-  state.authLoading = action.payload;
-},
-setCurrentUser: (state, action: PayloadAction<User | null>) => {
-    state.currentUser = action.payload;
-  },
-=======
 
     setAuthChecked: (state, action) => {
       state.isAuthChecked = action.payload;
@@ -131,7 +117,6 @@ setCurrentUser: (state, action: PayloadAction<User | null>) => {
     setCurrentUser: (state, action: PayloadAction<User | null>) => {
       state.currentUser = action.payload;
     },
->>>>>>> 83ac28b9cef918837d530561bfa46de3d1866c7f
   },
 
   extraReducers: (builder) => {
@@ -178,9 +163,5 @@ setCurrentUser: (state, action: PayloadAction<User | null>) => {
       });
   },
 });
-<<<<<<< HEAD
-export const { setAuthChecked, setLocationGranted,logout,setCurrentUser, setAuthLoading } = userSlice.actions;
-=======
 export const { setAuthChecked, logout, setCurrentUser, setAuthLoading } = userSlice.actions;
->>>>>>> 83ac28b9cef918837d530561bfa46de3d1866c7f
 export default userSlice.reducer;

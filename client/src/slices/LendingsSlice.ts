@@ -28,19 +28,7 @@ err.response?.data || "Error fetching nearby sessions"
 }
 }
 );
-export const requestBorrow = createAsyncThunk(
-"lendings/requestBorrow",
-async (data: { bookSessionId: string; AName: string,AEmail:string,BName:string,BEmail:string }, thunkAPI) => {
-try {
-const res = await api.post("/api/Lendings/request", data);
-return res.data;
-} catch (err: any) {
-return thunkAPI.rejectWithValue(
-err.response?.data || "Request failed"
-);
-}
-}
-);
+
 export const requestBorrow = createAsyncThunk(
   "lendings/requestBorrow",
   async (data: { bookSessionId: string; AName: string,AEmail:string,BName:string,BEmail:string }, thunkAPI) => {

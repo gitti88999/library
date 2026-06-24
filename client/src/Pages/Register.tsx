@@ -40,9 +40,7 @@ const dispatch = useDispatch<AppDispatch>();
     email: "",
     password: "",
   });
-const locationGranted = useSelector(
-  (state:RootState) => state.myUser.locationGranted
-);
+
 
   const [address, setAddress] = useState({
     city: "",

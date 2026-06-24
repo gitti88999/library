@@ -150,7 +150,6 @@ public async Task<ActionResult> Login(LoginDTO loginDto)
         collaborator.Latitude,
         collaborator.Longitude,
 
-        collaborator.Longitude
     });
 }
         // SHA256 Hash
