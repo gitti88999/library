@@ -160,7 +160,6 @@ public async Task<ActionResult> Login(LoginDTO loginDto)
             byte[] bytes = sha256Hash.ComputeHash(
                 Encoding.UTF8.GetBytes(rawData)
             );
-
             StringBuilder builder = new StringBuilder();
 
             foreach (byte b in bytes)
@@ -170,5 +169,6 @@ public async Task<ActionResult> Login(LoginDTO loginDto)
 
             return builder.ToString();
         }
+        
     }
 }

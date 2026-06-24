@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
 import { NewUser, User, UserResponse } from "../types/user";
+import { useState } from "react";
 
 const apiUrl = import.meta.env.VITE_API_URL;
 
@@ -20,7 +21,7 @@ interface UserState {
   profileOpen: boolean;
   isAuthChecked: boolean;
 authLoading: boolean;
-
+ locationGranted: boolean;
 }
 
 const initialState: UserState = {
@@ -29,9 +30,10 @@ const initialState: UserState = {
   error: null,
   profileOpen: false,
   isAuthChecked: false,
-  authLoading: true, // 👈 להוסיף
-};
+  authLoading: true, 
+  locationGranted: false
 
+};
 export const loginUser = createAsyncThunk(
   "user/loginUser",
   async (data: { name: string; password: string }) => {
@@ -99,7 +101,9 @@ const userSlice = createSlice({
       state.status = "idle";
       state.error = null;
     },
-  
+setLocationGranted: (state, action: PayloadAction<boolean>) => {
+  state.locationGranted = action.payload;
+},
 setAuthChecked: (state, action) => {
     state.isAuthChecked = action.payload;
   },
@@ -183,5 +187,5 @@ setCurrentUser: (state, action: PayloadAction<User | null>) => {
       });
   },
 });
-export const { setAuthChecked, logout,setCurrentUser, setAuthLoading } = userSlice.actions;
+export const { setAuthChecked, setLocationGranted,logout,setCurrentUser, setAuthLoading } = userSlice.actions;
 export default userSlice.reducer;

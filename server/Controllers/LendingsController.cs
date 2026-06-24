@@ -23,7 +23,7 @@ namespace LIBRARY.Controllers
         public async Task<IActionResult> GetNearbySessions([FromBody] NearbyBookSessionsRequest request)
         {
             var sessions = await _context.BookSession
-                .Where(s => s.BookId == request.BookId)
+                .Where(s => s.BookId == request.BookId && s.Enabled)
                 .Include(s => s.Collaborator)
                 .Select(s => new
                 {
