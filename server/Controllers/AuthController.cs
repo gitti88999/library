@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using LIBRARY.Models;
 using LIBRARY.Data;
 using System.Security.Cryptography;
+using LIBRARY.server.Services;
 using System.Text;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
@@ -15,11 +16,14 @@ namespace LIBRARY.Controllers
     public class AuthController : ControllerBase
     {
         private readonly LibraryContext _context;
+        private readonly BookSessionService _bookSessionService;
+
         private readonly JwtService _jwt;
-        public AuthController(LibraryContext context, JwtService jwt)
+        public AuthController(LibraryContext context, JwtService jwt,BookSessionService bookSessionService)
         {
             _context = context;
             _jwt = jwt;
+             _bookSessionService = bookSessionService;
         }
 
         // הרשמה
@@ -148,9 +152,16 @@ namespace LIBRARY.Controllers
             var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
             var principal = new ClaimsPrincipal(identity);
 
-            await HttpContext.SignInAsync(
-            CookieAuthenticationDefaults.AuthenticationScheme,
-            principal);
+           try
+{
+    await HttpContext.SignInAsync(
+        CookieAuthenticationDefaults.AuthenticationScheme,
+        principal);
+}
+catch (Exception ex)
+{
+    return StatusCode(500, ex.Message);
+}
 
             return Ok(new
             {
@@ -169,7 +180,6 @@ namespace LIBRARY.Controllers
             byte[] bytes = sha256Hash.ComputeHash(
                 Encoding.UTF8.GetBytes(rawData)
             );
-
             StringBuilder builder = new StringBuilder();
 
             foreach (byte b in bytes)
@@ -179,39 +189,79 @@ namespace LIBRARY.Controllers
 
             return builder.ToString();
         }
+   
+       
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(Guid id, [FromBody] UpdateUserDTO dto)
-        {
-            if (dto == null)
-                return BadRequest("Invalid data");
+public async Task<IActionResult> Update(Guid id, [FromBody] UpdateUserDTO dto)
+{
+    if (dto == null)
+        return BadRequest("Invalid data");
 
-            // 🔐 בדיקת משתמש מחובר
-            var userId = User.FindFirst("UserId")?.Value;
-            if (userId == null || userId != id.ToString())
-                return Unauthorized();
+    var collaborator = await _context.Collaborators
+        .FirstOrDefaultAsync(c => c.CollaboratorId == id);
 
-            var collaborator = await _context.Collaborators
-                .FirstOrDefaultAsync(c => c.CollaboratorId == id);
+    if (collaborator == null)
+        return NotFound("User not found");
 
-            if (collaborator == null)
-                return NotFound("User not found");
+    // בדיקה אם השם כבר קיים אצל מישהו אחר
+    var nameExists = await _context.Collaborators
+        .AnyAsync(c => c.Name == dto.Name && c.CollaboratorId != id);
 
-            // עדכון שדות
-            collaborator.Name = dto.Name;
-            collaborator.Email = dto.Email;
-            collaborator.Latitude = dto.Latitude;
-            collaborator.Longitude = dto.Longitude;
+    if (nameExists)
+        return Conflict("Name already exists");
 
-            await _context.SaveChangesAsync();
+    collaborator.Name = dto.Name;
+    collaborator.Email = dto.Email;
+    collaborator.Latitude = dto.Latitude;
+    collaborator.Longitude = dto.Longitude;
 
-            return Ok(new
-            {
-                collaborator.CollaboratorId,
-                collaborator.Name,
-                collaborator.Email,
-                collaborator.Latitude,
-                collaborator.Longitude
-            });
-        }
+    await _context.SaveChangesAsync();
+
+    return Ok(new
+    {
+        collaborator.CollaboratorId,
+        collaborator.Name,
+        collaborator.Email,
+        collaborator.Latitude,
+        collaborator.Longitude
+    });
+}
+        [HttpPost("delete")]
+public async Task<IActionResult> DeleteUser([FromBody] DeleteUserDto dto)
+{
+    var user = await _context.Collaborators
+    .FirstOrDefaultAsync(x => x.CollaboratorId == dto.CollaboratorId);
+
+    if (user == null)
+{
+    return NotFound();
+}
+    
+    // 1. ארכוב
+    var archived = new ArchivedUser
+    {
+        Name = user.Name,
+        Email = user.Email,
+        Password = user.Password,
+        DeletedAt = DateTime.UtcNow
+    };
+
+    _context.ArchivedUsers.Add(archived);
+
+    // 2. מחיקת BookSessions של המשתמש
+   var sessions = await _context.BookSession
+    .Where(x => x.CollaboratorId == user.CollaboratorId)
+    .ToListAsync();
+
+foreach (var session in sessions)
+{
+    await _bookSessionService.ArchiveAndDeleteBookSession(session.Id);
+}
+    _context.Collaborators.Remove(user);
+
+    await _context.SaveChangesAsync();
+
+    return Ok("User deleted and archived successfully");
+}
     }
 }

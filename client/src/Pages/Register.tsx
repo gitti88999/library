@@ -13,8 +13,9 @@ import {
 import { useDebounce } from "../api";
 import MiniMap from "./MiniMap";
 import { registerUser } from "../slices/UserSlice";
-import { useDispatch } from "react-redux";
-import type { AppDispatch } from "../app/store";
+import { useDispatch, useSelector } from "react-redux";
+import type { RootState,AppDispatch } from "../app/store";
+import { useNavigate } from "react-router-dom";
 
 /* ---------- TYPES ---------- */
 interface Place {
@@ -34,7 +35,6 @@ const reverseGeocode = async (lat: number, lon: number) => {
 };
 
 const Register = () => {
-  
 const dispatch = useDispatch<AppDispatch>();
   const [form, setForm] = useState({
     name: "",
@@ -42,17 +42,21 @@ const dispatch = useDispatch<AppDispatch>();
     password: "",
   });
 
+const navigate = useNavigate();
   const [address, setAddress] = useState({
     city: "",
     street: "",
     houseNumber: "",
   });
 
-  const [coords, setCoords] = useState({
-    lat: 32.0853,
-    lng: 34.7818,
-  });
-
+  const [confirmPassword, setConfirmPassword] = useState("");
+const [coords, setCoords] = useState<{
+  lat: number | null;
+  lng: number | null;
+}>({
+  lat: null,
+  lng: null,
+});
   const [results, setResults] = useState<Place[]>([]);
   const query = useDebounce(
     `${address.city} ${address.street} ${address.houseNumber}`,
@@ -130,77 +134,107 @@ const handleSubmit = async () => {
 
   try {
     await dispatch(registerUser(payload)).unwrap();
+      navigate("/login");
   } catch (err) {
   }
 };
 
-  return (
-    <Container maxWidth="sm" sx={{ mt: 5 }}>
-      <Typography variant="h4">הרשמה</Typography>
 
-      <Stack spacing={2}>
-        <TextField
-          label="שם"
-          value={form.name}
-          onChange={(e) => handleFormChange("name", e.target.value)}
-        />
+return (
+  <Container maxWidth="sm" sx={{ mt: 5 }}>
+    <Typography variant="h4">הרשמה</Typography>
 
-        <TextField
-          label="אימייל"
-          value={form.email}
-          onChange={(e) => handleFormChange("email", e.target.value)}
-        />
+    <Stack spacing={2}>
+      <TextField
+        label="שם"
+        value={form.name}
+        onChange={(e) => handleFormChange("name", e.target.value)}
+      />
 
-        <TextField
-          label="סיסמה"
-          type="password"
-          value={form.password}
-          onChange={(e) => handleFormChange("password", e.target.value)}
-        />
+      <TextField
+        label="אימייל"
+        value={form.email}
+        onChange={(e) => handleFormChange("email", e.target.value)}
+      />
 
-        <TextField
-          label="עיר"
-          value={address.city}
-          onChange={(e) => handleAddressChange("city", e.target.value)}
-        />
+      <TextField
+        label="סיסמה"
+        type="password"
+        value={form.password}
+        onChange={(e) => handleFormChange("password", e.target.value)}
+      />
 
-        <TextField
-          label="רחוב"
-          value={address.street}
-          onChange={(e) => handleAddressChange("street", e.target.value)}
-        />
+      <TextField
+        label="אימות סיסמה"
+        type="password"
+        value={confirmPassword}
+        onChange={(e) => setConfirmPassword(e.target.value)}
+      />
 
-        <TextField
-          label="מספר בית"
-          value={address.houseNumber}
-          onChange={(e) =>
-            handleAddressChange("houseNumber", e.target.value)
-          }
-        />
-
-        {results.length > 0 && (
-          <Paper sx={{ maxHeight: 200, overflow: "auto" }}>
-            <List>
-              {results.map((p, i) => (
-                <ListItemButton key={i} onClick={() => handleSelect(p)}>
-                  {p.display_name}
-                </ListItemButton>
-              ))}
-            </List>
-          </Paper>
+      {confirmPassword !== "" &&
+        form.password !== confirmPassword && (
+          <Typography color="error">
+            הסיסמאות אינן תואמות
+          </Typography>
         )}
 
-        <MiniMap
-          lat={coords.lat}
-          lng={coords.lng}
-          onClick={handleMapClick}
-        />
+      <TextField
+        label="עיר"
+        value={address.city}
+        onChange={(e) => handleAddressChange("city", e.target.value)}
+      />
 
-        <Button variant="contained" onClick={handleSubmit}>
-          הירשם
-        </Button>
-      </Stack>
-    </Container>
+      <TextField
+        label="רחוב"
+        value={address.street}
+        onChange={(e) => handleAddressChange("street", e.target.value)}
+      />
+
+      <TextField
+        label="מספר בית"
+        value={address.houseNumber}
+        onChange={(e) =>
+          handleAddressChange("houseNumber", e.target.value)
+        }
+      />
+
+      {results.length > 0 && (
+        <Paper sx={{ maxHeight: 200, overflow: "auto" }}>
+          <List>
+            {results.map((p, i) => (
+              <ListItemButton key={i} onClick={() => handleSelect(p)}>
+                {p.display_name}
+              </ListItemButton>
+            ))}
+          </List>
+        </Paper>
+      )}
+
+      <MiniMap
+        lat={coords.lat ?? 32.0853}
+        lng={coords.lng ?? 34.7818}
+        onClick={handleMapClick}
+      />
+
+      {(coords.lat === null || coords.lng === null) && (
+        <Typography color="error">
+          יש לבחור כתובת או מיקום לפני ההרשמה
+        </Typography>
+      )}
+
+      <Button
+        variant="contained"
+        onClick={handleSubmit}
+        disabled={
+          coords.lat === null ||
+          coords.lng === null ||
+          form.password !== confirmPassword
+        }
+      >
+        הירשם
+      </Button>
+    </Stack>
+  </Container>
 );
 };
 
