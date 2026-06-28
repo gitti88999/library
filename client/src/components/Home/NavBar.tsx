@@ -153,7 +153,7 @@ const Navbar: React.FC<Props> = ({
   };
 
   const handleDelete = () => {
-    dispatch(deleteUser());
+    // dispatch(deleteUser());
     handleClose();
   };
 
