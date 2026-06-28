@@ -17,7 +17,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import type { AppDispatch, RootState } from "./app/store";
 import Borrow from "./Pages/BorrowBook";
 import { fetchMe } from "./slices/UserSlice";
-
+import BookMap from "./Pages/BookMap";
 const App: React.FC = () => {
   const user = useSelector(
   (state: RootState) => state.myUser.currentUser
@@ -92,7 +92,7 @@ useEffect(() => {
                   </ProtectedRoute>
                 }
               />
-             
+              <Route path="/book-map/:id" element={<BookMap />} />
             </Routes>
           </Router>
         </div>
