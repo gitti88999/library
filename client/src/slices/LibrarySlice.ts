@@ -25,9 +25,6 @@ export const getMyBooks = createAsyncThunk(
     }
   }
 );
-
-
-
 interface AddBookRequest {
   name: string;
   categoryId: string;

@@ -81,7 +81,6 @@ const BorrowBook = () => {
 
       {status === "loading" && <CircularProgress />}
 
-
       <Stack spacing={2}>
         {items.map((copy) => (
           <Card key={copy.bookSessionId}>
@@ -109,3 +108,4 @@ const BorrowBook = () => {
 };
 
 export default BorrowBook;
+

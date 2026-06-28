@@ -5,21 +5,24 @@ namespace LIBRARY.server.Services
 {
     public class EmailService : IEmailService
     {
+        private const string SystemEmail = "librarysystem@gmail.com";
+        private const string AppPassword = "xxxx xxxx xxxx xxxx"; // סיסמת אפליקציה
+
         public async Task SendAsync(string to, string subject, string body)
         {
             using var client = new SmtpClient("smtp.gmail.com")
             {
                 Port = 587,
                 Credentials = new NetworkCredential(
-                    "yourEmail@gmail.com",
-                    "your-app-password"
+                    SystemEmail,
+                    AppPassword
                 ),
                 EnableSsl = true
             };
 
             var mail = new MailMessage
             {
-                From = new MailAddress("yourEmail@gmail.com"),
+                From = new MailAddress(SystemEmail),
                 Subject = subject,
                 Body = body,
                 IsBodyHtml = false
