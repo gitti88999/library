@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import {
   AppBar,
@@ -23,7 +23,7 @@ import { AppDispatch, RootState } from "../../app/store";
 import { reverseGeocode } from "../../services/geocode";
 // import { updateUser, deleteUser } from "../../slices/UserSlice";
 import { useDebounce } from "../../api";
-import { updateUser } from "../../slices/UserSlice";
+import { clearUser, deleteUser, updateUser } from "../../slices/UserSlice";
 
 interface Props {
   isLoggedIn: boolean;
@@ -54,8 +54,10 @@ const Navbar: React.FC<Props> = ({
     street: "",
     houseNumber: "",
   });
-
+const [name, setName] = useState("");
+const [password, setPassword] = useState("");
   const [coords, setCoords] = useState({ lat: 0, lng: 0 });
+const [error, setError] = useState<string | null>(null);
 
   const [results, setResults] = useState<any[]>([]);
 
@@ -132,30 +134,79 @@ const Navbar: React.FC<Props> = ({
 
     setResults([]);
   };
-  // useEffect(() => {
-  //   dispatch(fetchCurrentUser());
-  // }, []);
-  const handleSave = async () => {
-    const reverse = await reverseGeocode(coords.lat, coords.lng);
-    if (user) {
-      dispatch(
-        updateUser({
-          id: user.id, data: {
-            Name: editData.name,
-            Email: editData.email,
-            Latitude: coords.lat,
-            Longitude: coords.lng,
-          }
-        })
-      );
-    }
-    handleClose();
-  };
 
-  const handleDelete = () => {
-    dispatch(deleteUser());
+  // const handleSave = async () => {
+  //   const reverse = await reverseGeocode(coords.lat, coords.lng);
+  //   if (user) {
+  //     dispatch(
+  //       updateUser({
+  //         id: user.id, data: {
+  //           Name: editData.name,
+  //           Email: editData.email,
+  //           Latitude: coords.lat,
+  //           Longitude: coords.lng,
+  //         }
+  //       })
+  //     );
+  //   }
+  //   handleClose();
+  // };
+const handleSave = async () => {
+  try {
+    const reverse = await reverseGeocode(coords.lat, coords.lng);
+
+    if (!user) return;
+
+    await dispatch(
+      updateUser({
+        id: user.id,
+        data: {
+          Name: editData.name,
+          Email: editData.email,
+          Latitude: coords.lat,
+          Longitude: coords.lng,
+        },
+      })
+    ).unwrap(); // חשוב כדי לזרוק שגיאה אמיתית
+
+    setError(null);
     handleClose();
-  };
+  } catch (err: any) {
+    const message =
+      err?.response?.data || "השם כבר קיים במערכת, יש לבחור שם אחר";
+
+    setError(message);
+
+    setTimeout(() => {
+      setError(null);
+    }, 3000);
+  }
+};
+ const navigate = useNavigate();
+
+const handleDelete = async () => {
+    console.log("DELETE CLICKED");
+
+    if (!user) {
+        console.error("User is not available");
+        return;
+    }
+
+    try {
+        const result = await deleteUser(user.id);
+ dispatch(clearUser());
+
+        console.log("Delete success:", result);
+
+        navigate("/login");
+    } catch (error: any) {
+        if (error?.response) {
+            console.error("Server error:", error.response.data);
+        } else {
+            console.error("Network or unknown error:", error);
+        }
+    }
+};
 
   return (
     <>
@@ -277,7 +328,7 @@ const Navbar: React.FC<Props> = ({
                           sx={{ mb: 2 }}
                         />
 
-                        {/* RESULTS */}
+                       
                         {results.length > 0 && (
                           <Box sx={{ maxHeight: 200, overflow: "auto", mb: 2 }}>
                             {results.map((r, i) => (
@@ -320,8 +371,6 @@ const Navbar: React.FC<Props> = ({
           </Box>
         </Toolbar>
       </AppBar>
-
-      {/* UPDATE CONFIRM (FIXED - closes properly) */}
       <Dialog
         open={confirmUpdateOpen}
         onClose={() => setConfirmUpdateOpen(false)}
@@ -345,8 +394,6 @@ const Navbar: React.FC<Props> = ({
 
         </DialogActions>
       </Dialog>
-
-      {/* DELETE CONFIRM */}
       <Dialog
         open={confirmDeleteOpen}
         onClose={() => setConfirmDeleteOpen(false)}
@@ -370,6 +417,24 @@ const Navbar: React.FC<Props> = ({
 
         </DialogActions>
       </Dialog>
+{error && (
+  <div
+    style={{
+      position: "fixed",
+      bottom: 20,
+      left: "50%",
+      transform: "translateX(-50%)",
+      backgroundColor: "#ff4d4f",
+      color: "white",
+      padding: "10px 20px",
+      borderRadius: 8,
+      zIndex: 9999,
+      boxShadow: "0 2px 10px rgba(0,0,0,0.2)"
+    }}
+  >
+    {error}
+  </div>
+)}
     </>
   );
 };

@@ -22,6 +22,9 @@ const App: React.FC = () => {
   const user = useSelector(
   (state: RootState) => state.myUser.currentUser
 );
+//    if (user?.id) {
+//     useLocationTracker(user.id);
+// }
 
 const dispatch = useDispatch<AppDispatch>();
 useEffect(() => {

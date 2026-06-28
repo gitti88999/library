@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NewUser, User, UserResponse, UpdateUser } from "../types/user";
 
 const apiUrl = import.meta.env.VITE_API_URL;
@@ -41,6 +41,9 @@ const mapUser = (payload: any) => ({
   latitude: payload.latitude ?? payload.collaborator?.latitude,
   longitude: payload.longitude ?? payload.collaborator?.longitude,
 });
+
+
+
 export const loginUser = createAsyncThunk(
   "user/loginUser",
   async (data: { name: string; password: string }) => {
@@ -107,24 +110,32 @@ export const updateUser = createAsyncThunk<
       `${apiUrl}/api/Auth/${id}`,
       data
     );
-      // thunkAPI.dispatch(fetchMe());
     return response.data;
   }
 );
-export const deleteUser = createAsyncThunk<
-  string,
-  string
->(
-  "user/deleteUser",
-  async (id: string) => {
-    await axios.delete(
-      `${apiUrl}/api/Auth/${id}`
-    );
 
-    return id;
+export interface DeleteUserDto {
+    name: string;
+    password: string;
+}
+
+// export const deleteUser = async (collaboratorId: string) => {
+//     const res = await axios.post("http://localhost:5217/api/Auth/delete", {
+//         collaboratorId
+//     });
+
+//     return res.data;
+// };
+export const deleteUser = createAsyncThunk(
+  "user/deleteUser",
+  async (collaboratorId: string) => {
+    const res = await axios.post(
+      `${apiUrl}/api/Auth/delete`,
+      { collaboratorId }
+    );
+    return res.data;
   }
 );
-
 const userSlice = createSlice({
   name: "user",
   initialState,
@@ -134,7 +145,9 @@ const userSlice = createSlice({
       state.status = "idle";
       state.error = null;
     },
-
+clearUser: (state) => {
+            state.currentUser = null;
+        },
     setAuthChecked: (state, action) => {
       state.isAuthChecked = action.payload;
     },
@@ -152,6 +165,10 @@ const userSlice = createSlice({
       .addCase(loginUser.fulfilled, (state, action) => {
         state.currentUser = mapUser(action.payload);
       })
+      .addCase(deleteUser.fulfilled, (state) => {
+      state.currentUser = null;
+      state.status = "idle";
+      })
       .addCase(addUser.pending, (state) => {
         state.status = "loading";
         state.error = null;
@@ -159,7 +176,7 @@ const userSlice = createSlice({
 
       .addCase(addUser.fulfilled, (state, action: PayloadAction<UserResponse>) => {
         state.status = "succeeded";
-        state.currentUser = mapUser(action.payload);
+        // state.currentUser = mapUser(action.payload);
       })
 
       .addCase(addUser.rejected, (state, action) => {
@@ -172,7 +189,7 @@ const userSlice = createSlice({
 
       .addCase(fetchMe.fulfilled, (state, action) => {
         // const c = action.payload.collaborator;
-        state.currentUser = mapUser(action.payload);
+        // state.currentUser = mapUser(action.payload);
 
         state.isAuthChecked = true;
         state.status = "succeeded";
@@ -186,12 +203,15 @@ const userSlice = createSlice({
       /* REGISTER */
       .addCase(registerUser.fulfilled, (state, action) => {
         const c = action.payload.collaborator;
-        state.currentUser = mapUser(action.payload);
+        // state.currentUser = mapUser(action.payload);
       })
       .addCase(updateUser.fulfilled, (state, action) => {
-        state.currentUser = mapUser(action.payload);
+        // state.currentUser = mapUser(action.payload);
+         state.currentUser = null;
+  state.status = "succeeded";
       });
   },
 });
 export const { setAuthChecked, logout, setCurrentUser, setAuthLoading } = userSlice.actions;
 export default userSlice.reducer;
+export const { clearUser } = userSlice.actions;
