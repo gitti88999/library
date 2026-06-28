@@ -46,8 +46,7 @@ namespace LIBRARY.Controllers
             return _context.BookSession.Any(b => b.Id == id);
         }
 
-      
-
+    
 
     [HttpPost("add-with-session")]
     public async Task<ActionResult> AddBookWithSession(AddBookRequest request)
