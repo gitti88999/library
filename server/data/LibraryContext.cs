@@ -79,7 +79,7 @@ namespace LIBRARY.Data
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(
-                "Server=db,1433;Database=libraryDB;User Id=sa;Password=ALTgit88999;TrustServerCertificate=True;"
+                "Server=db,1433=db,1433;Database=libraryDB;User Id=sa;Password=ALTgit88999;TrustServerCertificate=True;"
             );
         }
 

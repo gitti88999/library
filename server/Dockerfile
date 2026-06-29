@@ -17,5 +17,8 @@ WORKDIR /app
 COPY --from=build /app/publish .
 
 EXPOSE 5217
-
-ENTRYPOINT ["dotnet", "server.dll"]
+ENV DOTNET_SYSTEM_NET_HTTP_USESOCKETSHTTPHANDLER=1
+RUN apt-get update \
+ && apt-get install -y ca-certificates \
+ && update-ca-certificates
+ ENTRYPOINT ["dotnet", "server.dll"]

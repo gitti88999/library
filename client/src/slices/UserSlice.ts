@@ -100,20 +100,33 @@ export const searchAddress = async (query: string) => {
   });
   return res.data;
 };
+// export const updateUser = createAsyncThunk<
+//   UserResponse,
+//   { id: string; data: UpdateUser }
+// >(
+//   "user/updateUser",
+//   async ({ id, data },thunkAPI) => {
+//     const response = await axios.put<UserResponse>(
+//       `${apiUrl}/api/Auth/${id}`,
+//       data
+//     );
+//     return response.data;
+//   }
+// );
 export const updateUser = createAsyncThunk<
   UserResponse,
   { id: string; data: UpdateUser }
 >(
   "user/updateUser",
-  async ({ id, data },thunkAPI) => {
+  async ({ id, data }) => {
     const response = await axios.put<UserResponse>(
       `${apiUrl}/api/Auth/${id}`,
       data
     );
+
     return response.data;
   }
 );
-
 export interface DeleteUserDto {
     name: string;
     password: string;
@@ -129,10 +142,10 @@ export interface DeleteUserDto {
 export const deleteUser = createAsyncThunk(
   "user/deleteUser",
   async (collaboratorId: string) => {
-    const res = await axios.post(
-      `${apiUrl}/api/Auth/delete`,
-      { collaboratorId }
-    );
+    const res = await axios.post(`${apiUrl}/api/Auth/delete`, {
+      collaboratorId,
+    });
+
     return res.data;
   }
 );
@@ -163,8 +176,13 @@ clearUser: (state) => {
     builder
 
       .addCase(loginUser.fulfilled, (state, action) => {
-        state.currentUser = mapUser(action.payload);
-      })
+                // state.currentUser = mapUser(action.payload);
+
+      const mapped = mapUser(action.payload);
+
+      if (mapped?.id) {
+      state.currentUser = mapped;
+      }      })
       .addCase(deleteUser.fulfilled, (state) => {
       state.currentUser = null;
       state.status = "idle";
@@ -189,7 +207,7 @@ clearUser: (state) => {
 
       .addCase(fetchMe.fulfilled, (state, action) => {
         // const c = action.payload.collaborator;
-        // state.currentUser = mapUser(action.payload);
+        state.currentUser = mapUser(action.payload);
 
         state.isAuthChecked = true;
         state.status = "succeeded";
@@ -207,8 +225,8 @@ clearUser: (state) => {
       })
       .addCase(updateUser.fulfilled, (state, action) => {
         // state.currentUser = mapUser(action.payload);
-         state.currentUser = null;
-  state.status = "succeeded";
+  state.currentUser = mapUser(action.payload);
+    state.status = "succeeded";
       });
   },
 });

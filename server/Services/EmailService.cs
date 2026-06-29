@@ -1,36 +1,122 @@
-using System.Net;
-using System.Net.Mail;
+// using System.Net;
+// using System.Net.Mail;
 
-namespace LIBRARY.server.Services
+// namespace LIBRARY.server.Services
+// {
+//     public class EmailService : IEmailService
+//     {
+//         private const string SystemEmail = "library-system@gmail.com";
+//         private const string AppPassword = "xxxx xxxx xxxx xxxx"; // סיסמת אפליקציה
+
+//         public async Task SendAsync(string to, string subject, string body)
+//         {
+//             using var client = new SmtpClient("smtp.gmail.com")
+//             {
+//                 Port = 587,
+//                 Credentials = new NetworkCredential(
+//                     SystemEmail,
+//                     AppPassword
+//                 ),
+//                 EnableSsl = true
+//             };
+
+//             var mail = new MailMessage
+//             {
+//                 From = new MailAddress(SystemEmail),
+//                 Subject = subject,
+//                 Body = body,
+//                 IsBodyHtml = false
+//             };
+
+//             mail.To.Add(to);
+
+//             await client.SendMailAsync(mail);
+//         }
+//     }
+// }
+using Google.Apis.Auth.OAuth2;
+using Google.Apis.Gmail.v1;
+using Google.Apis.Gmail.v1.Data;
+using Google.Apis.Services;
+using Google.Apis.Util.Store;
+using Microsoft.Extensions.Options;
+using System.Text;
+using LIBRARY.Models;
+public class EmailService
 {
-    public class EmailService : IEmailService
+    private readonly GmailSettings _settings;
+    private readonly HttpClient _httpClient;
+
+    public EmailService(IOptions<GmailSettings> settings)
     {
-        private const string SystemEmail = "librarysystem@gmail.com";
-        private const string AppPassword = "xxxx xxxx xxxx xxxx"; // סיסמת אפליקציה
+        
+        _settings = settings.Value;
+    }
 
-        public async Task SendAsync(string to, string subject, string body)
+    public async Task SendEmailAsync(string to, string subject, string body)
+    {
+        Console.WriteLine($"REFRESH TOKEN = '{_settings.RefreshToken}'");
+        var credential = GoogleCredential
+            .FromAccessToken(await GetAccessTokenAsync())
+            .CreateScoped(GmailService.Scope.GmailSend);
+
+        var service = new GmailService(new BaseClientService.Initializer()
         {
-            using var client = new SmtpClient("smtp.gmail.com")
+            HttpClientInitializer = credential,
+            ApplicationName = "Apartment App"
+        });
+
+        var message = new Message
+        {
+            Raw = Base64UrlEncode(CreateEmail(to, _settings.Email, subject, body))
+        };
+
+        await service.Users.Messages.Send(message, "me").ExecuteAsync();
+    }
+
+    private async Task<string> GetAccessTokenAsync()
+    {
+        var clientSecrets = new ClientSecrets
+        {
+            ClientId = _settings.ClientId,
+            ClientSecret = _settings.ClientSecret
+        };
+
+        var flow = new Google.Apis.Auth.OAuth2.Flows.GoogleAuthorizationCodeFlow(
+            new Google.Apis.Auth.OAuth2.Flows.GoogleAuthorizationCodeFlow.Initializer
             {
-                Port = 587,
-                Credentials = new NetworkCredential(
-                    SystemEmail,
-                    AppPassword
-                ),
-                EnableSsl = true
-            };
+                ClientSecrets = clientSecrets,
+                Scopes = new[] { GmailService.Scope.GmailSend }
+            });
 
-            var mail = new MailMessage
-            {
-                From = new MailAddress(SystemEmail),
-                Subject = subject,
-                Body = body,
-                IsBodyHtml = false
-            };
+        var token = new Google.Apis.Auth.OAuth2.Responses.TokenResponse
+        {
+            RefreshToken = _settings.RefreshToken
+        };
 
-            mail.To.Add(to);
+        var cred = new UserCredential(flow, "user", token);
+        await cred.RefreshTokenAsync(CancellationToken.None);
 
-            await client.SendMailAsync(mail);
-        }
+        return cred.Token.AccessToken;
+    }
+
+    private static string CreateEmail(string to, string from, string subject, string body)
+    {
+        return
+$@"To: {to}
+From:  APARTMENT BROKERAGE <{from}>
+Subject: {subject}
+Content-Type: text/plain; charset=utf-8
+
+{body}";
+    }
+
+    private static string Base64UrlEncode(string input)
+    {
+        var bytes = Encoding.UTF8.GetBytes(input);
+        return Convert.ToBase64String(bytes)
+            .Replace("+", "-")
+            .Replace("/", "_")
+            .Replace("=", "");
     }
 }

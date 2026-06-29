@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.SqlClient;
 using LIBRARY.Data;
 using LIBRARY.server.Services;
+using LIBRARY.Models;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,9 +17,15 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddOpenApi();
+builder.Services.Configure<GmailSettings>(
+    builder.Configuration.GetSection("Gmail")
+);
+// שירותי אפליקציה
+builder.Services.AddScoped< EmailService>();
+builder.Services.AddScoped< GoogleOAuthService>();
 
 builder.Services.AddScoped<JwtService>();
-builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped< EmailService>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
@@ -38,7 +46,7 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
     });
 
 builder.Services.AddAuthorization();
-
+AppContext.SetSwitch("System.Net.Http.SocketsHttpHandler.Http2UnencryptedSupport", true);
 // CORS
 builder.Services.AddCors(options =>
 {

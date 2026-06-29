@@ -42,6 +42,16 @@ public static class DbSeeder
         {
             var authors = new List<Author>
             {
+                // new Author { Id = Guid.NewGuid(), Name = "מיה קינן" },
+                // new Author { Id = Guid.NewGuid(), Name = "יונה ספיר" },
+                // new Author { Id = Guid.NewGuid(), Name = "מנוחה פוקס" },
+                // new Author { Id = Guid.NewGuid(), Name = "מנוחה בקרמן" },
+                // new Author { Id = Guid.NewGuid(), Name = "רות רפפורט" },
+                // new Author { Id = Guid.NewGuid(), Name = "רות טננולד" },
+                // new Author { Id = Guid.NewGuid(), Name = "לאה סמילנסקי" },
+                // new Author { Id = Guid.NewGuid(), Name = "שרה מלוביצקי" },
+
+
                 new Author { Id = Guid.NewGuid(), Name = "סופר א" },
                 new Author { Id = Guid.NewGuid(), Name = "סופר ב" },
                 new Author { Id = Guid.NewGuid(), Name = "סופר ג" }

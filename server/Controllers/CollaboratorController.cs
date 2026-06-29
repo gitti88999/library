@@ -54,13 +54,7 @@ namespace LIBRARY.Controllers
             return Ok(await _context.Collaborators.ToListAsync());
         }
 
-//  [HttpPost("update")]
-//     public IActionResult UpdateLocation([FromBody] UpdateLocationRequest request)
-//     {
-//         // כאן שומרים DB / cache / memory
-//         Console.WriteLine($"User {request.UserId}: {request.Lat}, {request.Lng}");
 
-//         return Ok();
-//     }
+
     }
 }

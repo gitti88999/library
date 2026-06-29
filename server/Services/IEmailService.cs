@@ -1,7 +1,7 @@
-namespace LIBRARY.server.Services
-{
-    public interface IEmailService
-    {
-        Task SendAsync(string to, string subject, string body);
-    }
-}
+// namespace LIBRARY.server.Services
+// {
+//     public interface IEmailService
+//     {
+//         Task SendAsync(string to, string subject, string body);
+//     }
+// }

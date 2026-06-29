@@ -23,7 +23,7 @@ import { AppDispatch, RootState } from "../../app/store";
 import { reverseGeocode } from "../../services/geocode";
 // import { updateUser, deleteUser } from "../../slices/UserSlice";
 import { useDebounce } from "../../api";
-import { clearUser, deleteUser, updateUser } from "../../slices/UserSlice";
+import { clearUser, deleteUser, fetchMe, updateUser } from "../../slices/UserSlice";
 
 interface Props {
   isLoggedIn: boolean;
@@ -156,18 +156,19 @@ const handleSave = async () => {
     const reverse = await reverseGeocode(coords.lat, coords.lng);
 
     if (!user) return;
-
-    await dispatch(
-      updateUser({
-        id: user.id,
-        data: {
-          Name: editData.name,
-          Email: editData.email,
-          Latitude: coords.lat,
-          Longitude: coords.lng,
-        },
-      })
-    ).unwrap(); // חשוב כדי לזרוק שגיאה אמיתית
+await dispatch(
+  updateUser({
+    id: user.id,
+    data: {
+      Name: editData.name,
+      Email: editData.email,
+      Latitude: coords.lat,
+      Longitude: coords.lng,
+    },
+  })
+);
+await dispatch(fetchMe()); // הכי יציב
+   
 
     setError(null);
     handleClose();
@@ -186,19 +187,21 @@ const handleSave = async () => {
 
 const handleDelete = async () => {
     console.log("DELETE CLICKED");
-
     if (!user) {
         console.error("User is not available");
         return;
     }
 
     try {
-        const result = await deleteUser(user.id);
+      await dispatch(deleteUser(user.id)).unwrap();
+      console.log("DELETE ID:", user.id);
+
  dispatch(clearUser());
+navigate("/login");
+        
 
-        console.log("Delete success:", result);
+      
 
-        navigate("/login");
     } catch (error: any) {
         if (error?.response) {
             console.error("Server error:", error.response.data);

@@ -236,7 +236,6 @@ public async Task<IActionResult> DeleteUser([FromBody] DeleteUserDto dto)
 {
     return NotFound();
 }
-    
     // 1. ארכוב
     var archived = new ArchivedUser
     {
@@ -262,6 +261,17 @@ foreach (var session in sessions)
     await _context.SaveChangesAsync();
 
     return Ok("User deleted and archived successfully");
+}
+[HttpGet("reverse-geocode")]
+public async Task<IActionResult> ReverseGeocode(double lat, double lon)
+{
+    var url = $"https://nominatim.openstreetmap.org/reverse?format=json&lat={lat}&lon={lon}";
+
+    using var client = new HttpClient();
+    client.DefaultRequestHeaders.Add("User-Agent", "MyApp");
+
+    var res = await client.GetStringAsync(url);
+    return Ok(res);
 }
     }
 }

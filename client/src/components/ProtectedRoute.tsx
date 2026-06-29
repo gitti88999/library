@@ -10,7 +10,7 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) =
   if (!isAuthChecked) {
     return <div>Loading...</div>;
   }
-
+console.log("AUTH CHECK:", user);
   if (!user) {
     return <Navigate to="/login" replace />;
   }

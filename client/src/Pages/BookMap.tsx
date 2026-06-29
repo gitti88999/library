@@ -177,7 +177,7 @@
 // };
 
 // export default BookMap;
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { AppDispatch, RootState } from "../app/store";
@@ -195,7 +195,25 @@ const BookMap = () => {
 
   const user = useSelector((s: RootState) => s.myUser.currentUser);
   const { items } = useSelector((s: RootState) => s.lendings);
+const [selectedCopyId, setSelectedCopyId] = useState(null);
+const [sentCopyId, setSentCopyId] = useState(null);
+const [loading, setLoading] = useState(false);
 
+const handleSend = async (copy:any) => {
+  try {
+    setLoading(true);
+
+    // הקריאה הקיימת שלך לשרת
+    await api.sendMail({
+      bookSessionId: copy.bookSessionId,
+      book,
+    });
+
+    setSentCopyId(copy.bookSessionId);
+  } finally {
+    setLoading(false);
+  }
+};
   const hasUserLocation =
     !!user?.latitude && !!user?.longitude;
 
@@ -244,20 +262,25 @@ const BookMap = () => {
       />
 
       <Stack spacing={2} sx={{ mt: 3 }}>
-        {top3.map((copy) => (
-          <Button
-            key={copy.bookSessionId}
-            variant="outlined"
-            onClick={() =>
-              navigate(`/borrow/${copy.bookSessionId}`, {
-                state: { session: copy, book },
-              })
-            }
-          >
-            {copy.collaboratorName} - {copy.distanceKm.toFixed(2)} ק״מ
-          </Button>
-        ))}
-      </Stack>
+  {top3.map((copy) => {
+    const isSelected = selectedCopyId === copy.bookSessionId;
+    const isSent = sentCopyId === copy.bookSessionId;
+
+    return (
+      <Button
+        key={copy.bookSessionId}
+        variant={isSelected ? "contained" : "outlined"}
+        onClick={() => setSelectedCopyId(copy.bookSessionId)}
+      >
+        {isSent
+          ? "נבחר ונשלח"
+          : isSelected
+          ? "נבחר"
+          : `${copy.collaboratorName} - ${copy.distanceKm.toFixed(2)} ק״מ`}
+      </Button>
+    );
+  })}
+</Stack>
     </Container>
   );
 };

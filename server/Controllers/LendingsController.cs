@@ -11,39 +11,39 @@ namespace LIBRARY.Controllers
     public class LendingsController : ControllerBase
     {
         private readonly LibraryContext _context;
+private readonly EmailService _emailService;
 
-        
 
-       [HttpPost("nearby")]
-public async Task<ActionResult<List<NearbyBookSessionDto>>> GetNearbySessions(
-    [FromBody] NearbyBookSessionsRequest request)
-{
-    var sessions = await _context.BookSession
-        .Include(x => x.Collaborator)
-        .Where(x => x.BookId == request.BookId && x.Collaborator != null)
-        .ToListAsync();
-
-    var result = sessions
-        .Select(x => new NearbyBookSessionDto
+        [HttpPost("nearby")]
+        public async Task<ActionResult<List<NearbyBookSessionDto>>> GetNearbySessions(
+     [FromBody] NearbyBookSessionsRequest request)
         {
-            BookSessionId = x.Id,
-            CollaboratorId = x.CollaboratorId,
-            CollaboratorName = x.Collaborator!.Name,
-            CollaboratorEmail = x.Collaborator!.Email,
-            Lat = x.Collaborator.Latitude,
-            Lng = x.Collaborator.Longitude,
-            DistanceKm = GetDistanceKm(
-                request.UserLat,
-                request.UserLng,
-                x.Collaborator.Latitude,
-                x.Collaborator.Longitude
-            )
-        })
-        .OrderBy(x => x.DistanceKm)
-        .ToList();
+            var sessions = await _context.BookSession
+                .Include(x => x.Collaborator)
+                .Where(x => x.BookId == request.BookId && x.Collaborator != null && x.Enabled)
+                .ToListAsync();
 
-    return Ok(result);
-}
+            var result = sessions
+                .Select(x => new NearbyBookSessionDto
+                {
+                    BookSessionId = x.Id,
+                    CollaboratorId = x.CollaboratorId,
+                    CollaboratorName = x.Collaborator!.Name,
+                    CollaboratorEmail = x.Collaborator!.Email,
+                    Lat = x.Collaborator.Latitude,
+                    Lng = x.Collaborator.Longitude,
+                    DistanceKm = GetDistanceKm(
+                        request.UserLat,
+                        request.UserLng,
+                        x.Collaborator.Latitude,
+                        x.Collaborator.Longitude
+                    )
+                })
+                .OrderBy(x => x.DistanceKm)
+                .ToList();
+
+            return Ok(result);
+        }
 
         private double GetDistanceKm(double lat1, double lon1, double lat2, double lon2)
         {
@@ -64,39 +64,51 @@ public async Task<ActionResult<List<NearbyBookSessionDto>>> GetNearbySessions(
         }
 
         private double ToRad(double angle) => angle * Math.PI / 180;
-      
-        private readonly IEmailService _emailService;
 
-        public LendingsController(LibraryContext context, IEmailService emailService)
+        // private readonly IEmailService _emailService;
+
+        // public LendingsController(LibraryContext context, IEmailService emailService)
+        // {
+        //     _context = context;
+        //     _emailService = emailService;
+        // }
+        public LendingsController(LibraryContext context,EmailService emailService)
         {
             _context = context;
             _emailService = emailService;
+
         }
+        // [HttpPost("request")]
+        // public async Task<IActionResult> RequestBorrow([FromBody] RequestBorrowDto dto)
+        // {
+        //     var session = await _context.BookSession
+        //         .Include(x => x.Collaborator)
+        //         .Include(x => x.Book)
+        //         .FirstOrDefaultAsync(x => x.BookId == dto.BookSessionId);
 
-        [HttpPost("request")]
-        public async Task<IActionResult> RequestBorrow(Guid bookId, string requesterName, string requesterEmail)
-        {
-            var book = await _context.Books.FirstOrDefaultAsync(x => x.BookId == bookId);
-            if (book == null)
-                return NotFound();
+        //     if (session == null)
+        //         return NotFound();
 
-            var owner = await _context.BookSession
-                .Include(x => x.Collaborator)
-                .FirstOrDefaultAsync(x => x.BookId == bookId);
+        //     // מייל לבעל הספר
+        //     await _emailService.SendAsync(
+        //         session.Collaborator.Email,
+        //         "בקשת השאלה",
+        //         $"{dto.RequesterName} מבקש את הספר {session.Book.Name}"
+        //     );
 
-            if (owner == null)
-                return BadRequest();
+        //     // אופציונלי: מייל למבקש
+        //     await _emailService.SendAsync(
+        //         dto.RequesterEmail,
+        //         "בקשתך התקבלה",
+        //         $"שלחנו פנייה לבעל הספר עבור {session.Book.Name}"
+        //     );
 
-            await _emailService.SendAsync(
-                owner.Collaborator.Email,
-                "בקשת השאלה",
-                $"{requesterName} רוצה את הספר {book.Name}"
-            );
-
-            return Ok();
-        }
+        //     return Ok();
+        // }
+     
+    
     }
-    }
+}
 
-   
+
 
