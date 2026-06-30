@@ -3,37 +3,40 @@ using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using LIBRARY.Models;
-public class JwtService
+namespace LIBRARY.Services
 {
-    private readonly IConfiguration _config;
-
-    public JwtService(IConfiguration config)
+    public class JwtService
     {
-        _config = config;
-    }
+        private readonly IConfiguration _config;
 
-    public string GenerateToken(Collaborator user)
-    {
-        var claims = new[]
+        public JwtService(IConfiguration config)
         {
+            _config = config;
+        }
+
+        public string GenerateToken(Collaborator user)
+        {
+            var claims = new[]
+            {
             new Claim(ClaimTypes.NameIdentifier, user.CollaboratorId.ToString()),
             new Claim(ClaimTypes.Name, user.Name),
         };
 
-        var key = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(_config["Jwt:Key"])
-        );
+            var key = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(_config["Jwt:Key"])
+            );
 
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+            var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var token = new JwtSecurityToken(
-            issuer: _config["Jwt:Issuer"],
-            audience: _config["Jwt:Audience"],
-            claims: claims,
-            expires: DateTime.Now.AddHours(3),
-            signingCredentials: creds
-        );
+            var token = new JwtSecurityToken(
+                issuer: _config["Jwt:Issuer"],
+                audience: _config["Jwt:Audience"],
+                claims: claims,
+                expires: DateTime.Now.AddHours(3),
+                signingCredentials: creds
+            );
 
-        return new JwtSecurityTokenHandler().WriteToken(token);
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
     }
 }

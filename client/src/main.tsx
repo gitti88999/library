@@ -1,14 +1,12 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
-import App from './App.tsx'
-// import { GoogleOAuthProvider } from '@react-oauth/google';
-import { store } from './app/store.ts';
+import App from './App'
+import { store } from './app/store';
 import { Provider } from 'react-redux';
+import "leaflet/dist/leaflet.css";
+// import { router } from "./router";
 
-{/* <GoogleOAuthProvider clientId="YOUR_CLIENT_ID"> */}
-  <App />
-// </GoogleOAuthProvider>
 createRoot(document.getElementById('root')!).render(
   
   <StrictMode>
