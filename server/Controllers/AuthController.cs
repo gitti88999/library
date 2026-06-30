@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using LIBRARY.Models;
 using LIBRARY.Data;
 using System.Security.Cryptography;
-using LIBRARY.server.Services;
+using LIBRARY.Services;
 using System.Text;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
@@ -11,6 +11,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Cookies;
 namespace LIBRARY.Controllers
 {
+    
     [ApiController]
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
@@ -18,7 +19,7 @@ namespace LIBRARY.Controllers
         private readonly LibraryContext _context;
         private readonly BookSessionService _bookSessionService;
 
-        private readonly JwtService _jwt;
+        private readonly  JwtService _jwt;
         public AuthController(LibraryContext context, JwtService jwt,BookSessionService bookSessionService)
         {
             _context = context;

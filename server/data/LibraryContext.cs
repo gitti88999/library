@@ -79,7 +79,7 @@ namespace LIBRARY.Data
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(
-                "Server=db,1433=db,1433;Database=libraryDB;User Id=sa;Password=ALTgit88999;TrustServerCertificate=True;"
+                "Server=db,1433;Database=libraryDB;User Id=sa;Password=ALTgit88999;TrustServerCertificate=True;"
             );
         }
 
@@ -91,5 +91,25 @@ namespace LIBRARY.Data
                 new Audience { Id = Guid.Parse("33333333-3333-3333-3333-333333333333"), Name = "מבוגרים" }
             );
         }
+        // protected override void OnModelCreating(ModelBuilder modelBuilder)
+        // {
+        //     modelBuilder.Entity<Category>().HasData(
+        //         new Category { Id = Guid.Parse("11111111-1111-1111-1111-111111111111"), Name = "מתח" },
+        //         new Category { Id = Guid.Parse("22222222-2222-2222-2222-222222222222"), Name = "הומור" },
+        //         new Category { Id = Guid.Parse("33333333-3333-3333-3333-333333333333"), Name = "עלילה" },
+        //         new Category { Id = Guid.Parse("11111111-1111-1111-1111-111111111111"), Name = "מתכונים" },
+        //         new Category { Id = Guid.Parse("22222222-2222-2222-2222-222222222222"), Name = "קומיקס" },
+        //         new Category { Id = Guid.Parse("33333333-3333-3333-3333-333333333333"), Name = "לימוד" },
+        //         new Category { Id = Guid.Parse("33333333-3333-3333-3333-333333333333"), Name = "ידע" }
+        //     );
+        // }
+        // protected override void OnModelCreating(ModelBuilder modelBuilder)
+        // {
+        //     modelBuilder.Entity<Author>().HasData(
+        //         new Author { Id = Guid.Parse("11111111-1111-1111-1111-111111111111"), Name = "סופר א" },
+        //         new Author { Id = Guid.Parse("22222222-2222-2222-2222-222222222222"), Name = "סופר ב" },
+        //         new Author { Id = Guid.Parse("33333333-3333-3333-3333-333333333333"), Name = "סופר ג" }
+        //     );
+        // }
     }
 }

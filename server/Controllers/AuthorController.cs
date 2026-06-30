@@ -12,7 +12,7 @@ namespace LIBRARY.Controllers
     public class AuthorController : ControllerBase
     {
         private readonly LibraryContext _context;
-        private readonly JwtService _jwt;
+        // private readonly JwtService _jwt;
         public AuthorController(LibraryContext context)
         {
             _context = context;

@@ -12,7 +12,7 @@ namespace LIBRARY.Controllers
     public class CategoryController : ControllerBase
     {
         private readonly LibraryContext _context;
-        private readonly JwtService _jwt;
+        // private readonly JwtService _jwt;
         public CategoryController(LibraryContext context)
         {
             _context = context;

@@ -1,9 +1,8 @@
  using LIBRARY.Data;
 using LIBRARY.Models;
 using Microsoft.EntityFrameworkCore;
-using LIBRARY.server.Services;
 
-namespace LIBRARY.server.Services
+namespace LIBRARY.Services
 {
     public class BookSessionService
     {

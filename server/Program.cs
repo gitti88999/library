@@ -3,8 +3,9 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.SqlClient;
 using LIBRARY.Data;
-using LIBRARY.server.Services;
+using LIBRARY.Services;
 using LIBRARY.Models;
+using System.Net;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,20 +14,26 @@ builder.Services.AddDbContext<LibraryContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("libraryDB")));
 
 builder.Services.AddScoped<BookSessionService>();
+builder.Services.AddScoped<JwtService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddOpenApi();
-builder.Services.Configure<GmailSettings>(
-    builder.Configuration.GetSection("Gmail")
-);
+// builder.Services.Configure<GmailSettings>(
+//     builder.Configuration.GetSection("Gmail")
+// );
 // שירותי אפליקציה
-builder.Services.AddScoped< EmailService>();
-builder.Services.AddScoped< GoogleOAuthService>();
+// builder.Services.AddScoped< EmailService>();
+// builder.Services.AddScoped< GoogleOAuthService>();
 
-builder.Services.AddScoped<JwtService>();
-builder.Services.AddScoped< EmailService>();
-
+// builder.Services.AddScoped<JwtService>();
+// builder.Services.AddScoped< EmailService>();
+builder.Services.Configure<GmailSettings>(
+    builder.Configuration.GetSection("Gmail"));
+ServicePointManager.ServerCertificateValidationCallback += 
+    (sender, cert, chain, sslPolicyErrors) => true;
+builder.Services.AddHttpClient<GoogleOAuthService>();
+builder.Services.AddScoped<EmailService>();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {

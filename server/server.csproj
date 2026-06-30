@@ -27,8 +27,8 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.7" />
   </ItemGroup>
 <ItemGroup>
-  <PackageReference Include="Google.Apis.Gmail.v1" Version="*" />
-  <PackageReference Include="Google.Apis.Auth" Version="*" />
+  <PackageReference Include="Google.Apis.Gmail.v1" Version="1.74.0.4162" />
+  <PackageReference Include="Google.Apis.Auth" Version="1.75.0" />
   <PackageReference Include="Google.Apis" Version="*" />
 </ItemGroup>
 </Project>

@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LIBRARY.Models;
 using LIBRARY.Data;
+using LIBRARY.Services;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -12,7 +13,7 @@ namespace LIBRARY.Controllers
     public class AudienceController : ControllerBase
     {
         private readonly LibraryContext _context;
-        private readonly JwtService _jwt;
+        // private readonly JwtService _jwt;
         public AudienceController(LibraryContext context)
         {
             _context = context;

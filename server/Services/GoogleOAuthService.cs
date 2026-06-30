@@ -1,33 +1,39 @@
-using System.Net.Http;
+
 using System.Text.Json;
 using LIBRARY.Models;
-using LIBRARY.server.Services;
 
-
-namespace LIBRARY.server.Services
+namespace LIBRARY.Services
 {
-public class GoogleOAuthService
-{
-    public async Task<string> GetAccessTokenAsync(GmailSettings settings)
+    public class GoogleOAuthService
     {
-        using var client = new HttpClient();
+        private readonly HttpClient _httpClient;
 
-        var data = new Dictionary<string, string>
+        public GoogleOAuthService(HttpClient httpClient)
         {
-            ["client_id"] = settings.ClientId,
-            ["client_secret"] = settings.ClientSecret,
-            ["refresh_token"] = settings.RefreshToken,
-            ["grant_type"] = "refresh_token"
-        };
+            _httpClient = httpClient;
+        }
 
-        var response = await client.PostAsync(
-            "https://oauth2.googleapis.com/token",
-            new FormUrlEncodedContent(data)
-        );
+        public async Task<string> GetAccessTokenAsync(GmailSettings settings)
+        {
+            var data = new Dictionary<string, string>
+            {
+                ["client_id"] = settings.ClientId,
+                ["client_secret"] = settings.ClientSecret,
+                ["refresh_token"] = settings.RefreshToken,
+                ["grant_type"] = "refresh_token"
+            };
 
-        var json = await response.Content.ReadAsStringAsync();
-        using var doc = JsonDocument.Parse(json);
+            var response = await _httpClient.PostAsync(
+                "https://oauth2.googleapis.com/token",
+                new FormUrlEncodedContent(data)
+            );
 
-        return doc.RootElement.GetProperty("access_token").GetString();
+            response.EnsureSuccessStatusCode();
+
+            var json = await response.Content.ReadAsStringAsync();
+            using var doc = JsonDocument.Parse(json);
+
+            return doc.RootElement.GetProperty("access_token").GetString();
+        }
     }
-}}
+}
