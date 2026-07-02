@@ -16,7 +16,6 @@ public static class DbSeeder
             };
 
             context.Audiences.AddRange(audiences);
-            context.SaveChanges();
         }
 
         // ===== CATEGORIES =====
@@ -34,7 +33,6 @@ public static class DbSeeder
             };
 
             context.Categories.AddRange(categories);
-            context.SaveChanges();
         }
 
         // ===== AUTHORS =====
@@ -48,9 +46,9 @@ public static class DbSeeder
             };
 
             context.Authors.AddRange(authors);
-            context.SaveChanges();
         }
 
         
+            context.SaveChanges();
     }
 }

@@ -68,6 +68,22 @@ export const addBook = createAsyncThunk(
 
   }
 );
+export const toggleBookSessionStatus = createAsyncThunk(
+  "myBooks/toggleStatus",
+  async (sessionId: string, thunkAPI) => {
+    try {
+      const response = await axios.patch(
+        `${apiUrl}/api/BookSession/${sessionId}/toggle-status`
+      );
+
+      return response.data;
+    } catch (err: any) {
+      return thunkAPI.rejectWithValue(
+        err.response?.data || "שגיאה בעדכון סטטוס"
+      );
+    }
+  }
+);
 export interface BooksState {
   items: BookSessionDTO[] ;
   status: BooksStatus;
@@ -99,6 +115,22 @@ const myBooksSlice = createSlice({
         state.status = BooksStatus.Failed;
         // state.error = action.error.message || "Failed to load books";
       })
+      .addCase(toggleBookSessionStatus.fulfilled, (state, action) => {
+      const updated = action.payload;
+console.log(state.items);
+console.log(updated);
+      const index = state.items.findIndex(
+  (x) =>
+    x?.book?.id === updated?.book?.id &&
+    x?.book?.collaboratorId === updated?.book?.collaboratorId
+);
+      if (index !== -1) {
+      state.items[index] = updated;
+    }
+})
+.addCase(toggleBookSessionStatus .rejected, (state, action) => {
+  state.error = action.payload as string;
+})
       .addCase(addBook.pending, (state) => {
         state.status = BooksStatus.Loading;
       })

@@ -125,6 +125,29 @@ public async Task<IActionResult> ArchiveAndDeleteBookSession(Guid id)
     await _bookSessionService.ArchiveAndDeleteBookSession(id);
     return Ok();
 }
+
+[HttpPatch("{id}/toggle-status")]
+public async Task<ActionResult> ToggleStatus(Guid id)
+{
+    var session = await _context.BookSession
+        .FirstOrDefaultAsync(s => s.Id == id);
+
+    if (session == null)
+        return NotFound("Session not found");
+
+    session.Enabled = !session.Enabled;
+
+    await _context.SaveChangesAsync();
+
+    return Ok(new
+    {
+        bookSessionId = session.Id,
+        enabled = session.Enabled,
+        status = session.Enabled ? "זמין" : "לא זמין",
+        bookId = session.BookId,
+        collaboratorId = session.CollaboratorId
+    });
+}
     }
 
 }

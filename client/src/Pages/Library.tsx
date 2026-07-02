@@ -19,13 +19,14 @@ import {
 } from "@mui/material";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../app/store";
-import { getMyBooks, addBook } from "../slices/LibrarySlice";
+import { getMyBooks, addBook, toggleBookSessionStatus } from "../slices/LibrarySlice";
 import { BookDTO } from "../types/book";
 
 import { getAudiences } from "../slices/AudienceSlice";
 import { getAuthors } from "../slices/AuthorSlice";
 import { getCategories } from "../slices/CategorySlice";
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+
 import axios from "axios";
 
 const apiUrl = import.meta.env.VITE_API_URL;
@@ -177,9 +178,22 @@ const Library: React.FC = () => {
 
             return (
               <Card key={sessionId}>
-                <CardContent>
-                  <Typography variant="h6">{book?.name}</Typography>
+  <CardContent>
+    
+     
 
+      
+
+    <Button
+      variant="outlined"
+      onClick={() => dispatch(toggleBookSessionStatus(item.bookSessionId))}
+    >
+      {item.enabled ? "השבת" : "הפעל"}
+    </Button>
+                  <Typography variant="h6">{book?.name}</Typography>
+<Typography>
+  {item.status }
+</Typography>
                   <Typography>
                     מחבר: {authorMap[book?.authorId]}
                   </Typography>
