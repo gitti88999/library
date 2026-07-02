@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace server.Migrations
 {
     [DbContext(typeof(LibraryContext))]
-    [Migration("20260623082348_FixModelChanges")]
-    partial class FixModelChanges
+    [Migration("20260702073755_Initia")]
+    partial class Initia
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
