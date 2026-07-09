@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using LIBRARY.Data;
 using LIBRARY.server.Services;
 
+AppContext.SetSwitch("System.Net.DisableIPv6", true);
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<LibraryContext>(options =>
