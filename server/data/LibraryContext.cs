@@ -79,7 +79,7 @@ namespace LIBRARY.Data
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseNpgsql(
-                "Host=db;Port=5432;Database=libraryDB;Username=postgres;Password=ALTgit88999"
+                "Host=db.tbqiqjbnbjiogkatqkgs.supabase.co;Port=5432;Database=libraryDB;Username=postgres;Password=ALTgit88999"
             );
         }
 
