@@ -1,15 +1,14 @@
 
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Data.SqlClient;
 using LIBRARY.Data;
 using LIBRARY.server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<LibraryContext>(options =>
-    options.UseSqlServer(
-        builder.Configuration.GetConnectionString("libraryDB")
+    options.UseNpgsql(
+        builder.Configuration.GetConnectionString("DefaultConnection")
     ));
 builder.Services.AddScoped<BookSessionService>();
 builder.Services.AddControllers();

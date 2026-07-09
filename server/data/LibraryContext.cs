@@ -78,8 +78,8 @@ namespace LIBRARY.Data
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlServer(
-                "Server=db,1433;Database=libraryDB;User Id=sa;Password=ALTgit88999;TrustServerCertificate=True;"
+            optionsBuilder.UseNpgsql(
+                "Host=db;Port=5432;Database=libraryDB;Username=postgres;Password=ALTgit88999"
             );
         }
 
