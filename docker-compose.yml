@@ -1,0 +1,185 @@
+# version: "3.9"
+
+# services:
+
+#   db:
+#     image: mcr.microsoft.com/mssql/server:2022-latest
+#     environment:
+#       ACCEPT_EULA: "Y"
+#       MSSQL_SA_PASSWORD: "ALTgit88999"
+#     ports:
+#       - "1434:1433" 
+#     volumes:
+#       - sql_data:/var/opt/mssql
+#     healthcheck:
+#       test: 
+#         [
+#           "CMD",
+#           "/opt/mssql-tools18/bin/sqlcmd",
+#           "-S", "localhost",
+#           "-U", "sa",
+#           "-P",  "ALTgit88999",
+#           "-C",
+#           "-Q", "SELECT 1"
+#         ]
+#       interval: 10s
+#       timeout: 10s
+#       retries: 20
+#     networks:
+#       - app-network
+
+#   server:
+#     build:
+#       context: ./server
+#       dockerfile: Dockerfile
+#     ports:
+#       - "5217:5217"
+#     environment:
+#       ASPNETCORE_URLS: http://+:5217
+#       DOTNET_ENVIRONMENT: Development
+#       ConnectionStrings__libraryDB: "Server=db,1433;Database=libraryDB;User Id=sa;Password={DB_PASSWORD};TrustServerCertificate=true"
+#     depends_on:
+#       db:
+#         condition: service_healthy
+#     networks:
+#       - app-network
+
+#   client:
+#     build:
+#       context: ./client
+#       dockerfile: Dockerfile
+#     ports:
+#       - "5173:5173"
+#     volumes:
+#       - ./client:/app
+#       - /app/node_modules
+#     depends_on:
+#       db:
+#         condition: service_healthy
+#       server:
+#         condition: service_started
+# networks:
+#   app-network:
+#     driver: bridge
+
+# volumes:
+#   sql_data:
+# # version: "3.9"
+
+# # services:
+
+# #   db:
+# #     image: mcr.microsoft.com/mssql/server:2022-latest
+# #     container_name: library-db
+# #     environment:
+# #       ACCEPT_EULA: "Y"
+# #       MSSQL_SA_PASSWORD: "ALTgit88999"
+# #     ports:
+# #       - "1434:1433"
+# #     volumes:
+# #       - sql_data:/var/opt/mssql
+# #     networks:
+# #       - app-network
+# #     healthcheck:
+# #       test: ["CMD-SHELL",
+# #         "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P $$MSSQL_SA_PASSWORD -C -Q 'SELECT 1'"
+# #       ]
+# #       interval: 10s
+# #       timeout: 5s
+# #       retries: 30
+# #       start_period: 40s
+
+# #   server:
+# #     build:
+# #       context: ./server
+# #       dockerfile: Dockerfile
+# #     container_name: library-server
+# #     ports:
+# #       - "5217:5217"
+# #     environment:
+# #       ASPNETCORE_URLS: http://+:5217
+# #       DOTNET_ENVIRONMENT: Development
+# #       ConnectionStrings__libraryDB: "Server=db,1433;Database=libraryDB;User Id=sa;Password=ALTgit88999;TrustServerCertificate=true"
+# #     depends_on:
+# #       db:
+# #         condition: service_healthy
+# #     networks:
+# #       - app-network
+# #     restart: unless-stopped
+
+# #   client:
+# #     build:
+# #       context: ./client
+# #       dockerfile: Dockerfile
+# #     container_name: library-client
+# #     ports:
+# #       - "5173:5173"
+# #     depends_on:
+# #       - server
+# #     networks:
+# #       - app-network
+
+# # networks:
+# #   app-network:
+# #     driver: bridge
+
+# # volumes:
+# #   sql_data:
+version: "3.9"
+
+services:
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: libraryDB
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d libraryDB"]
+      interval: 10s
+      timeout: 10s
+      retries: 20
+    networks:
+      - app-network
+
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    ports:
+      - "5217:5217"
+    environment:
+      ASPNETCORE_URLS: http://+:5217
+      DOTNET_ENVIRONMENT: Development
+      ConnectionStrings__libraryDB: "Host=aws-0-us-east-1.pooler.supabase.com;Port=6543;Database=postgres;Username=postgres;Password=${DB_PASSWORD};SSL Mode=Require;Trust Server Certificate=true; Host Address Type=IPv4;"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  client:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./client:/app
+      - /app/node_modules
+    depends_on:
+      - server
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  pg_data:

@@ -1,44 +1,104 @@
+import React, { useState, useMemo, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { ThemeProvider, CssBaseline } from "@mui/material";
+import { CacheProvider } from "@emotion/react";
 
-import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Home from './Pages/Home/Home';
-import Login from './Pages/Login/Login';
-import Register from './Pages/Register/Register';
-import Library from './Pages/Library/Library';
-import Search from './Pages/Search/Search';
-import { ThemeProvider, CssBaseline } from '@mui/material';
-import theme from './Theme';
-import type { Book } from './types/book';
-import MyBooks from './components/MyBooks/MyBooks';
+import { useDispatch, useSelector } from "react-redux";
 
-interface User {
-  username: string;
-  password: string;
-  books: Book[];
-}
-
+import { getTheme, rtlCache } from "./Theme";
+import Home from "./Pages/Home";
+import Login from "./Pages/Login";
+import Register from "./Pages/Register";
+import Library from "./Pages/Library";
+import Search from "./Pages/Search";
+import BorrowBook from "./Pages/BorrowBook";
+import Navbar from "./components/Home/NavBar";
+import ProtectedRoute from "./components/ProtectedRoute";
+import type { AppDispatch, RootState } from "./app/store";
+import Borrow from "./Pages/BorrowBook";
+import { fetchMe } from "./slices/UserSlice";
+import BookMap from "./Pages/BookMap";
 const App: React.FC = () => {
-  const [currentUser, setCurrentUser] = useState<User | null>(
-    JSON.parse(localStorage.getItem('currentUser') || 'null')
+  const user = useSelector(
+  (state: RootState) => state.myUser.currentUser
+);
+//    if (user?.id) {
+//     useLocationTracker(user.id);
+// }
+
+const dispatch = useDispatch<AppDispatch>();
+useEffect(() => {
+  dispatch(fetchMe());
+}, [dispatch]);
+  const isLoggedIn = !!user?.id;
+
+  const [mode, setMode] = useState<"light" | "dark">(
+    (localStorage.getItem("theme") as "light" | "dark") || "dark"
   );
+
+  const theme = useMemo(() => getTheme(mode), [mode]);
+
+  const toggleTheme = () => {
+    const newMode: "light" | "dark" = mode === "dark" ? "light" : "dark";
+    setMode(newMode);
+    localStorage.setItem("theme", newMode);
+  };
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Router>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Login />} />
-          {/* Passing setCurrentUser to Register */}
-          <Route path="/register" element={<Register setCurrentUser={setCurrentUser} />} />
-          <Route
-            path="/library"
-            element={<Library books={currentUser?.books || []} onDelete={() => {}} />}
-          />
-          <Route path="/search" element={<Search books={[]} />} />
-        </Routes>
-      </Router>
-    </ThemeProvider>
+    <CacheProvider value={rtlCache}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <div dir="rtl">
+          <Router>
+            <Navbar
+              isLoggedIn={isLoggedIn}
+              toggleTheme={toggleTheme}
+              currentMode={mode}
+            />
+
+            <Routes>
+              <Route path="/" element={<Home />} />
+
+              <Route
+                path="/login"
+                element={<Login />}
+              />
+
+              <Route path="/register" element={<Register />} />
+
+              <Route
+                path="/library"
+                element={
+                  <ProtectedRoute>
+                    <Library />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/search"
+                element={
+                  <ProtectedRoute>
+                    <Search />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/borrow/:id"
+                element={
+                  <ProtectedRoute>
+                    <BorrowBook />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/book-map/:id" element={<BookMap />} />
+            </Routes>
+          </Router>
+        </div>
+      </ThemeProvider>
+    </CacheProvider>
   );
 };
+
 export default App;
