@@ -156,7 +156,7 @@ services:
     environment:
       ASPNETCORE_URLS: http://+:5217
       DOTNET_ENVIRONMENT: Development
-      ConnectionStrings__libraryDB: "Host=db.tbqiqjbnbjiogkatqkgs.supabase.co;Port=5432;Database=libraryDB;Username=postgres;Password=${DB_PASSWORD};SSL Mode=Require;Trust Server Certificate=true"
+      ConnectionStrings__libraryDB: "Host=aws-0-us-east-1.pooler.supabase.com;Port=6543;Database=libraryDB;Username=libraryDB.tbqiqjbnbjiogkatqkgs;Password=...;SSL Mode=Require;Trust Server Certificate=true;Pooling=true;Maximum Pool Size=1"
     depends_on:
       db:
         condition: service_healthy

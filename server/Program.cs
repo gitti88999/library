@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddDbContext<LibraryContext>(options =>
     options.UseNpgsql(
-        "Host=db.tbqiqjbnbjiogkatqkgs.supabase.co;Port=5432;Database=postgres;Username=postgres;Password=YOUR_PASSWORD;SSL Mode=Require;Trust Server Certificate=true"
+        builder.Configuration.GetConnectionString("libraryDB")
     ));
     Console.WriteLine("ENV DB:");
 Console.WriteLine(builder.Configuration.GetConnectionString("libraryDB"));
