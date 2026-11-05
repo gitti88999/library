@@ -1,25 +1,42 @@
-# Collaborative Library Project
+# Collaborative Library
 
-## Overview
-This project implements a collaborative library system where multiple users can manage, track, and share books. Built with ASP.NET Core and Entity Framework Core.
+A web application for managing and discovering books, sharing book sessions, and coordinating loans between readers. The app includes account access, book search, and map-based discovery of nearby copies.
 
-## Features
-- CRUD operations for Books.
-- Manage Collaborators.
-- Create BookSessions for collaborative work.
-- Validation of BookId and CollaboratorId before creating sessions.
+## Technology
 
-## Technology Stack
-- ASP.NET Core Web API
-- Entity Framework Core
-- SQL Server (or any compatible relational database)
-- C#
+- **Frontend:** React, TypeScript, Vite, Redux Toolkit, and Material UI
+- **Backend:** ASP.NET Core Web API and Entity Framework Core
+- **Database:** PostgreSQL
+- **Deployment:** Docker Compose
 
-## API Endpoints & Examples
+## Project layout
 
-### Books
-- `GET /api/books` – List all books.
+- `client/` — web application
+- `server/` — API, data models, and database migrations
+- `docker-compose.yml` — local service definitions
 
-```http
-GET /api/books HTTP/1.1
-Host: localhost:5000
+## Configuration
+
+Create a `.env` file in the repository root with a local PostgreSQL password:
+
+```env
+DB_PASSWORD=choose-a-strong-local-password
+```
+
+The `.env` file is ignored by Git. Do not commit credentials.
+
+## Run with Docker Compose
+
+Clone the repository:
+
+```sh
+git clone https://github.com/altGIT999/library.git
+
+cd library
+```
+
+After configuring the database password, start the services:
+
+```sh
+docker compose up --build
+```

@@ -2,16 +2,24 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using LIBRARY.Models;
 using LIBRARY.Data;
+using System.Net;
+using System.Net.Mail;
+using LIBRARY.server.Services;
+
 namespace LIBRARY.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
     public class BookSessionController : ControllerBase
     {
-        private readonly LibraryContext _context;
-        public BookSessionController(LibraryContext context)
+        private readonly BookSessionService _bookSessionService;      
+          private readonly LibraryContext _context;
+          
+       public BookSessionController(LibraryContext context, BookSessionService bookSessionService)
         {
             _context = context;
+                _bookSessionService = bookSessionService;
+
         }
         [HttpPut("{id}")]
         public async Task<ActionResult<BookSession>> PutBookSession(Guid id)
@@ -26,14 +34,7 @@ namespace LIBRARY.Controllers
             }
             var book = await _context.BookSession.FindAsync(id);
             book.Enabled = !book.Enabled;
-            // if (book.Enabled == false)
-            // {
-            //    BookSession.Enabled = true;
-            // }
-            // else
-            // {
-            //     BookSession.Enabled = false;
-            // }
+          
             _context.Entry(book).State = EntityState.Modified;
             try
             {
@@ -51,113 +52,102 @@ namespace LIBRARY.Controllers
             return _context.BookSession.Any(b => b.Id == id);
         }
 
-        [HttpPost]
-        public async Task<ActionResult<BookSession>> CreateBookSession(Guid Bookid, Guid collaborateId)
+    
 
+    [HttpPost("add-with-session")]
+    public async Task<ActionResult> AddBookWithSession(AddBookRequest request)
+    {
+        if (string.IsNullOrWhiteSpace(request.Name))
+            return BadRequest("Name required");
+
+        // חיפוש ספר קיים
+        var existingBook = await _context.Books
+            .FirstOrDefaultAsync(b =>
+                b.Name == request.Name &&
+                b.AuthorId == request.AuthorId);
+
+        Guid bookId;
+
+        if (existingBook == null)
         {
-            if (!_context.Books.Any(c => c.BookId == Bookid))
+            var newBook = new Book
             {
-                return BadRequest("Book id does not exist.");
-            }
-            if (!_context.Collaborators.Any(c => c.CollaboratorId == collaborateId))
-
-            {
-                return BadRequest("collaborateId id does not exist.");
-            }
-            var newBookSession = new BookSession
-            {
-                Id = Guid.NewGuid(),
-                BookId = Bookid,
-                CollaboratorId = collaborateId,
-                Enabled = true,
-
+                BookId = Guid.NewGuid(),
+                Name = request.Name,
+                CategoryId = request.CategoryId,
+                AudienceId = request.AudienceId,
+                AuthorId = request.AuthorId
             };
-            _context.BookSession.Add(newBookSession);
+
+            _context.Books.Add(newBook);
             await _context.SaveChangesAsync();
-            return Ok(newBookSession);
 
-
-
+            bookId = newBook.BookId;
         }
-
-        [HttpPut("booksession/{id}/archiveAndDelete")]
-        public async Task<IActionResult> ArchiveAndDeleteBookSession(Guid id)
+        else
         {
-            using var transaction = await _context.Database.BeginTransactionAsync();
-
-            try
-            {
-                var session = await _context.BookSession.FindAsync(id);
-                if (session == null)
-                    return NotFound($"BookSession with id {id} not found.");
-
-                var bookId = session.BookId;
-
-                // --- העברה לארכיון מופעי ספרים ---
-                var sessionArchive = new BookSessionArchive
-                {
-                    Id = Guid.NewGuid(),
-                    BookSessionId = session.Id,
-                    BookId = session.BookId,
-                    CollaboratorId = session.CollaboratorId,
-                    Enabled = session.Enabled,
-                    ArchivedAt = DateTime.UtcNow
-                };
-                _context.BookSessionArchive.Add(sessionArchive);
-
-                // מחיקה מהטבלה המקורית
-                _context.BookSession.Remove(session);
-await _context.SaveChangesAsync();
-                // בדיקה אם נותרו מופעים נוספים עבור אותו ספר
-                // bool hasOtherSessions = _context.BookSession.Any(s => s.BookId == bookId);
-                // Console.WriteLine(hasOtherSessions);
-                bool hasOtherSessions = _context.BookSession
-                        .AsNoTracking()
-                        .Any(s => s.BookId == bookId);
-                Guid? deletedBookId = null;
-
-                if (!hasOtherSessions)
-                {
-                    // אין מופעים נוספים – העברה לארכיון הספרים
-                    var book = await _context.Books.FindAsync(bookId);
-                    if (book != null)
-                    {
-                        var bookArchive = new BookArchive
-                        {
-                            Id = Guid.NewGuid(),
-                            BookId = book.BookId,
-                            Name = book.Name,
-                            Category = book.Category,
-                            AudienceId = book.AudienceId,
-                            AutherId = book.AutherId,
-                            ArchivedAt = DateTime.UtcNow
-                        };
-                        _context.BookArchive.Add(bookArchive);
-
-                        // מחיקה מהטבלה Books
-                        _context.Books.Remove(book);
-                        await _context.SaveChangesAsync();
-                        deletedBookId = bookId;
-                    }
-                }
-
-                await _context.SaveChangesAsync();
-                await transaction.CommitAsync();
-
-                return Ok(new
-                {
-                    ArchivedBookSession = sessionArchive,
-                    DeletedBookSessionId = id,
-                    DeletedBookId = deletedBookId
-                });
-            }
-            catch (Exception ex)
-            {
-                await transaction.RollbackAsync();
-                return StatusCode(500, $"Error occurred: {ex.Message}");
-            }
+            bookId = existingBook.BookId;
         }
 
+        var existingSession = await _context.BookSession
+            .FirstOrDefaultAsync(s =>
+                s.BookId == bookId &&
+                s.CollaboratorId == request.CollaboratorId);
+
+        if (existingSession != null)
+        {
+            return BadRequest("הספר כבר קיים אצל המשתמש");
+        }
+
+     
+        var session = new BookSession
+        {
+            Id = Guid.NewGuid(),
+            BookId = bookId,
+            CollaboratorId = request.CollaboratorId,
+            Enabled = true
+        };
+
+        _context.BookSession.Add(session);
+        await _context.SaveChangesAsync();
+
+        return Ok(new
+        {
+            session.Id,
+            session.BookId,
+            session.CollaboratorId,
+            session.Enabled
+        });
+    }
+       [HttpPut("{id}/archiveAndDelete")]
+public async Task<IActionResult> ArchiveAndDeleteBookSession(Guid id)
+{
+    await _bookSessionService.ArchiveAndDeleteBookSession(id);
+    return Ok();
+}
+
+[HttpPatch("{id}/toggle-status")]
+public async Task<ActionResult> ToggleStatus(Guid id)
+{
+    var session = await _context.BookSession
+        .FirstOrDefaultAsync(s => s.Id == id);
+
+    if (session == null)
+        return NotFound("Session not found");
+
+    session.Enabled = !session.Enabled;
+
+    await _context.SaveChangesAsync();
+
+    return Ok(new
+    {
+        bookSessionId = session.Id,
+        enabled = session.Enabled,
+        status = session.Enabled ? "זמין" : "לא זמין",
+        bookId = session.BookId,
+        collaboratorId = session.CollaboratorId
+    });
+}
     }
 
 }

@@ -9,47 +9,44 @@ namespace LIBRARY.Controllers
     [Route("api/[controller]")]
     public class BookController : ControllerBase
     {
+
         private readonly LibraryContext _context;
         public BookController(LibraryContext context)
         {
             _context = context;
         }
-        [HttpPost]
-        public async Task<ActionResult> CreateBook(BookDTO book)
+        
+        [HttpGet("books")]
+        public async Task<IActionResult> GetBooks()
         {
-            
-            if (string.IsNullOrWhiteSpace(book.Name))
+            var books = await _context.Books
+                .Select(b => new BookDTO
+                {
+                    Id = b.BookId,
+                    Name = b.Name,
+                    CategoryId = b.CategoryId,
+                    AudienceId = b.AudienceId,
+                    AuthorId = b.AuthorId
+                })
+                .ToListAsync();
+
+            if (!books.Any())
             {
-                return BadRequest("The name is required.");
+                return NotFound("No books found.");
             }
-            if (book.Category==0)
-            {
-                return BadRequest("The Category is required.");
-            }
-            if (book.AudienceId==0)
-            {
-                return BadRequest("The Audience is required.");
-            }
-             if (book.AutherId==0)
-            {
-                return BadRequest("The Auther is required.");
-            }
-            // if (_context.Books.Any(b => b.Name == book.Name&&b.AuthorId == book.AuthorId))
-            // {
-            //     return CreateBookSession();
-            //     // return Conflict("A book with the same name already exists.");
-            // }
-            var newBook = new Book
-            {
-                BookId = Guid.NewGuid(),
-                Name = book.Name,
-                Category = book.Category,
-                AudienceId = book.AudienceId,
-                AutherId = book.AutherId,
-            };
-            _context.Books.Add(newBook);
-            await _context.SaveChangesAsync();
-            return Ok(newBook);
+
+            return Ok(books);
+        }
+        [HttpGet("by-name/{name}")]
+        public async Task<IActionResult> GetBookIdByName(string name)
+        {
+            var book = await _context.Books
+                .FirstOrDefaultAsync(b => b.Name == name);
+
+            if (book == null)
+                return NotFound();
+
+            return Ok(new { bookId = book.BookId });
         }
     }
 

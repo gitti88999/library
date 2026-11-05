@@ -1,47 +1,67 @@
-import React, { useEffect, useState } from "react";
-import './MyBooks.css'
-import { useDispatch, useSelector } from "react-redux";
-import { addBook, fetchPosts, type BooksState } from "./MyBooksSlice.ts";
-import type { AppDispatch, RootState } from "../../app/store.ts";
+import React, { useEffect, useState } from 'react';
+import {
+  Container,
+  Typography,
+  TextField,
+  Stack,
+  Card,
+  CardContent,
+} from '@mui/material';
 
-function MyBooks() {
-    const dispatch: AppDispatch = useDispatch<AppDispatch>();
-    const books: BooksState = useSelector((state: RootState) => state.myBooks);
+import { useDispatch, useSelector } from 'react-redux';
+import type { AppDispatch, RootState } from '../../app/store';
+import { fetchPosts } from './MyBooksSlice';
 
+const MyBooks: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
+  const booksState = useSelector((state: RootState) => state.myBooks);
+  const [query, setQuery] = useState('');
 
-    const [book, setBook] = useState({
-        name: "",
-        category: 1,
-        audienceId: 1,
-        autherId: 1
-    });
-    useEffect(() => {
-        dispatch(fetchPosts());
-    }, []);
+  // טעינה מהשרת פעם אחת
+  useEffect(() => {
+    dispatch(fetchPosts());
+  }, [dispatch]);
 
-    useEffect(() => {
+  // חיפוש בזמן אמת
+  const results = booksState.items.filter((book) =>
+  typeof book.book.name === "string" &&
+  book.book.name.toLowerCase().includes(query.toLowerCase())
+);
 
-    }, [books]);
-    const handleAddBook = () => {
+  return (
+    <Container maxWidth="md" sx={{ mt: 8 }}>
+      <Typography variant="h4" gutterBottom>
+        ספרים
+      </Typography>
 
-        dispatch(addBook(book));
-    };
+      <TextField
+        fullWidth
+        label="חפש ספר או מחבר"
+        variant="outlined"
+        value={query}
+        onChange={(e) => setQuery(e.target.value)}
+        sx={{ mb: 4 }}
+      />
 
-    return <>
-        <div>COLOBORATE LIBRARY!!!!!!!!!!!!!!</div>
-        <input
-            type="text"
-            placeholder="name"
-            value={book.name}
-            onChange={(e) =>
-                setBook({ ...book, name: e.target.value })
-            }
-        />
-        <button onClick={handleAddBook}>
-            Add Book
-        </button>
+      <Stack spacing={2}>
+        {results.map((book: any) => (
+          <Card key={book.id || book.CollaboratorId} sx={{ bgcolor: '#f5f5f5' }}>
+            <CardContent>
+              <Typography variant="h6">
+                {book.name}
+              </Typography>
+              <Typography color="text.secondary">
+                {book.autherId || book.AutherId || 'מחבר לא ידוע'}
+              </Typography>
+              <Typography color="text.secondary">
+                קטגוריה: {book.category || 'לא מוגדר'}
+              </Typography>
+            </CardContent>
+          </Card>
+        ))}
+      </Stack>
+    </Container>
+  );
+};
 
-    </>
-}
-export default MyBooks
-
+export default MyBooks;

@@ -1,33 +1,45 @@
-
 using Microsoft.EntityFrameworkCore;
 using LIBRARY.Models;
+
 namespace LIBRARY.Data
 {
-    
     public class LibraryContext : DbContext
     {
+        public LibraryContext(DbContextOptions<LibraryContext> options)
+            : base(options)
+        {
+        }
 
+        public DbSet<ArchivedUser> ArchivedUsers { get; set; }
         public DbSet<Book> Books { get; set; }
         public DbSet<Collaborator> Collaborators { get; set; }
         public DbSet<BookSession> BookSession { get; set; }
         public DbSet<Login> Logins { get; set; }
-        public DbSet<Audience> Auediences { get; set; }
+        public DbSet<Audience> Audiences { get; set; }
+        public DbSet<Author> Authors { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<BookSessionArchive> BookSessionArchive { get; set; }
         public DbSet<BookArchive> BookArchive { get; set; }
 
-
-        public LibraryContext(DbContextOptions<LibraryContext> options)
-            : base(options)
-
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-
+            modelBuilder.Entity<Audience>().HasData(
+                new Audience
+                {
+                    Id = Guid.Parse("11111111-1111-1111-1111-111111111111"),
+                    Name = "ילדים"
+                },
+                new Audience
+                {
+                    Id = Guid.Parse("22222222-2222-2222-2222-222222222222"),
+                    Name = "נוער"
+                },
+                new Audience
+                {
+                    Id = Guid.Parse("33333333-3333-3333-3333-333333333333"),
+                    Name = "מבוגרים"
+                }
+            );
         }
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            optionsBuilder.UseSqlServer("Server=localhost, 1434;Database=libraryDB;User Id=SA;Password=Frenkel4432!2026;MultipleActiveResultSets=true;TrustServerCertificate=True;"); // שנה את ה-connection string לפי הצורך
-        }
-        
-        
     }
 }
