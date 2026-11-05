@@ -14,6 +14,7 @@ import { DataGrid, type GridColDef } from "@mui/x-data-grid";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import type { AppDispatch, RootState } from "../app/store";
+import type { Audience, Author, BookDTO, Category } from "../types/book";
 
 import { getBooks } from "../slices/SearchSlice";
 import { getAudiences } from "../slices/AudienceSlice";
@@ -49,37 +50,36 @@ const Search: React.FC = () => {
 
   const audienceMap = useMemo(() => {
     const m: Record<string, string> = {};
-    audiences.forEach((a: any) => (m[a.id] = a.name));
+    audiences.forEach((audience: Audience) => (m[audience.id] = audience.name));
     return m;
   }, [audiences]);
 
   const categoryMap = useMemo(() => {
     const m: Record<string, string> = {};
-    categories.forEach((c: any) => (m[c.id] = c.name));
+    categories.forEach((category: Category) => (m[category.id] = category.name));
     return m;
   }, [categories]);
 
   const authorMap = useMemo(() => {
     const m: Record<string, string> = {};
-    authors.forEach((a: any) => (m[a.id] = a.name));
+    authors.forEach((author: Author) => (m[author.id] = author.name));
     return m;
   }, [authors]);
 
-  const results = safeBooks.filter((b: any) => {
-    const matchesSearch = (b.name ?? "")
+  const results = safeBooks.filter((book: BookDTO) => {
+    const matchesSearch = (book.name ?? "")
       .toLowerCase()
       .includes(searchTerm.toLowerCase());
 
     return (
       matchesSearch &&
-      (!selectedAudience || b.audienceId === selectedAudience) &&
-      (!selectedCategory || b.categoryId === selectedCategory) &&
-      (!selectedAuthor || b.authorId === selectedAuthor)
+      (!selectedAudience || book.audienceId === selectedAudience) &&
+      (!selectedCategory || book.categoryId === selectedCategory) &&
+      (!selectedAuthor || book.authorId === selectedAuthor)
     );
   });
 
-  // ✅ חשוב: משתמשים ב-ID שמגיע מהשרת
-  const rows = results.map((book: any) => ({
+  const rows = results.map((book) => ({
     id: book.id,
     name: book.name,
     category: categoryMap[book.categoryId] || "",
@@ -129,9 +129,9 @@ const Search: React.FC = () => {
           onChange={(e) => setSelectedAudience(e.target.value)}
         >
           <MenuItem value="">הכל</MenuItem>
-          {audiences.map((a: any) => (
-            <MenuItem key={a.id} value={a.id}>
-              {a.name}
+          {audiences.map((audience: Audience) => (
+            <MenuItem key={audience.id} value={audience.id}>
+              {audience.name}
             </MenuItem>
           ))}
         </TextField>
@@ -143,9 +143,9 @@ const Search: React.FC = () => {
           onChange={(e) => setSelectedCategory(e.target.value)}
         >
           <MenuItem value="">הכל</MenuItem>
-          {categories.map((c: any) => (
-            <MenuItem key={c.id} value={c.id}>
-              {c.name}
+          {categories.map((category: Category) => (
+            <MenuItem key={category.id} value={category.id}>
+              {category.name}
             </MenuItem>
           ))}
         </TextField>
@@ -157,9 +157,9 @@ const Search: React.FC = () => {
           onChange={(e) => setSelectedAuthor(e.target.value)}
         >
           <MenuItem value="">הכל</MenuItem>
-          {authors.map((a: any) => (
-            <MenuItem key={a.id} value={a.id}>
-              {a.name}
+          {authors.map((author: Author) => (
+            <MenuItem key={author.id} value={author.id}>
+              {author.name}
             </MenuItem>
           ))}
         </TextField>
@@ -188,7 +188,7 @@ const Search: React.FC = () => {
         <Stack spacing={2}>
           {results
             .filter(b => b.id != null)
-            .map((book: any) => (
+            .map((book) => (
               <Card key={book.id}>
                 <CardContent>
                   <Typography variant="h6">{book.name}</Typography>
@@ -220,4 +220,3 @@ const Search: React.FC = () => {
   );
 };
 export default Search;
-

@@ -1,5 +1,5 @@
-import React, { useState, useMemo, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import React, { useEffect, useMemo, useState } from "react";
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import { CacheProvider } from "@emotion/react";
 
@@ -15,21 +15,17 @@ import BorrowBook from "./Pages/BorrowBook";
 import Navbar from "./components/Home/NavBar";
 import ProtectedRoute from "./components/ProtectedRoute";
 import type { AppDispatch, RootState } from "./app/store";
-import Borrow from "./Pages/BorrowBook";
 import { fetchMe } from "./slices/UserSlice";
 import BookMap from "./Pages/BookMap";
-const App: React.FC = () => {
-  const user = useSelector(
-  (state: RootState) => state.myUser.currentUser
-);
-//    if (user?.id) {
-//     useLocationTracker(user.id);
-// }
 
-const dispatch = useDispatch<AppDispatch>();
-useEffect(() => {
-  dispatch(fetchMe());
-}, [dispatch]);
+const App: React.FC = () => {
+  const user = useSelector((state: RootState) => state.myUser.currentUser);
+  const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(() => {
+    dispatch(fetchMe());
+  }, [dispatch]);
+
   const isLoggedIn = !!user?.id;
 
   const [mode, setMode] = useState<"light" | "dark">(
@@ -59,10 +55,7 @@ useEffect(() => {
             <Routes>
               <Route path="/" element={<Home />} />
 
-              <Route
-                path="/login"
-                element={<Login />}
-              />
+              <Route path="/login" element={<Login />} />
 
               <Route path="/register" element={<Register />} />
 

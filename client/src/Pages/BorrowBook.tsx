@@ -19,7 +19,7 @@ const BorrowBook = () => {
   const { id } = useParams();
   const dispatch = useDispatch<AppDispatch>();
 
-  const { items, status, error } = useSelector(
+  const { items, status } = useSelector(
     (state: RootState) => state.lendings
   );
 
@@ -27,23 +27,30 @@ const BorrowBook = () => {
   const bookState = location.state?.book;
   const [selected, setSelected] = useState<string | null>(null);
   const user = useSelector((state: RootState) => state.myUser.currentUser);
-  const B = useSelector((state: RootState) => state.lendings);
+  const book = useSelector((state: RootState) =>
+    state.myBooks.items.find((item) => item.book?.id === id)
+  );
+
+  useEffect(() => {
+    if (!id || !user) return;
+
+    dispatch(
+      fetchNearbySessions({
+        bookId: id,
+        userLat: user.latitude,
+        userLng: user.longitude,
+      })
+    );
+  }, [id, dispatch, user?.latitude, user?.longitude]);
 
   if (!user) return null;
-  const userLocation = {
-    lat: user.latitude,
-    lng: user.longitude,
-  };
-  const book = useSelector((state: RootState) =>
-    state.myBooks.items.find(b => b.book?.id === id)
-  );
+
   const handleSelect = async (bookSessionId: string) => {
     setSelected(bookSessionId);
 
     try {
 
-      console.log(B)
-      const owner = B.items.find(x => x.bookSessionId === bookSessionId);
+      const owner = items.find((item) => item.bookSessionId === bookSessionId);
       await dispatch(
         requestBorrow({
           bookSessionId,
@@ -54,21 +61,10 @@ const BorrowBook = () => {
         })
       ).unwrap();
 
-      console.log("בקשה נשלחה בהצלחה");
     } catch (err) {
       console.error("שגיאה בשליחת בקשה", err);
     }
   };
-  useEffect(() => {
-    if (!id) return;
-    dispatch(
-      fetchNearbySessions({
-        bookId: id,
-        userLat: userLocation.lat,
-        userLng: userLocation.lng,
-      })
-    );
-  }, [id, dispatch]);
   return (
     <Container sx={{ mt: 8 }}>
       <Typography variant="h4" gutterBottom>
@@ -108,4 +104,3 @@ const BorrowBook = () => {
 };
 
 export default BorrowBook;
-

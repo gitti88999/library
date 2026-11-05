@@ -19,11 +19,24 @@ import {
 import Brightness4Icon from "@mui/icons-material/Brightness4";
 import Brightness7Icon from "@mui/icons-material/Brightness7";
 
-import { AppDispatch, RootState } from "../../app/store";
+import type { AppDispatch, RootState } from "../../app/store";
 import { reverseGeocode } from "../../services/geocode";
-// import { updateUser, deleteUser } from "../../slices/UserSlice";
 import { useDebounce } from "../../api";
-import { clearUser, deleteUser, updateUser } from "../../slices/UserSlice";
+import { deleteUser, updateUser } from "../../slices/UserSlice";
+
+interface NominatimPlace {
+  place_id: number;
+  lat: string;
+  lon: string;
+  display_name: string;
+  address?: {
+    city?: string;
+    town?: string;
+    village?: string;
+    road?: string;
+    house_number?: string;
+  };
+}
 
 interface Props {
   isLoggedIn: boolean;
@@ -54,12 +67,10 @@ const Navbar: React.FC<Props> = ({
     street: "",
     houseNumber: "",
   });
-const [name, setName] = useState("");
-const [password, setPassword] = useState("");
   const [coords, setCoords] = useState({ lat: 0, lng: 0 });
-const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<NominatimPlace[]>([]);
 
   const [confirmUpdateOpen, setConfirmUpdateOpen] = useState(false);
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
@@ -111,15 +122,15 @@ const [error, setError] = useState<string | null>(null);
         `https://nominatim.openstreetmap.org/search?format=json&addressdetails=1&limit=5&q=${debouncedQuery}`
       );
 
-      const data = await res.json();
+      const data = (await res.json()) as NominatimPlace[];
       setResults(data);
     };
 
     load();
   }, [debouncedQuery, editMode]);
 
-  const handleSelect = (place: any) => {
-    const a = place.address || {};
+  const handleSelect = (place: NominatimPlace) => {
+    const a = place.address ?? {};
 
     setCoords({
       lat: parseFloat(place.lat),
@@ -135,78 +146,54 @@ const [error, setError] = useState<string | null>(null);
     setResults([]);
   };
 
-  // const handleSave = async () => {
-  //   const reverse = await reverseGeocode(coords.lat, coords.lng);
-  //   if (user) {
-  //     dispatch(
-  //       updateUser({
-  //         id: user.id, data: {
-  //           Name: editData.name,
-  //           Email: editData.email,
-  //           Latitude: coords.lat,
-  //           Longitude: coords.lng,
-  //         }
-  //       })
-  //     );
-  //   }
-  //   handleClose();
-  // };
-const handleSave = async () => {
-  try {
-    const reverse = await reverseGeocode(coords.lat, coords.lng);
-
+  const handleSave = async () => {
     if (!user) return;
 
-    await dispatch(
-      updateUser({
-        id: user.id,
-        data: {
-          Name: editData.name,
-          Email: editData.email,
-          Latitude: coords.lat,
-          Longitude: coords.lng,
-        },
-      })
-    ).unwrap(); // חשוב כדי לזרוק שגיאה אמיתית
+    try {
+      await dispatch(
+        updateUser({
+          id: user.id,
+          data: {
+            Name: editData.name,
+            Email: editData.email,
+            Latitude: coords.lat,
+            Longitude: coords.lng,
+          },
+        })
+      ).unwrap();
 
-    setError(null);
-    handleClose();
-  } catch (err: any) {
-    const message =
-      err?.response?.data || "השם כבר קיים במערכת, יש לבחור שם אחר";
-
-    setError(message);
-
-    setTimeout(() => {
       setError(null);
-    }, 3000);
-  }
-};
- const navigate = useNavigate();
-
-const handleDelete = async () => {
-    console.log("DELETE CLICKED");
-
-    if (!user) {
-        console.error("User is not available");
-        return;
+      handleClose();
+    } catch (err: unknown) {
+      setError(
+        typeof err === "string"
+          ? err
+          : err instanceof Error
+            ? err.message
+            : "השם כבר קיים במערכת, יש לבחור שם אחר"
+      );
+      setTimeout(() => setError(null), 3000);
     }
+  };
+
+  const navigate = useNavigate();
+
+  const handleDelete = async () => {
+    if (!user) return;
 
     try {
-        const result = await deleteUser(user.id);
- dispatch(clearUser());
-
-        console.log("Delete success:", result);
-
-        navigate("/login");
-    } catch (error: any) {
-        if (error?.response) {
-            console.error("Server error:", error.response.data);
-        } else {
-            console.error("Network or unknown error:", error);
-        }
+      await dispatch(deleteUser(user.id)).unwrap();
+      navigate("/login");
+    } catch (err: unknown) {
+      setError(
+        typeof err === "string"
+          ? err
+          : err instanceof Error
+            ? err.message
+            : "שגיאה במחיקת משתמש"
+      );
     }
-};
+  };
 
   return (
     <>
@@ -331,14 +318,14 @@ const handleDelete = async () => {
                        
                         {results.length > 0 && (
                           <Box sx={{ maxHeight: 200, overflow: "auto", mb: 2 }}>
-                            {results.map((r, i) => (
+                            {results.map((place) => (
                               <Button
-                                key={i}
+                                key={place.place_id}
                                 fullWidth
-                                onClick={() => handleSelect(r)}
+                                onClick={() => handleSelect(place)}
                                 sx={{ justifyContent: "flex-end" }}
                               >
-                                {r.display_name}
+                                {place.display_name}
                               </Button>
                             ))}
                           </Box>

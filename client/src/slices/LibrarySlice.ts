@@ -1,30 +1,11 @@
-
-import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
-import { BookDTO, BookSessionDTO, BooksStatus } from "../types/book";
-import { RootState } from "../app/store";
+import type { RootState } from "../app/store";
+import { BooksStatus } from "../types/book";
+import type { BookSessionDTO } from "../types/book";
 
 const apiUrl: string = import.meta.env.VITE_API_URL;
 
-
-export const getMyBooks = createAsyncThunk(
-  "myBooks/getMyBooks",
-  async (_, thunkAPI) => {
-    const state = thunkAPI.getState() as RootState;
-    const userId = state.myUser.currentUser?.id;
-    if (!userId) throw new Error("User not logged in");
-    try {
-      const response = await axios.get<BookSessionDTO[]>(
-        `${apiUrl}/api/Collaborator/${userId}/booksessions`
-      );
-      return response.data;
-    } catch (err: any) {
-      return thunkAPI.rejectWithValue(
-        err?.response?.data ?? err?.message ?? "Failed to load books"
-      );
-    }
-  }
-);
 interface AddBookRequest {
   name: string;
   categoryId: string;
@@ -32,60 +13,95 @@ interface AddBookRequest {
   authorId: string;
   collaboratorId: string;
 }
-export const archiveAndDeleteBookSession = createAsyncThunk(
-  "myBooks/archiveAndDelete",
-  async (id: string, thunkAPI) => {
-    try {
-      const response = await axios.put(
-        `${apiUrl}/api/BookSession/${id}/archiveAndDelete`
-      );
 
-      return response.data;
-    } catch (err: any) {
-      return thunkAPI.rejectWithValue(
-        err.response?.data || "שגיאה במחיקת הספר"
-      );
-    }
-  }
-);
-export const addBook = createAsyncThunk(
-  "myBooks/addBook",
-  async (request: AddBookRequest, thunkAPI) => {
-    try {
-      const response = await axios.post(
-        `${apiUrl}/api/BookSession/add-with-session`,
-        request
-      );
-
-      return response.data;
-    } 
-    catch (err: any) {
-
-  return thunkAPI.rejectWithValue(
-    err.response?.data || "שגיאה בהוספת הספר"
-  );
+interface ToggleBookSessionResponse {
+  bookSessionId: string;
+  enabled: boolean;
+  status: string;
 }
 
+function getErrorMessage(error: unknown, fallback: string): string {
+  if (axios.isAxiosError(error)) {
+    const responseMessage = error.response?.data;
+    return typeof responseMessage === "string"
+      ? responseMessage
+      : error.message;
   }
-);
-export const toggleBookSessionStatus = createAsyncThunk(
-  "myBooks/toggleStatus",
-  async (sessionId: string, thunkAPI) => {
-    try {
-      const response = await axios.patch(
-        `${apiUrl}/api/BookSession/${sessionId}/toggle-status`
-      );
 
-      return response.data;
-    } catch (err: any) {
-      return thunkAPI.rejectWithValue(
-        err.response?.data || "שגיאה בעדכון סטטוס"
-      );
-    }
+  return error instanceof Error ? error.message : fallback;
+}
+
+export const getMyBooks = createAsyncThunk<
+  BookSessionDTO[],
+  void,
+  { state: RootState; rejectValue: string }
+>("myBooks/getMyBooks", async (_, thunkAPI) => {
+  const userId = thunkAPI.getState().myUser.currentUser?.id;
+  if (!userId) return thunkAPI.rejectWithValue("User not logged in");
+
+  try {
+    const response = await axios.get<BookSessionDTO[]>(
+      `${apiUrl}/api/Collaborator/${userId}/booksessions`
+    );
+    return response.data;
+  } catch (error: unknown) {
+    return thunkAPI.rejectWithValue(
+      getErrorMessage(error, "Failed to load books")
+    );
   }
-);
+});
+
+export const archiveAndDeleteBookSession = createAsyncThunk<
+  void,
+  string,
+  { rejectValue: string }
+>("myBooks/archiveAndDelete", async (id, thunkAPI) => {
+  try {
+    await axios.put(`${apiUrl}/api/BookSession/${id}/archiveAndDelete`);
+  } catch (error: unknown) {
+    return thunkAPI.rejectWithValue(
+      getErrorMessage(error, "שגיאה במחיקת הספר")
+    );
+  }
+});
+
+export const addBook = createAsyncThunk<
+  unknown,
+  AddBookRequest,
+  { rejectValue: string }
+>("myBooks/addBook", async (request, thunkAPI) => {
+  try {
+    const response = await axios.post(
+      `${apiUrl}/api/BookSession/add-with-session`,
+      request
+    );
+    return response.data;
+  } catch (error: unknown) {
+    return thunkAPI.rejectWithValue(
+      getErrorMessage(error, "שגיאה בהוספת הספר")
+    );
+  }
+});
+
+export const toggleBookSessionStatus = createAsyncThunk<
+  ToggleBookSessionResponse,
+  string,
+  { rejectValue: string }
+>("myBooks/toggleStatus", async (sessionId, thunkAPI) => {
+  try {
+    const response = await axios.patch<ToggleBookSessionResponse>(
+      `${apiUrl}/api/BookSession/${sessionId}/toggle-status`
+    );
+    return response.data;
+  } catch (error: unknown) {
+    return thunkAPI.rejectWithValue(
+      getErrorMessage(error, "שגיאה בעדכון סטטוס")
+    );
+  }
+});
+
 export interface BooksState {
-  items: BookSessionDTO[] ;
+  items: BookSessionDTO[];
   status: BooksStatus;
   error: string | null;
 }
@@ -99,9 +115,11 @@ const initialState: BooksState = {
 const myBooksSlice = createSlice({
   name: "myBooks",
   initialState,
-  reducers: {clearBooks: (state) => {
+  reducers: {
+    clearBooks: (state) => {
       state.items = [];
-    },},
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(getMyBooks.pending, (state) => {
@@ -109,51 +127,45 @@ const myBooksSlice = createSlice({
       })
       .addCase(getMyBooks.fulfilled, (state, action) => {
         state.status = BooksStatus.Succeeded;
-        state.items = action.payload; 
+        state.items = action.payload;
+        state.error = null;
       })
       .addCase(getMyBooks.rejected, (state, action) => {
         state.status = BooksStatus.Failed;
-        // state.error = action.error.message || "Failed to load books";
+        state.error = action.payload ?? action.error.message ?? null;
       })
       .addCase(toggleBookSessionStatus.fulfilled, (state, action) => {
-      const updated = action.payload;
-console.log(state.items);
-console.log(updated);
-      const index = state.items.findIndex(
-  (x) =>
-    x?.book?.id === updated?.book?.id &&
-    x?.book?.collaboratorId === updated?.book?.collaboratorId
-);
-      if (index !== -1) {
-      state.items[index] = updated;
-    }
-})
-.addCase(toggleBookSessionStatus .rejected, (state, action) => {
-  state.error = action.payload as string;
-})
+        const session = state.items.find(
+          (item) => item.bookSessionId === action.payload.bookSessionId
+        );
+
+        if (session) {
+          session.enabled = action.payload.enabled;
+          session.status = action.payload.status;
+        }
+      })
+      .addCase(toggleBookSessionStatus.rejected, (state, action) => {
+        state.error = action.payload ?? action.error.message ?? null;
+      })
       .addCase(addBook.pending, (state) => {
         state.status = BooksStatus.Loading;
       })
-      .addCase(addBook.fulfilled, (state, action: PayloadAction<BookSessionDTO>) => {
+      .addCase(addBook.fulfilled, (state) => {
         state.status = BooksStatus.Succeeded;
-        // Push the new book to the list immediately
-        // state.items?.push(action.payload);
       })
       .addCase(addBook.rejected, (state, action) => {
-        // state.status = "failed";
-        // state.error = action.error.message || "Failed to add book";
-          state.error = action.payload as string;
-
+        state.error = action.payload ?? action.error.message ?? null;
       })
       .addCase(archiveAndDeleteBookSession.fulfilled, (state, action) => {
-      state.items = state.items.filter(
-      (x: any) => x.id !== action.meta.arg
+        state.items = state.items.filter(
+          (item) => item.bookSessionId !== action.meta.arg
         );
       })
-    .addCase(archiveAndDeleteBookSession.rejected, (state, action) => {
-      state.error = action.payload as string;
-    })
+      .addCase(archiveAndDeleteBookSession.rejected, (state, action) => {
+        state.error = action.payload ?? action.error.message ?? null;
+      });
   },
 });
 
+export const { clearBooks } = myBooksSlice.actions;
 export default myBooksSlice.reducer;

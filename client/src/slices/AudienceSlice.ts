@@ -33,9 +33,9 @@ const audiencesSlice = createSlice({
         state.status = "loading";
       })
       .addCase(getAudiences.fulfilled, (state, action) => {
-    state.status = "succeeded";
-    state.items = action.payload;
-})
+        state.status = "succeeded";
+        state.items = action.payload;
+      })
       .addCase(getAudiences.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.error.message;
