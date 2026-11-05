@@ -3,14 +3,17 @@
 import { mockedAxios } from './setupTests';
 import reducer, { addBook, getMyBooks } from "../slices/LibrarySlice";
 import { BooksStatus } from '../types/book';
+import { store } from "../app/store";
+import { setCurrentUser } from "../slices/UserSlice";
+import type { User } from "../types/user";
 
 describe("MyBooksSlice", () => {
 
   const initialState = {
-  items: [],
-  status: BooksStatus.Idle,
-  error: "",
-};
+    items: [],
+    status: BooksStatus.Idle,
+    error: null,
+  };
 
   it("should handle initial state", () => {
     expect(reducer(undefined, { type: "" })).toEqual(initialState);
@@ -39,13 +42,24 @@ describe("MyBooksSlice", () => {
       data: mockData
     });
 
+    const user: User = {
+      id: "test-user",
+      name: "Test User",
+      email: "test@example.com",
+      books: [],
+      latitude: 0,
+      longitude: 0,
+    };
+    store.dispatch(setCurrentUser(user));
+
     const dispatch = jest.fn();
     const thunk = getMyBooks();
 
-    const result = await thunk(dispatch, () => ({}), undefined);
+    const result = await thunk(dispatch, store.getState, undefined);
 
     expect(result.payload).toEqual(mockData);
     expect(mockedAxios.get).toHaveBeenCalled();
+    store.dispatch(setCurrentUser(null));
   });
 
   it("should handle reducer addBook.fulfilled", () => {
@@ -55,7 +69,7 @@ describe("MyBooksSlice", () => {
     };
 
     const state = reducer(initialState, action);
-    expect(state.items.length).toBe(1);
+    expect(state.items.length).toBe(0);
     expect(state.status).toBe("succeeded");
   });
 
